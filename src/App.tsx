@@ -503,6 +503,14 @@ export default function App() {
     const { error } = await supabase.from('products').update({ is_active: !is_active, updated_at: new Date().toISOString() }).eq('id', id)
     if (error) { setAdminNotice(error.message); return }
     setAdminProducts((items) => items.map((item) => item.id === id ? { ...item, is_active: !is_active } : item))
+    if (is_active) {
+      setCatalogProducts((items) => items.filter((item) => item.id !== id))
+      if (active.id === id) { setPage('store'); window.history.replaceState({}, '', '/shop') }
+    } else {
+      const base = PRODUCTS.find((item) => item.id === id)
+      const current = adminProducts.find((item) => item.id === id)
+      if (base) setCatalogProducts((items) => [...items.filter((item) => item.id !== id), { ...base, price: current?.price ?? 0 }])
+    }
   }
 
   const updateAdminOrder = async (order_number: string, status: string) => {
