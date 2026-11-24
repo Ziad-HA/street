@@ -453,7 +453,7 @@ export default function App() {
         </section>
       )}
 
-      {header()}
+      {page !== 'intro' && page !== 'hero' && header()}
 
       {page === 'store' && (
         <main className="store shop-page">
