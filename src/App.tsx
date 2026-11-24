@@ -595,8 +595,12 @@ export default function App() {
                 <div><small>STREET / STYLE THE PIECE</small><h2>COMPLETE YOUR OUTFIT<span>.</span></h2></div>
                 <p>MAKE THE LOOK YOURS — EXPLORE PIECES THAT WORK TOGETHER.</p>
               </div>
-              <div className="complete-outfit-grid">
-                {outfitProducts.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, outfitProducts.length, false)}</Fragment>)}
+              <div className="complete-outfit-marquee">
+                <div className="complete-outfit-track">
+                  {[...outfitProducts, ...outfitProducts].map((p, i) => (
+                    <Fragment key={`${p.id}-outfit-${i}`}>{card(p, (i % outfitProducts.length) + 1, outfitProducts.length, false)}</Fragment>
+                  ))}
+                </div>
               </div>
             </section>
           )}
