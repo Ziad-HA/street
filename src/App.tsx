@@ -401,6 +401,34 @@ export default function App() {
   const [trackCode, setTrackCode] = useState('')
   const [trackNotice, setTrackNotice] = useState('')
   const [trackResult, setTrackResult] = useState<{order_number:string;status:string;created_at:string;total:number}|null>(null)
+  const [checkoutEmail, setCheckoutEmail] = useState('')
+  const [checkoutName, setCheckoutName] = useState('')
+  const [checkoutPhone, setCheckoutPhone] = useState('')
+  const [checkoutAddress, setCheckoutAddress] = useState('')
+  const [checkoutCity, setCheckoutCity] = useState('')
+  const [checkoutNotes, setCheckoutNotes] = useState('')
+  const [checkoutShipping, setCheckoutShipping] = useState<number | null>(null)
+  const [checkoutCoupon, setCheckoutCoupon] = useState('')
+  const [checkoutCouponCode, setCheckoutCouponCode] = useState('')
+  const [checkoutDiscount, setCheckoutDiscount] = useState(0)
+  const [checkoutNotice, setCheckoutNotice] = useState('')
+  const [checkoutBusy, setCheckoutBusy] = useState(false)
+  const [orderSuccess, setOrderSuccess] = useState<{order_number:string;total:number}|null>(null)
+  const [productReviews, setProductReviews] = useState<Array<{id:string;rating:number;title:string;body:string;created_at:string;user_id:string}>>([])
+  const [reviewOrderNumber, setReviewOrderNumber] = useState('')
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewTitle, setReviewTitle] = useState('')
+  const [reviewBody, setReviewBody] = useState('')
+  const [reviewNotice, setReviewNotice] = useState('')
+  const [adminCoupons, setAdminCoupons] = useState<Array<{id:string;code:string;discount_type:'percent'|'fixed';discount_value:number;min_subtotal:number;max_discount:number|null;usage_limit:number|null;per_user_limit:number;used_count:number;is_active:boolean;expires_at:string|null}>>([])
+  const [adminReviews, setAdminReviews] = useState<Array<{id:string;product_id:string;rating:number;title:string;body:string;status:string;created_at:string}>>([])
+  const [adminShippingDraft, setAdminShippingDraft] = useState('')
+  const [newCouponCode, setNewCouponCode] = useState('')
+  const [newCouponType, setNewCouponType] = useState<'percent'|'fixed'>('percent')
+  const [newCouponValue, setNewCouponValue] = useState('10')
+  const [newCouponMin, setNewCouponMin] = useState('0')
+  const [newCouponLimit, setNewCouponLimit] = useState('')
+  const [newCouponExpiry, setNewCouponExpiry] = useState('')
   const [outfitBottom, setOutfitBottom] = useState(catalogProducts.find((p) => p.category === 'PANTS')?.id ?? '')
   const [outfitTop, setOutfitTop] = useState(catalogProducts.find((p) => p.category === 'HOODIES')?.id ?? '')
   const [accountMode, setAccountMode] = useState<'signin'|'signup'>('signin')
@@ -426,6 +454,36 @@ export default function App() {
   const [newProductCategory, setNewProductCategory] = useState<Category>('PANTS')
   const [newProductPrice, setNewProductPrice] = useState('')
 
+
+  useEffect(() => {
+    if (page !== 'checkout') return
+    let alive = true
+    const loadCheckoutSession = async () => {
+      const [{ data: { user } }, { data: setting }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from('store_settings').select('value').eq('key','shipping_fee').maybeSingle(),
+      ])
+      if (!alive) return
+      setCheckoutEmail(user?.email ?? '')
+      const fullName = user?.user_metadata?.full_name
+      if (typeof fullName === 'string') setCheckoutName(fullName)
+      const value = setting?.value
+      setCheckoutShipping(value === null || value === undefined ? null : Number(value))
+    }
+    void loadCheckoutSession()
+    return () => { alive = false }
+  }, [page])
+
+  useEffect(() => {
+    if (page !== 'product' || !active.id) return
+    let alive = true
+    const loadReviews = async () => {
+      const { data } = await supabase.from('product_reviews').select('id,rating,title,body,created_at,user_id').eq('product_id',active.id).eq('status','approved').order('created_at',{ascending:false}).limit(30)
+      if (alive) setProductReviews(data ?? [])
+    }
+    void loadReviews()
+    return () => { alive = false }
+  }, [page, active.id])
 
   useEffect(() => {
     if (page !== 'account') return
@@ -501,6 +559,16 @@ export default function App() {
         if (alive) setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)])))
         const { data: customers } = await supabase.from('profiles').select('email,full_name,created_at').order('created_at', { ascending: false }).limit(50)
         if (alive) setAdminCustomers(customers ?? [])
+        const [{ data: coupons }, { data: reviews }, { data: shipping }] = await Promise.all([
+          supabase.from('coupons').select('id,code,discount_type,discount_value,min_subtotal,max_discount,usage_limit,per_user_limit,used_count,is_active,expires_at').order('created_at',{ascending:false}),
+          supabase.from('product_reviews').select('id,product_id,rating,title,body,status,created_at').order('created_at',{ascending:false}).limit(100),
+          supabase.from('store_settings').select('value').eq('key','shipping_fee').maybeSingle(),
+        ])
+        if (alive) {
+          setAdminCoupons(coupons ?? [])
+          setAdminReviews(reviews ?? [])
+          setAdminShippingDraft(shipping?.value == null ? '' : String(shipping.value))
+        }
       }
     }
     void loadAdmin()
@@ -534,6 +602,14 @@ export default function App() {
     setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)])))
     setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)])))
     setAdminCustomers(customers ?? [])
+    const [{ data: coupons }, { data: reviews }, { data: shipping }] = await Promise.all([
+      supabase.from('coupons').select('id,code,discount_type,discount_value,min_subtotal,max_discount,usage_limit,per_user_limit,used_count,is_active,expires_at').order('created_at',{ascending:false}),
+      supabase.from('product_reviews').select('id,product_id,rating,title,body,status,created_at').order('created_at',{ascending:false}).limit(100),
+      supabase.from('store_settings').select('value').eq('key','shipping_fee').maybeSingle(),
+    ])
+    setAdminCoupons(coupons ?? [])
+    setAdminReviews(reviews ?? [])
+    setAdminShippingDraft(shipping?.value == null ? '' : String(shipping.value))
   }
 
   const showQuickView = (product: Product) => {
@@ -693,6 +769,95 @@ export default function App() {
     setAdminExportNotice('ORDERS CSV EXPORTED.')
   }
 
+  const applyCheckoutCoupon = async () => {
+    if (!checkoutCoupon.trim()) { setCheckoutCouponCode(''); setCheckoutDiscount(0); setCheckoutNotice('COUPON REMOVED.'); return }
+    const { data, error } = await supabase.rpc('validate_street_coupon', { p_code: checkoutCoupon.trim(), p_subtotal: subtotal })
+    if (error || !data?.valid) { setCheckoutCouponCode(''); setCheckoutDiscount(0); setCheckoutNotice(data?.message ?? error?.message ?? 'COUPON COULD NOT BE VALIDATED.'); return }
+    setCheckoutCouponCode(data.code)
+    setCheckoutDiscount(Number(data.discount) || 0)
+    setCheckoutNotice(data.message ?? 'COUPON APPLIED.')
+  }
+
+  const submitCheckout = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (checkoutBusy || !cart.length) return
+    setCheckoutBusy(true)
+    setCheckoutNotice('VALIDATING YOUR ORDER…')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setCheckoutBusy(false); setCheckoutNotice('SIGN IN TO YOUR ACCOUNT BEFORE CHECKOUT.'); return }
+    const { data, error } = await supabase.rpc('create_street_order', {
+      p_customer: { full_name: checkoutName, phone: checkoutPhone, address: checkoutAddress, city: checkoutCity, notes: checkoutNotes },
+      p_items: cart.map((item) => ({ product_id: item.product.id, size: item.size, quantity: item.qty })),
+      p_coupon_code: checkoutCouponCode || null,
+    })
+    setCheckoutBusy(false)
+    if (error || !data?.order_number) { setCheckoutNotice(error?.message ?? 'ORDER COULD NOT BE CREATED.'); return }
+    setOrderSuccess({ order_number: data.order_number, total: Number(data.total) })
+    setCart([])
+    setCheckoutCoupon('')
+    setCheckoutCouponCode('')
+    setCheckoutDiscount(0)
+    setCheckoutNotice('ORDER PLACED. PAYMENT IS CASH ON DELIVERY.')
+  }
+
+  const submitProductReview = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setReviewNotice('SUBMITTING REVIEW…')
+    const { data, error } = await supabase.rpc('submit_street_review', {
+      p_order_number: reviewOrderNumber.trim(),
+      p_product_id: active.id,
+      p_rating: reviewRating,
+      p_title: reviewTitle.trim(),
+      p_body: reviewBody.trim(),
+    })
+    if (error) { setReviewNotice(error.message); return }
+    setReviewNotice(data?.message ?? 'REVIEW SUBMITTED FOR MODERATION.')
+    setReviewOrderNumber('')
+    setReviewTitle('')
+    setReviewBody('')
+  }
+
+  const createAdminCoupon = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const code = newCouponCode.trim().toUpperCase()
+    const value = Number(newCouponValue)
+    const min = Number(newCouponMin || 0)
+    const limit = newCouponLimit.trim() ? Number(newCouponLimit) : null
+    if (!/^[A-Z0-9_-]{3,32}$/.test(code) || !Number.isFinite(value) || value <= 0 || (newCouponType === 'percent' && value > 100) || !Number.isFinite(min) || min < 0 || (limit !== null && (!Number.isInteger(limit) || limit < 1))) {
+      setAdminNotice('CHECK COUPON CODE, VALUE, MINIMUM AND USAGE LIMIT.')
+      return
+    }
+    const { data, error } = await supabase.from('coupons').insert({
+      code, discount_type: newCouponType, discount_value: value, min_subtotal: min,
+      usage_limit: limit, per_user_limit: 1, expires_at: newCouponExpiry ? new Date(newCouponExpiry).toISOString() : null,
+    }).select('id,code,discount_type,discount_value,min_subtotal,max_discount,usage_limit,per_user_limit,used_count,is_active,expires_at').single()
+    if (error || !data) { setAdminNotice(error?.message ?? 'COUPON COULD NOT BE CREATED.'); return }
+    setAdminCoupons((items) => [data, ...items])
+    setNewCouponCode('')
+    setAdminNotice('COUPON CREATED.')
+  }
+
+  const toggleAdminCoupon = async (id: string, active: boolean) => {
+    const { error } = await supabase.from('coupons').update({ is_active: !active }).eq('id',id)
+    if (error) { setAdminNotice(error.message); return }
+    setAdminCoupons((items) => items.map((item) => item.id === id ? { ...item, is_active: !active } : item))
+  }
+
+  const moderateReview = async (id: string, status: 'approved'|'rejected') => {
+    const { error } = await supabase.from('product_reviews').update({ status, updated_at: new Date().toISOString() }).eq('id',id)
+    if (error) { setAdminNotice(error.message); return }
+    setAdminReviews((items) => items.map((item) => item.id === id ? { ...item, status } : item))
+  }
+
+  const saveAdminShipping = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const fee = Number(adminShippingDraft)
+    if (adminShippingDraft.trim() === '' || !Number.isFinite(fee) || fee < 0) { setAdminNotice('ENTER A VALID DELIVERY FEE.'); return }
+    const { error } = await supabase.from('store_settings').upsert({ key: 'shipping_fee', value: fee, updated_at: new Date().toISOString() })
+    if (error) { setAdminNotice(error.message); return }
+    setAdminNotice('DELIVERY FEE SAVED.')
+  }
+
   const updateAdminOrder = async (order_number: string, status: string) => {
     const { error } = await supabase.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('order_number', order_number)
     if (error) { setAdminNotice(error.message); return }
@@ -701,6 +866,8 @@ export default function App() {
 
   const cartCount = cart.reduce((n, i) => n + i.qty, 0)
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
+  const checkoutTotal = Math.max(0, subtotal - checkoutDiscount) + (checkoutShipping ?? 0)
+  const averageRating = productReviews.length ? productReviews.reduce((sum, review) => sum + review.rating, 0) / productReviews.length : 0
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? catalogProducts.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : catalogProducts.slice(0, 4)
