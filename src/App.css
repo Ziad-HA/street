@@ -39,8 +39,8 @@ svg.intro-logo{width:min(440px,70vw);height:auto}
 .scene-dots{position:absolute;top:22px;right:24px;display:flex;gap:6px;z-index:10}
 .scene-dots button{width:4px;height:4px;border-radius:50%;background:#fff6;transition:.3s}
 .scene-dots button.on{background:#fff;transform:scale(1.5)}
-.enter{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);z-index:10;color:#fff;font-size:10px;letter-spacing:.3em;border:1px solid #fff8;padding:11px 22px;backdrop-filter:blur(6px);transition:.25s}
-.enter:hover{background:#fff;color:#000}
+.enter{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);z-index:10;color:#fff;font-size:10px;font-weight:600;letter-spacing:.3em;border:1px solid #fff;padding:11px 22px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);text-shadow:0 1px 8px #0008;box-shadow:0 4px 24px #0005;transition:background .25s,border-color .25s,box-shadow .25s}
+.enter:hover{background:#fff;color:#000;box-shadow:0 5px 28px #fff3}
 
 /* menu */
 .menu{position:fixed;inset:0;z-index:150;background:#0b0f14aa;backdrop-filter:blur(26px);color:#fff;opacity:0;pointer-events:none;transition:opacity .45s}
