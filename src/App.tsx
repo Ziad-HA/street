@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Logo3D } from './Logo3D'
-import type { Pose } from './Logo3D'
 import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
 import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
 import { CATEGORIES, PRODUCTS, SIZES } from './data'
@@ -24,12 +23,6 @@ const NAV: { label: string; page: Page }[] = [
   { label: 'CONTACT', page: 'contact' },
 ]
 
-const POSES: Pose[] = [
-  { rx: 0, ry: 0, rz: 0, s: 1.15, x: 0, y: 0.1 },
-  { rx: 0.2, ry: -0.9, rz: 0.15, s: 1.3, x: 0.6, y: 0.3 },
-  { rx: 0.9, ry: 0.8, rz: 0.3, s: 1.0, x: -0.4, y: -0.2 },
-  { rx: 0.1, ry: 1.5, rz: -0.1, s: 0.9, x: 0, y: 0 },
-]
 const SCENE_BG = [
   'linear-gradient(#a9c8e8 0%, #d7e6f0 45%, #5e8f3d 46%, #3f7a26 100%)',
   'linear-gradient(#7fb0e0 0%, #cfe0ee 48%, #5a8c3a 49%, #3a7022 100%)',
@@ -109,7 +102,10 @@ const Socials = () => (
 function readStored<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback } catch { return fallback } }
 
 export default function App() {
-  const [page, setPage] = useState<Page>('intro')
+  const [page, setPage] = useState<Page>(() => {
+    try { return sessionStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' }
+    catch { return 'intro' }
+  })
   const [scene, setScene] = useState(0)
   const [menu, setMenu] = useState(false)
   const [search, setSearch] = useState(false)
@@ -138,6 +134,11 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
+
+  // Show the brand intro only once per browser tab session.
+  useEffect(() => {
+    try { sessionStorage.setItem('street-intro-seen-v1', '1') } catch { /* storage may be unavailable */ }
+  }, [])
 
   // intro -> hero
   useEffect(() => {
@@ -188,6 +189,7 @@ export default function App() {
     setSearch(false)
     setCartOpen(false)
     pending.current = anchor
+    if (p === 'hero') setScene(0)
     setPage(p)
     window.scrollTo(0, 0)
     requestAnimationFrame(() => {
