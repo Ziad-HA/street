@@ -459,6 +459,12 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 .edit-card:nth-child(4) .edit-card-art{background:radial-gradient(circle at 30% 22%,#a3b3c2 0,#4c5c68 28%,#10161d 72%)}
 .edit-card:nth-child(5) .edit-card-art{background:radial-gradient(circle at 75% 30%,#c5bda9 0,#625e54 25%,#111 70%)}
 .edit-card:nth-child(6) .edit-card-art{background:radial-gradient(circle at 30% 20%,#a7a7a7 0,#51565d 30%,#101317 72%)}
+.edit-card-products{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,22px);padding:34px 8%;opacity:.88}
+.edit-card-product-image{position:relative;width:27%;height:66%;background-size:cover;background-position:center;filter:grayscale(1);border:1px solid #ffffff28;transform:rotate(-5deg);box-shadow:0 16px 38px #0008;transition:transform .45s,filter .45s}
+.edit-card-product-image:nth-child(2){transform:translateY(-10px) rotate(3deg)}
+.edit-card-product-image:nth-child(3){transform:rotate(7deg)}
+.edit-card:hover .edit-card-product-image{filter:grayscale(.25);transform:translateY(-8px) rotate(0deg)}
+.edit-card-art>b{position:relative;text-shadow:0 2px 18px #000b}
 .edit-card-art:before{content:"";position:absolute;inset:10%;border:1px solid #ffffff30;transform:rotate(-8deg);transition:transform .5s}
 .edit-card:hover .edit-card-art:before{transform:rotate(2deg) scale(1.06)}
 .edit-card-art>span{position:absolute;top:16px;left:18px;font-size:7px;letter-spacing:.18em;color:#ffffffa8}
