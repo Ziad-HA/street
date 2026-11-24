@@ -268,3 +268,62 @@ body.dark .scrim{background:#000c}
 .sh-btns{display:flex;gap:8px}
 .sh-btns .solid,.sh-btns .outline{width:auto;margin:0;padding:12px 22px}
 .sh-scroll{position:absolute;right:24px;bottom:22px;font-size:7px;letter-spacing:.3em;writing-mode:vertical-rl;color:#555}
+
+
+/* Multi-page editorial experience */
+.page-kicker{font-size:8px;letter-spacing:.16em;color:var(--mut);padding-top:28px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.journal-intro{padding:78px 0 62px;max-width:780px}
+.journal-intro h1,.contact-layout h1,.track-panel h1,.wishlist-heading h1{font-size:clamp(58px,10vw,132px);line-height:.82;letter-spacing:-.075em;font-weight:800;margin:18px 0}
+.journal-intro p,.contact-layout p,.track-panel>p{font-size:12px;line-height:1.8;color:var(--mut);max-width:420px}
+.journal-feature{display:grid;grid-template-columns:1.15fr .85fr;min-height:480px;background:var(--chip);margin-bottom:90px}
+.journal-feature-image{position:relative;min-height:420px;background:linear-gradient(135deg,#b6b6b6,#5b5b5b 52%,#202020);overflow:hidden}
+.journal-feature-image:after{content:"";position:absolute;inset:12% 18%;border:1px solid #ffffff55;transform:rotate(-12deg)}
+.journal-feature-image span,.journal-tile span{position:absolute;left:20px;top:20px;color:#fff;font-size:8px;letter-spacing:.16em;z-index:1}
+.journal-feature-copy{padding:clamp(26px,5vw,70px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.journal-feature-copy h2{font-size:clamp(38px,5vw,68px);line-height:.9;letter-spacing:-.06em;margin:18px 0}
+.journal-feature-copy p,.journal-grid p{font-size:10px;line-height:1.8;color:var(--mut);max-width:360px}
+.text-link{font-size:8px;letter-spacing:.1em;border-bottom:1px solid var(--fg);padding:12px 0;margin-top:24px}
+.journal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:80px}
+.journal-tile{height:300px;position:relative;overflow:hidden;background:linear-gradient(145deg,#bcbcbc,#555 55%,#191919)}
+.tile-two{background:linear-gradient(35deg,#171717,#888 50%,#c6c6c6)}
+.tile-three{background:linear-gradient(125deg,#d0d0d0,#777 48%,#242424)}
+.journal-grid article>small{display:block;margin-top:18px}
+.journal-grid h3{font-size:18px;letter-spacing:-.04em;margin:8px 0}
+.contact-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:10%;padding:90px 0 110px}
+.contact-layout h1{font-size:clamp(76px,12vw,150px)}
+.contact-layout p{margin:28px 0}
+.contact-email{font-size:10px;letter-spacing:.12em;border-bottom:1px solid var(--fg);padding-bottom:8px}
+.contact-details{padding-top:26px}
+.contact-details>div{padding:24px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.contact-details small,.contact-bottom span{font-size:8px;letter-spacing:.13em;color:var(--mut)}
+.contact-details b{font-size:14px;font-weight:500}
+.contact-details a,.contact-details span{font-size:9px;letter-spacing:.08em}
+.contact-bottom{display:flex;justify-content:space-between;gap:16px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:9px}
+.wishlist-heading{display:flex;align-items:flex-end;justify-content:space-between;padding:58px 0 36px}
+.wishlist-heading h1{font-size:clamp(60px,9vw,112px);margin-bottom:0}
+.wishlist-heading>span{font-size:8px;color:var(--mut);letter-spacing:.12em;padding-bottom:8px}
+.wishlist-empty{text-align:center;padding:100px 20px}
+.wishlist-empty h2{font-size:34px;letter-spacing:-.05em}
+.wishlist-empty p{font-size:11px;color:var(--mut);margin:12px 0 24px}
+.wishlist-empty .solid{max-width:220px;margin:auto}
+.track-panel{max-width:640px;margin:100px auto 130px}
+.track-panel h1{font-size:clamp(68px,10vw,118px)}
+.track-panel form{display:grid;grid-template-columns:1fr 190px;gap:10px;margin:34px 0 16px}
+.track-panel form label{grid-column:1/-1;font-size:8px;letter-spacing:.12em}
+.track-panel input{min-width:0;border:1px solid var(--line);background:var(--chip);padding:15px;color:var(--fg);font:inherit;font-size:11px}
+.track-panel form .solid{width:auto}
+.track-notice{grid-column:1/-1;font-size:10px;color:var(--mut);line-height:1.6}
+.track-panel>a{font-size:8px;letter-spacing:.1em;border-bottom:1px solid var(--line);padding-bottom:5px}
+@media(max-width:760px){
+ .journal-feature,.contact-layout{grid-template-columns:1fr}
+ .journal-feature-image{min-height:300px}
+ .journal-grid{grid-template-columns:1fr;gap:34px}
+ .journal-tile{height:360px}
+ .contact-layout{gap:30px;padding:60px 0}
+ .contact-bottom{flex-wrap:wrap}
+ .track-panel{margin:65px auto 90px}
+ .track-panel form{grid-template-columns:1fr}
+ .track-panel form label{grid-column:auto}
+ .track-panel form .solid{width:100%}
+ .wishlist-heading{align-items:flex-start;flex-direction:column;gap:14px}
+}
