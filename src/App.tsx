@@ -284,7 +284,7 @@ export default function App() {
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.filter((p) => p.category === 'ACCESSORIES' || p.id === 'crew-sock').slice(0, 4)
+    return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.slice(0, 4)
   }, [query])
 
   const dateStr = now
@@ -457,7 +457,7 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>01 — 02 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>01 — 02 / CATEGORIES</span><span>011 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
           <div className="demo-notice"><b>CATALOGUE PREVIEW</b><span>All listings, photos and prices are temporary visual examples — not real stock and not available to purchase.</span></div>
           <section className="shop-categories">
@@ -494,12 +494,8 @@ export default function App() {
           </section>
           <section className="edit-grid">
             {[
-              {no:'01',name:'THE CORE',desc:'Everyday foundations. Clean shapes, easy rotation.',cat:'TOPS',meta:'TOPS'},
-              {no:'02',name:'AFTER HOURS',desc:'Layer up. Heavier silhouettes for a different pace.',cat:'LAYERING',meta:'LAYERING'},
-              {no:'03',name:'UTILITY MODE',desc:'Functional shapes with a utilitarian edge.',cat:'BOTTOMS',meta:'BOTTOMS'},
-              {no:'04',name:'DENIM STUDY',desc:'The everyday essential, reworked through proportion.',cat:'BOTTOMS',meta:'BOTTOMS'},
-              {no:'05',name:'OBJECTS',desc:'The finishing details that complete the rotation.',cat:'ACCESSORIES',meta:'ACCESSORIES'},
-              {no:'06',name:'TEXTURE LAB',desc:'A closer look at texture, structure and material.',cat:'TOPS',meta:'TOPS'},
+              {no:'01',name:'THE PANTS EDIT',desc:'Relaxed fits, denim and everyday utility trousers.',cat:'BOTTOMS',meta:'PANTS'},
+              {no:'02',name:'THE HOODIE EDIT',desc:'Heavyweight hoodies and zip-ups for everyday rotation.',cat:'LAYERING',meta:'HOODIES'},
             ].map((edit) => (
               <button className="edit-card" key={edit.no} onClick={() => openCollection(edit.cat as Category)}>
                 <div className="edit-card-art"><span>STREET / EDIT {edit.no}</span><b>{edit.name}</b><i>↗</i></div>
