@@ -1617,3 +1617,80 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .street-footer .street-legal-nav button{font-size:7px;line-height:1.45}
  .street-footer .footer-legal-bottom>small{font-size:6px}
 }
+
+
+/* Footer support block: clearer hierarchy and stronger link contrast */
+.street-footer-main .street-footer-column:first-child{
+  position:relative;
+  gap:14px;
+  padding:20px 20px 18px;
+  border:1px solid var(--line);
+  border-top:2px solid var(--accent);
+  background:var(--chip);
+  min-height:142px;
+}
+.street-footer-main .street-footer-column:first-child h3{
+  font-size:clamp(12px,1.1vw,15px);
+  line-height:1.25;
+  letter-spacing:.075em;
+  margin:0 0 4px;
+  color:var(--fg);
+}
+.street-footer-main .street-footer-column:first-child button{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  min-height:30px;
+  padding:5px 0;
+  border-bottom:1px solid var(--line);
+  color:var(--fg);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.045em;
+}
+.street-footer-main .street-footer-column:first-child button::after{
+  content:"↗";
+  color:var(--accent);
+  font-size:13px;
+  margin-left:12px;
+}
+.street-footer-main .street-footer-column:not(:first-child) button{
+  color:var(--fg);
+  font-size:10px;
+  line-height:1.55;
+  letter-spacing:.045em;
+}
+.street-footer-main .street-footer-column:not(:first-child) h3{
+  font-size:11px;
+  line-height:1.4;
+  letter-spacing:.09em;
+}
+.street-footer-column button:hover{color:var(--accent)!important}
+@media(max-width:680px){
+  .street-footer-main .street-footer-column:first-child{
+    min-height:0;
+    padding:15px 13px 12px;
+    gap:9px;
+  }
+  .street-footer-main .street-footer-column:first-child h3{
+    font-size:11px;
+    line-height:1.35;
+    letter-spacing:.06em;
+    margin-bottom:3px;
+  }
+  .street-footer-main .street-footer-column:first-child button{
+    min-height:34px;
+    padding:7px 0;
+    font-size:10px;
+    letter-spacing:.035em;
+  }
+  .street-footer-main .street-footer-column:not(:first-child) h3{
+    font-size:10px;
+    line-height:1.45;
+  }
+  .street-footer-main .street-footer-column:not(:first-child) button{
+    font-size:9px;
+    line-height:1.6;
+  }
+}
