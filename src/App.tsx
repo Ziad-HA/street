@@ -185,7 +185,7 @@ export default function App() {
   useEffect(() => {
     let alive = true
     const loadCatalogPrices = async () => {
-      const { data, error } = await supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description').eq('is_active', true)
+      const { data, error } = await supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false })
       if (!alive || error || !data) return
       const next: Product[] = data.map((row) => ({
         id: row.id,
@@ -567,7 +567,7 @@ export default function App() {
     setAdminProducts((items) => [...items, data])
     setAdminPriceDrafts((items) => ({ ...items, [id]: rawPrice }))
     setAdminStockDrafts((items) => items)
-    setCatalogProducts((items) => [...items, product])
+    setCatalogProducts((items) => [product, ...items])
     setNewProductName('')
     setNewProductPrice('')
     setAdminNotice('NEW PRODUCT CREATED. ADD ITS PHOTOS AND STOCK BELOW.')
@@ -1021,7 +1021,7 @@ export default function App() {
         <main className="utility-page">
           <div className="page-kicker">STREET / JUST LANDED / 004</div>
           <div className="utility-heading"><small>THE LATEST ADDITIONS</small><h1>NEW<br/><span>ARRIVALS.</span></h1><p>Fresh pieces entering the STREET rotation.</p></div>
-          <div className="grid">{[...catalogProducts].slice(-8).reverse().map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          <div className="grid">{catalogProducts.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
           {footer()}
         </main>
       )}
