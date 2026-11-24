@@ -1172,9 +1172,15 @@ export default function App() {
       )}
 
       {page === 'admin' && (
-        <main className="utility-page admin-page">
-          <div className="page-kicker">STREET / CONTROL ROOM / 010</div>
-          <div className="utility-heading"><small>PRIVATE ACCESS</small><h1>STREET<br/><span>CONTROL.</span></h1><p>Manage the catalogue and review incoming orders. Access is restricted to accounts assigned the admin role.</p></div>
+        <main className="utility-page admin-page modern-admin">
+          <div className="admin-topbar">
+            <div className="admin-brand"><span className="admin-brand-mark">S</span><div><b>STREET</b><small>COMMERCE / ADMIN</small></div></div>
+            <div className="admin-topbar-meta"><span className="admin-live-dot" /> PRIVATE WORKSPACE <span className="admin-topbar-divider">/</span> 010</div>
+          </div>
+          <div className="admin-welcome">
+            <div><small>OVERVIEW / CONTROL CENTER</small><h1>STORE<br/><span>COMMAND.</span></h1><p>Everything happening across your STREET store, in one place.</p></div>
+            {adminUser && <div className="admin-session"><span>SIGNED IN AS</span><b>{adminUser}</b><button type="button" onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminNotice('SIGNED OUT.')}}>SIGN OUT ↗</button></div>}
+          </div>
           {!adminUser ? (
             <form className="admin-login" onSubmit={adminSignIn}>
               <label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/>
