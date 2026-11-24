@@ -1106,3 +1106,30 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .modern-admin .admin-create-product,.modern-admin .admin-products,.modern-admin .admin-customers,.modern-admin .admin-orders{padding:13px}
  .modern-admin .admin-section-title{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Left navigation / admin workspace layout */
+.modern-admin .admin-layout{display:grid;grid-template-columns:218px minmax(0,1fr);gap:28px;align-items:start;margin-top:24px}
+.modern-admin .admin-sidebar{position:sticky;top:24px;min-height:calc(100vh - 48px);display:flex;flex-direction:column;gap:7px;padding:20px 12px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))}
+.modern-admin .admin-sidebar>small{padding:0 10px 13px;font-size:7px;letter-spacing:.2em;color:var(--mut)}
+.modern-admin .admin-side-link{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 10px;border:1px solid transparent;color:var(--mut);font-size:10px;letter-spacing:.04em;transition:background .2s,border-color .2s,color .2s}
+.modern-admin .admin-side-link span{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--mut);opacity:.65}
+.modern-admin .admin-side-link:hover,.modern-admin .admin-side-link.active{border-color:rgba(200,255,54,.2);background:rgba(200,255,54,.07);color:var(--fg)}
+.modern-admin .admin-side-link.active span{color:var(--accent);opacity:1}
+.modern-admin .admin-sidebar-bottom{margin-top:auto;padding:16px 10px 4px;border-top:1px solid var(--line);font-size:7px;line-height:1.9;letter-spacing:.13em;color:var(--mut)}
+.modern-admin .admin-sidebar-bottom .admin-live-dot{display:inline-block;margin-right:7px}
+.modern-admin .admin-sidebar-bottom b{padding-left:14px;color:var(--accent);font-weight:500}
+.modern-admin .admin-content{min-width:0}
+.modern-admin .admin-content>.admin-overview{margin-top:0}
+.modern-admin .admin-content [id]{scroll-margin-top:24px}
+@media(max-width:900px){
+ .modern-admin .admin-layout{grid-template-columns:175px minmax(0,1fr);gap:14px}
+ .modern-admin .admin-sidebar{padding:16px 8px}
+}
+@media(max-width:680px){
+ .modern-admin .admin-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ .modern-admin .admin-sidebar{position:relative;top:auto;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:10px}
+ .modern-admin .admin-sidebar>small{grid-column:1/-1;padding:2px 8px 7px}
+ .modern-admin .admin-side-link{min-height:40px;padding:0 8px;font-size:9px}
+ .modern-admin .admin-sidebar-bottom{grid-column:1/-1;margin-top:5px;padding:9px 8px 0}
+}
