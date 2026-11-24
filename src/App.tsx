@@ -425,7 +425,14 @@ export default function App() {
         {Icon.heart}
       </button>
       <div className="card-img" onClick={() => openProduct(p)}>
-        {rotateImages ? <RotatingProductImage images={p.images} /> : <Img src={p.images[0]} />}
+        {rotateImages ? (
+          <RotatingProductImage images={p.images} />
+        ) : (
+          <>
+            <Img src={p.images[0]} className="card-image-primary" alt={p.name} />
+            {p.images[1] && <Img src={p.images[1]} className="card-image-hover" alt={p.name} />}
+          </>
+        )}
       </div>
       <button className="card-quick-view" type="button" onClick={() => showQuickView(p)}>QUICK VIEW <span>↗</span></button>
       <div className="dots"><i className="on" /><i /></div>
