@@ -47,26 +47,7 @@ const mk = (
   color = '#1b1a8a',
 ): Product => ({ id, name, category, price, sizes, soldOut, color, images: ['', ''], details: BASE_DETAILS })
 
-export const PRODUCTS: Product[] = [
-  mk('snakeskin-zip', 'SNAKESKIN ZIP HOODIE', 'ZIP-UPS', 160),
-  mk('snakeskin-zip-2', 'SNAKESKIN ZIP HOODIE', 'ZIP-UPS', 160),
-  mk('plaid-zip', 'PLAID LINED ZIP HOODIE', 'ZIP-UPS', 180),
-  mk('plaid-zip-2', 'PLAID LINED ZIP HOODIE', 'ZIP-UPS', 180, SIZES, true),
-  mk('canvas-backpack', 'CANVAS BACKPACK', 'ACCESSORIES', 95, ['ONE SIZE']),
-  mk('canvas-backpack-2', 'CANVAS BACKPACK', 'ACCESSORIES', 95, ['ONE SIZE']),
-  mk('canvas-pouch', 'CANVAS POUCH', 'ACCESSORIES', 60, ['ONE SIZE'], true),
-  mk('canvas-pouch-2', 'CANVAS POUCH', 'ACCESSORIES', 60, ['ONE SIZE']),
-  mk('jersey-short', 'JERSEY SHORT', 'BOTTOMS', 90, ['XS', 'S', 'M', 'L']),
-  mk('dice-clock-tee', 'DICE CLOCK TEE', 'TEES', 50, ['S', 'M', 'L', 'XL', '2XL']),
-  mk('basic-crew', 'BASIC CREW', 'CREWS', 140, ['S', 'M', 'XL', '2XL']),
-  mk('crew-sock', 'ATHLETIC CREW SOCK', 'ACCESSORIES', 15, ['ONE SIZE']),
-  mk('swirly-cap', '59FIFTY SWIRLY S CAP', 'HEADWEAR', 60, ['ONE SIZE']),
-  mk('swirly-cap-2', '59FIFTY SWIRLY S CAP', 'HEADWEAR', 55, ['ONE SIZE']),
-  mk('swirly-cap-3', '59FIFTY SWIRLY S CAP', 'HEADWEAR', 60, ['ONE SIZE'], true),
-  mk('work-denim', 'WORK JEAN', 'DENIM', 150, ['S', 'M', 'L', 'XL']),
-  mk('chunky-knit', 'CHUNKY KNIT SWEATER', 'KNITS', 175, ['S', 'M', 'L', 'XL']),
-  mk('shell-jacket', 'SHELL JACKET', 'OUTERWEAR', 260, ['S', 'M', 'L', 'XL']),
-  mk('pullover-hoodie', 'PULLOVER HOODIE', 'HOODIES', 145, SIZES),
-]
+// Add verified product records here before launch. No sample products are shown to customers.
+export const PRODUCTS: Product[] = []
 
-export const OUTFIT_IDS = ['swirly-cap', 'dice-clock-tee', 'basic-crew', 'canvas-pouch-2']
+export const OUTFIT_IDS: string[] = []
