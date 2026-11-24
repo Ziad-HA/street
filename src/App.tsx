@@ -1037,6 +1037,7 @@ export default function App() {
       <div className="street-footer-main">
         <section className="street-footer-column">
           <h3>CAN WE HELP YOU?</h3>
+          <p className="street-footer-help-copy">Need help with an order or have a question? Our team is here to help.</p>
           <button onClick={() => go('contact')}>CONTACT</button>
           <button onClick={() => go('help')}>HELP</button>
         </section>
