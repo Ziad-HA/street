@@ -1302,9 +1302,9 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     position:relative!important;
     inset:auto!important;
     width:100%!important;
-    height:46svh!important;
-    min-height:290px!important;
-    max-height:380px!important;
+    height:50svh!important;
+    min-height:320px!important;
+    max-height:420px!important;
     background:#d7d7d4!important;
     overflow:hidden!important;
   }
@@ -1315,8 +1315,8 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     animation-duration:34s!important;
   }
   .page-product .product-gallery-item{
-    flex:0 0 68vw!important;
-    width:68vw!important;
+    flex:0 0 76vw!important;
+    width:76vw!important;
     height:100%!important;
     background:#d7d7d4!important;
   }
