@@ -217,8 +217,7 @@ export default function App() {
       })
       const next: Product[] = data.map((row) => {
         const stockBySize = stockByProduct.get(row.id) ?? {}
-        const hasInventoryRows = (row.sizes ?? []).some((size: string) => Object.prototype.hasOwnProperty.call(stockBySize, size))
-        const soldOut = hasInventoryRows && (row.sizes ?? []).every((size: string) => (stockBySize[size] ?? 0) <= 0)
+        const soldOut = (row.sizes ?? []).every((size: string) => (stockBySize[size] ?? 0) <= 0)
         return {
           id: row.id,
           name: row.name,
@@ -634,7 +633,7 @@ export default function App() {
   }
 
   const add = (p: Product, size: string, q = 1) => {
-    if (p.soldOut) return
+    if (p.soldOut || (p.stockBySize && (p.stockBySize[size] ?? 0) < q)) return
     setCart((c) => {
       const i = c.findIndex((x) => x.product.id === p.id && x.size === size)
       if (i > -1) return c.map((x, k) => (k === i ? { ...x, qty: x.qty + q } : x))
@@ -821,6 +820,14 @@ export default function App() {
     setCheckoutBusy(false)
     if (error || !data?.order_number) { setCheckoutNotice(error?.message ?? 'ORDER COULD NOT BE CREATED.'); return }
     setOrderSuccess({ order_number: data.order_number, total: Number(data.total) })
+    setCatalogProducts((products) => products.map((product) => {
+      const stockBySize = { ...(product.stockBySize ?? {}) }
+      cart.filter((item) => item.product.id === product.id).forEach((item) => {
+        stockBySize[item.size] = Math.max(0, (stockBySize[item.size] ?? 0) - item.qty)
+      })
+      const soldOut = product.sizes.every((size) => (stockBySize[size] ?? 0) <= 0)
+      return { ...product, stockBySize, soldOut }
+    }))
     setCart([])
     setCheckoutCoupon('')
     setCheckoutCouponCode('')
@@ -1221,11 +1228,11 @@ export default function App() {
               <div className="product-color-row"><div className="swatch" style={{ background: active.color }} /><span>SELECTED COLOUR</span></div>
               <div className="product-size-head"><label>SIZE</label><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE</button></div>
               <div className="sizes">
-                {active.sizes.map((s) => <button key={s} className={sizeSel === s ? 'on' : ''} onClick={() => setSizeSel(s)}>{s}</button>)}
+                {active.sizes.map((s) => <button key={s} disabled={Boolean(active.stockBySize && (active.stockBySize[s] ?? 0) <= 0)} className={sizeSel === s ? 'on' : ''} onClick={() => setSizeSel(s)}>{s}</button>)}
               </div>
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Verified garment measurements will be added when available.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div></div>
-              <button className="product-add" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
+              <button className="product-add" disabled={active.soldOut || Boolean(active.stockBySize && (active.stockBySize[sizeSel] ?? 0) < qty)} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
               <div className="product-info-links"><button type="button" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '−' : '+'}</span></button>{openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}<button type="button">DELIVERY & RETURNS <span>+</span></button></div>
               <div className="prevnext">
                 <span onClick={() => { const l = catalogProducts.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
@@ -1607,8 +1614,8 @@ export default function App() {
               <strong>{money(quickView.price)}</strong>
               <span className="quick-view-rule" />
               <label>SELECT SIZE</label>
-              <div className="quick-view-sizes">{quickView.sizes.map((size) => <button type="button" key={size} className={quickViewSize === size ? 'on' : ''} onClick={() => setQuickViewSize(size)}>{size}</button>)}</div>
-              <button className="quick-view-add" type="button" disabled={quickView.soldOut || !quickViewSize} onClick={() => { add(quickView, quickViewSize); setQuickView(null) }}>{quickView.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(quickView.price)}</span></button>
+              <div className="quick-view-sizes">{quickView.sizes.map((size) => <button type="button" key={size} disabled={Boolean(quickView.stockBySize && (quickView.stockBySize[size] ?? 0) <= 0)} className={quickViewSize === size ? 'on' : ''} onClick={() => setQuickViewSize(size)}>{size}</button>)}</div>
+              <button className="quick-view-add" type="button" disabled={quickView.soldOut || !quickViewSize || Boolean(quickView.stockBySize && (quickView.stockBySize[quickViewSize] ?? 0) <= 0)} onClick={() => { add(quickView, quickViewSize); setQuickView(null) }}>{quickView.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(quickView.price)}</span></button>
               <button className="quick-view-details" type="button" onClick={() => { const product = quickView; setQuickView(null); openProduct(product) }}>VIEW FULL PRODUCT DETAILS ↗</button>
             </div>
           </section>
