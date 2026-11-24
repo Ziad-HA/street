@@ -28,25 +28,6 @@ export interface Product {
   details: string[]
 }
 
-const BASE_DETAILS = [
-  'Relaxed fit',
-  'Heavyweight 430gsm cotton blend fleece',
-  'Ribbed cuffs and hem',
-  'Unisex',
-  'Material: 75% cotton / 25% polyester',
-  'Imported',
-]
-
-const mk = (
-  id: string,
-  name: string,
-  category: Category,
-  price: number,
-  sizes: string[] = SIZES,
-  soldOut = false,
-  color = '#1b1a8a',
-): Product => ({ id, name, category, price, sizes, soldOut, color, images: ['', ''], details: BASE_DETAILS })
-
 // Add verified product records here before launch. No sample products are shown to customers.
 export const PRODUCTS: Product[] = []
 
