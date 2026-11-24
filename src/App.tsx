@@ -537,6 +537,8 @@ export default function App() {
         <button onClick={() => go('build-outfit')}>BUILD YOUR OUTFIT ↗</button>
         <button onClick={() => go('size-guide')}>SIZE GUIDE ↗</button>
         <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
+        <button onClick={() => go('checkout')}>YOUR BAG ↗</button>
+        <button onClick={() => go('admin')}>CONTROL ROOM ↗</button>
       </nav>
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
