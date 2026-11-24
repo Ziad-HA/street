@@ -915,6 +915,11 @@ export default function App() {
             ] as const).map((edit, index) => (
               <button className="edit-card" key={edit.cat} onClick={() => openCollection(edit.cat)}>
                 <div className="edit-card-art">
+                  <div className="edit-card-products">
+                    {catalogProducts.filter((product) => product.category === edit.cat).slice(0, 3).map((product) => (
+                      <Img key={product.id} src={product.images[0]} className="edit-card-product-image" />
+                    ))}
+                  </div>
                   <span>STREET / EDIT {String(index + 1).padStart(2, '0')}</span>
                   <b>{edit.name}</b>
                   <i>↗</i>
