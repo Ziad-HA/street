@@ -17,17 +17,12 @@ export const ASSETS = {
   logoModel: '',
   /** خلفيات المشاهد الأربعة في الصفحة الأولى (صورة بانوراما أو فيديو). 4 عناصر بالترتيب */
   scenes: ['', '', '', ''] as string[],
-  /** أغنية الخلفية MP3 */
-  music: '',
-  /** غلاف الأغنية */
-  musicCover: '',
   /** صورة (أو فيديو) الهيرو في أول صفحة المتجر */
   storeHero: '/assets/hero1.mp4',
   /** صورة صفحة About Us */
   about: '',
 }
 
-export const TRACK = { title: 'GRAIN OF GH…', artist: 'Drake' }
 
 export const ANNOUNCEMENTS = [
   'STREET — THE FIRST DROP IS IN PREPARATION',
