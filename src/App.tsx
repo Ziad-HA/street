@@ -8,7 +8,7 @@ import { CATEGORIES, OUTFIT_IDS, PRODUCTS, SIZES } from './data'
 import type { Category, Product } from './data'
 import './App.css'
 
-type Page = 'intro' | 'hero' | 'store' | 'collection' | 'product' | 'about'
+type Page = 'intro' | 'hero' | 'store' | 'collection' | 'product' | 'about' | 'journal' | 'contact' | 'wishlist' | 'track'
 
 interface CartItem {
   product: Product
@@ -16,14 +16,14 @@ interface CartItem {
   qty: number
 }
 
-const NAV: { label: string; page: Page; anchor?: string }[] = [
+const NAV: { label: string; page: Page }[] = [
   { label: 'HOME', page: 'hero' },
   { label: 'SHOP', page: 'store' },
-  { label: 'CONTACT', page: 'store', anchor: 'footer' },
-  { label: 'LOOKBOOK', page: 'store', anchor: 'lookbook' },
-  { label: 'TIMELINE', page: 'store', anchor: 'collections' },
-  { label: 'ABOUT US', page: 'about' },
-  { label: 'TRACK ORDER', page: 'store', anchor: 'footer' },
+  { label: 'COLLECTIONS', page: 'collection' },
+  { label: 'JOURNAL', page: 'journal' },
+  { label: 'ABOUT', page: 'about' },
+  { label: 'CONTACT', page: 'contact' },
+  { label: 'TRACK ORDER', page: 'track' },
 ]
 
 const POSES: Pose[] = [
@@ -218,6 +218,8 @@ export default function App() {
   const [qty, setQty] = useState(1)
   const [imgIdx, setImgIdx] = useState(0)
   const [openDetails, setOpenDetails] = useState(true)
+  const [trackCode, setTrackCode] = useState('')
+  const [trackNotice, setTrackNotice] = useState('')
 
   const add = (p: Product, size: string, q = 1) => {
     if (p.soldOut) return
@@ -306,7 +308,7 @@ export default function App() {
             <a
               key={n.label}
               className={(n.label === 'HOME' && page === 'store') || (n.label === 'ABOUT US' && page === 'about') ? 'cur' : ''}
-              onClick={() => (n.page === 'hero' ? go('hero') : n.page === 'about' ? go('about') : n.anchor ? (page === 'store' ? document.getElementById(n.anchor)?.scrollIntoView({ behavior: 'smooth' }) : go('store', n.anchor)) : go('store'))}
+              onClick={() => go(n.page)}
             >
               {n.label}{n.label === 'SHOP' && <em> ⌄</em>}
             </a>
@@ -315,7 +317,7 @@ export default function App() {
         <div className="icons">
           <button onClick={() => setSearch(true)}>{Icon.search}</button>
           <button>{Icon.user}</button>
-          <button>{Icon.heart}<span>({wish.length})</span></button>
+          <button onClick={() => go('wishlist')}>{Icon.heart}<span>({wish.length})</span></button>
           <button onClick={() => setDark((d) => !d)}>{Icon.moon}</button>
           <button onClick={() => setCartOpen(true)}>{Icon.bag}<span>({cartCount})</span></button>
         </div>
@@ -550,6 +552,71 @@ export default function App() {
         </main>
       )}
 
+      {page === 'journal' && (
+        <main className="journal-page">
+          <div className="page-kicker">STREET / JOURNAL / 001</div>
+          <section className="journal-intro">
+            <small>FIELD NOTES · CULTURE · PEOPLE</small>
+            <h1>MORE THAN<br />WHAT YOU WEAR.</h1>
+            <p>A closer look at the ideas, places and people shaping the STREET point of view.</p>
+          </section>
+          <section className="journal-feature">
+            <div className="journal-feature-image"><span>ISSUE 001</span></div>
+            <div className="journal-feature-copy"><small>THE STREET UNIFORM · 06 MIN READ</small><h2>EVERYDAY<br />IS THE STATEMENT.</h2><p>Personal style is built in the details. The pieces you reach for, the places you move through, and the people you meet along the way.</p><button className="text-link" onClick={() => go('store')}>EXPLORE THE COLLECTION <b>↗</b></button></div>
+          </section>
+          <section className="journal-grid">
+            <article><div className="journal-tile tile-one"><span>01 / FORM</span></div><small>DESIGN NOTES</small><h3>FUNCTION MEETS FORM.</h3><p>Utility, proportion and the pieces that earn a place in your rotation.</p></article>
+            <article><div className="journal-tile tile-two"><span>02 / MOVEMENT</span></div><small>THE CITY GUIDE</small><h3>MADE TO MOVE.</h3><p>Inspired by the rhythm of the city and the energy found between destinations.</p></article>
+            <article><div className="journal-tile tile-three"><span>03 / COMMUNITY</span></div><small>PEOPLE & CULTURE</small><h3>WORN YOUR WAY.</h3><p>There is no uniform way to be yourself. Make the pieces your own.</p></article>
+          </section>
+          
+          {footer()}
+        </main>
+      )}
+
+      {page === 'contact' && (
+        <main className="contact-page">
+          <div className="page-kicker">STREET / GET IN TOUCH</div>
+          <section className="contact-layout">
+            <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
+            <div className="contact-details">
+              <div><small>CUSTOMER CARE</small><b>Order support & product questions</b><span>SUPPORT DETAILS COMING SOON</span></div>
+              <div><small>COLLABORATIONS</small><b>Press, partnerships & creative projects</b><span>COLLABORATION DETAILS COMING SOON</span></div>
+              <div><small>SOCIAL</small><b>Follow the latest from STREET</b><span>INSTAGRAM · TIKTOK · X</span></div>
+            </div>
+          </section>
+          <div className="contact-bottom"><span>MON — FRI</span><b>09:00 — 18:00 GMT</b><span>WE USUALLY REPLY WITHIN 1–2 BUSINESS DAYS.</span></div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'wishlist' && (
+        <main className="wishlist-page">
+          <div className="page-kicker">STREET / YOUR SAVED PIECES</div>
+          <div className="wishlist-heading"><div><small>KEEP YOUR FAVOURITES CLOSE</small><h1>WISHLIST</h1></div><span>{wish.length} SAVED ITEMS</span></div>
+          {wish.length ? <div className="grid">{PRODUCTS.filter((p) => wish.includes(p.id)).map((p, i) => <Fragment key={p.id}>{card(p, i + 1, wish.length)}</Fragment>)}</div> : <div className="wishlist-empty"><h2>NOTHING SAVED. YET.</h2><p>Save the pieces you like and they’ll be waiting here.</p><button className="solid" onClick={() => go('store')}>DISCOVER THE STORE</button></div>}
+          {footer()}
+        </main>
+      )}
+
+      {page === 'track' && (
+        <main className="track-page">
+          <div className="page-kicker">STREET / ORDER SUPPORT</div>
+          <section className="track-panel">
+            <small>YOUR ORDER, YOUR WAY</small><h1>TRACK<br />YOUR ORDER.</h1>
+            <p>Enter the order number from your confirmation email to find your delivery details.</p>
+            <form onSubmit={(e) => { e.preventDefault(); setTrackNotice(trackCode.trim() ? 'Tracking is not connected yet. Please contact our support team with your order number.' : 'Please enter your order number.'); }}>
+              <label htmlFor="track-code">ORDER NUMBER</label>
+              <input id="track-code" value={trackCode} onChange={(e) => { setTrackCode(e.target.value); setTrackNotice(''); }} placeholder="e.g. ST-10482" />
+              <button className="solid" type="submit">FIND MY ORDER ↗</button>
+              {trackNotice && <span className="track-notice">{trackNotice}</span>}
+            </form>
+            <span className="track-support">NEED HELP? SUPPORT DETAILS COMING SOON</span>
+          </section>
+          {footer()}
+        </main>
+      )}
+
       {/* menu overlay */}
       <div className={`menu ${menu ? 'open' : ''}`}>
         <button className="x" onClick={() => setMenu(false)}>{Icon.close}</button>
@@ -557,7 +624,7 @@ export default function App() {
           <Logo className="menu-logo" />
           <small>{dateStr} · {timeStr}</small>
           <ul>
-            {NAV.map((n) => <li key={n.label} onClick={() => go(n.page, n.anchor)}>{n.label}<span> →</span></li>)}
+            {NAV.map((n) => <li key={n.label} onClick={() => go(n.page)}>{n.label}<span> →</span></li>)}
           </ul>
           <Socials />
         </div>
