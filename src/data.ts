@@ -3,6 +3,8 @@ export const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL']
 export const CATEGORIES = [
   'BOTTOMS',
   'LAYERING',
+  'JACKETS',
+  'T-SHIRTS',
 ] as const
 
 export type Category = (typeof CATEGORIES)[number]
@@ -56,6 +58,10 @@ export const PRODUCTS: Product[] = [
   demoProduct('demo-zip-black', 'CORE ZIP HOODIE', 'LAYERING', 82, '#242424', 'photo-1556821840-3a63f95609a7'),
   demoProduct('demo-zip-grey', 'WASHED ZIP-UP', 'LAYERING', 86, '#8b8984', 'photo-1556821846-1a6e7e7e?'),
   demoProduct('demo-zip-cream', 'BOXY ZIP JACKET', 'LAYERING', 84, '#d8d0c1', 'photo-1578681994506-b8f463449011'),
+  demoProduct('demo-jacket-black', 'OVERSIZED BOMBER JACKET', 'JACKETS', 96, '#252525', 'photo-1551028719-00167b16eac5'),
+  demoProduct('demo-jacket-workwear', 'UTILITY WORKWEAR JACKET', 'JACKETS', 104, '#77766c', 'photo-1591047139829-d91aecb6caea'),
+  demoProduct('demo-tee-white', 'HEAVYWEIGHT BOX T-SHIRT', 'T-SHIRTS', 38, '#e8e5df', 'photo-1521572163474-6864f9cf17ab'),
+  demoProduct('demo-tee-black', 'OVERSIZED BLACK T-SHIRT', 'T-SHIRTS', 38, '#242424', 'photo-1503342217505-b0a15ec3261c'),
 ]
 
 export const OUTFIT_IDS: string[] = ['demo-tee-white', 'demo-denim-blue', 'demo-cap-black']
