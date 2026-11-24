@@ -58,7 +58,7 @@ function Logo({ className }: { className?: string }) {
 }
 
 const money = (n: number) => `${n.toFixed(2)}`
-const categoryLabel = (c: Category) => c === 'BOTTOMS' ? 'PANTS' : 'HOODIES'
+const categoryLabel = (c: Category) => ({ BOTTOMS: 'PANTS', LAYERING: 'HOODIES', JACKETS: 'JACKETS', 'T-SHIRTS': 'T-SHIRTS' })[c]
 
 const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'LAYERING', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
