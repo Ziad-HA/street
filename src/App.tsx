@@ -1100,6 +1100,9 @@ export default function App() {
           : ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
   const outfitProducts = outfitOrder
     .flatMap((c) => catalogProducts.filter((p) => p.category === c && p.id !== active.id))
+  const outfitMarqueeProducts = outfitProducts.length
+    ? Array.from({ length: 4 }, (_, index) => outfitProducts[index % outfitProducts.length])
+    : []
 
 
   return (
@@ -1329,8 +1332,12 @@ export default function App() {
               </div>
               <div className="complete-outfit-marquee">
                 <div className="complete-outfit-track">
-                  {outfitProducts.map((p, i) => (
-                    <Fragment key={`${p.id}-outfit`}>{card(p, i + 1, outfitProducts.length, false, true)}</Fragment>
+                  {[0, 1].map((copy) => (
+                    <div className="complete-outfit-column" key={`outfit-column-${copy}`} aria-hidden={copy === 1}>
+                      {outfitMarqueeProducts.map((p, i) => (
+                        <Fragment key={`${copy}-${p.id}-${i}`}>{card(p, i + 1, 4, false, true)}</Fragment>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
