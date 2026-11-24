@@ -634,7 +634,8 @@ export default function App() {
   }
 
   const add = (p: Product, size: string, q = 1) => {
-    if (p.soldOut || (p.stockBySize && (p.stockBySize[size] ?? 0) < q)) return
+    const alreadyInBag = cart.find((item) => item.product.id === p.id && item.size === size)?.qty ?? 0
+    if (p.soldOut || (p.stockBySize && (p.stockBySize[size] ?? 0) < alreadyInBag + q)) return
     setCart((c) => {
       const i = c.findIndex((x) => x.product.id === p.id && x.size === size)
       if (i > -1) return c.map((x, k) => (k === i ? { ...x, qty: x.qty + q } : x))
@@ -1232,7 +1233,7 @@ export default function App() {
                 {active.sizes.map((s) => <button key={s} disabled={Boolean(active.stockBySize && (active.stockBySize[s] ?? 0) <= 0)} className={sizeSel === s ? 'on' : ''} onClick={() => setSizeSel(s)}>{s}</button>)}
               </div>
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Verified garment measurements will be added when available.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
-              <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div></div>
+              <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button disabled={Boolean(active.stockBySize && qty >= (active.stockBySize[sizeSel] ?? 0))} onClick={() => setQty(qty + 1)}>+</button></div></div>
               <button className="product-add" disabled={active.soldOut || Boolean(active.stockBySize && (active.stockBySize[sizeSel] ?? 0) < qty)} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
               <div className="product-info-links"><button type="button" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '−' : '+'}</span></button>{openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}<button type="button">DELIVERY & RETURNS <span>+</span></button></div>
               <div className="prevnext">
@@ -1641,7 +1642,7 @@ export default function App() {
                 <div className="qty sm">
                   <button onClick={() => setCart((c) => c.map((x, k) => (k === i ? { ...x, qty: Math.max(1, x.qty - 1) } : x)))}>−</button>
                   <span>{it.qty}</span>
-                  <button onClick={() => setCart((c) => c.map((x, k) => (k === i ? { ...x, qty: x.qty + 1 } : x)))}>+</button>
+                  <button disabled={Boolean(it.product.stockBySize && it.qty >= (it.product.stockBySize[it.size] ?? 0))} onClick={() => setCart((c) => c.map((x, k) => (k === i ? { ...x, qty: x.qty + 1 } : x)))}>+</button>
                   <button className="trash" onClick={() => setCart((c) => c.filter((_, k) => k !== i))}>🗑</button>
                 </div>
               </div>
