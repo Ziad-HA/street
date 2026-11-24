@@ -14,7 +14,7 @@ import {
   money,
   readStored,
 } from './utils/format'
-import { pathForPage, routeFromLocation } from './utils/routing'
+import { pathForPage, productSlug, routeFromLocation } from './utils/routing'
 import { Img, LazyLogo3D, Logo, Pay, RotatingProductImage } from './components/Shared'
 import { Icon } from './components/icons'
 
@@ -107,7 +107,7 @@ export default function App() {
         return current ? { ...item, product: current } : item
       }))
       const initRoute = initialRouteRef.current
-      const matchedInitialProduct = initRoute.product ? next.find((product) => product.id === initRoute.product?.id) : undefined
+      const matchedInitialProduct = initRoute.product ? next.find((product) => product.id === initRoute.product?.id || productSlug(product.name) === initRoute.product?.id) : undefined
       setActive((current) => next.find((product) => product.id === current.id) ?? next[0] ?? current)
       if (matchedInitialProduct) {
         setActive(matchedInitialProduct)
@@ -115,7 +115,7 @@ export default function App() {
         setSizeSel(matchedInitialProduct.sizes[0] ?? '')
         setQty(1)
       }
-      if (initRoute.page === 'product' && initRoute.product && !next.some((product) => product.id === initRoute.product?.id)) {
+      if (initRoute.page === 'product' && initRoute.product && !matchedInitialProduct) {
         setPage('store')
         window.history.replaceState({}, '', '/shop')
       }
@@ -149,9 +149,10 @@ export default function App() {
       setPage(route.page)
       if (route.category) setCategory(route.category)
       if (route.product) {
-        setActive(route.product)
-        setCategory(route.product.category)
-        setSizeSel(route.product.sizes[0] ?? '')
+        const matched = catalogProducts.find((product) => product.id === route.product?.id || productSlug(product.name) === route.product?.id) ?? route.product
+        setActive(matched)
+        setCategory(matched.category)
+        setSizeSel(matched.sizes[0] ?? '')
         setQty(1)
       }
       setMenu(false)
@@ -161,7 +162,7 @@ export default function App() {
     }
     window.addEventListener('popstate', syncRoute)
     return () => window.removeEventListener('popstate', syncRoute)
-  }, [])
+  }, [catalogProducts])
 
   // Show the brand intro only once on this browser.
   useEffect(() => {
@@ -334,7 +335,7 @@ export default function App() {
     setSizeSel(p.sizes[0])
     setQty(1)
     setSearch(false)
-    window.history.pushState({}, '', `/product/${encodeURIComponent(p.id)}`)
+    window.history.pushState({}, '', `/product/${productSlug(p.name)}`)
     setPage('product')
     window.scrollTo(0, 0)
   }
