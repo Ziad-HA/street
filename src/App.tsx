@@ -121,8 +121,12 @@ function routeFromLocation(): { page: Page; category?: Category; product?: Produ
   }
   if (parts[0] === 'collections') return { page: 'collections' }
   if (parts[0] === 'product' && parts[1]) {
-    const product = PRODUCTS.find((item) => item.id === decodeURIComponent(parts[1]))
-    return product ? { page: 'product', product, category: product.category } : { page: 'store' }
+    const id = decodeURIComponent(parts[1])
+    const product = PRODUCTS.find((item) => item.id === id)
+    if (product) return { page: 'product', product, category: product.category }
+    const category = CATEGORIES.find((item) => id.startsWith(`${item.toLowerCase().replace(/\s+/g, '-')}-`)) ?? 'HOODIES'
+    const placeholder: Product = { id, name: 'PRODUCT DETAILS', category, price: 0, sizes: [], images: [], color: '#292929', details: [] }
+    return { page: 'product', product: placeholder, category }
   }
   if (parts[0] === 'studio') return { page: 'studio' }
   if (parts[0] === 'contact') return { page: 'contact' }
@@ -181,12 +185,18 @@ export default function App() {
   useEffect(() => {
     let alive = true
     const loadCatalogPrices = async () => {
-      const { data, error } = await supabase.from('products').select('id,price,is_active,images')
+      const { data, error } = await supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description').eq('is_active', true)
       if (!alive || error || !data) return
-      const next = PRODUCTS.flatMap((product) => {
-        const row = data.find((item) => item.id === product.id)
-        return row ? [{ ...product, price: row.price == null ? 0 : Number(row.price), images: row.images?.length ? row.images : product.images, soldOut: !row.is_active }] : []
-      })
+      const next: Product[] = data.map((row) => ({
+        id: row.id,
+        name: row.name,
+        category: row.category as Category,
+        price: row.price == null ? 0 : Number(row.price),
+        sizes: row.sizes ?? [],
+        images: row.images ?? [],
+        color: row.color ?? '#292929',
+        details: row.description ? [row.description] : [],
+      }))
       setCatalogProducts(next)
       setActive((current) => next.find((product) => product.id === current.id) ?? next[0] ?? current)
       if (initialRoute.page === 'product' && initialRoute.product && !next.some((product) => product.id === initialRoute.product?.id)) {
