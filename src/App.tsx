@@ -258,6 +258,23 @@ export default function App() {
   }, [])
 
 
+  // Always start a fresh page load at the top, even on a deep product URL.
+  useEffect(() => {
+    window.history.scrollRestoration = 'manual'
+    const resetScroll = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+    resetScroll()
+    const frame = window.requestAnimationFrame(resetScroll)
+    window.addEventListener('pageshow', resetScroll)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('pageshow', resetScroll)
+    }
+  }, [])
+
   // Keep the visible page in sync with real browser URLs (back/forward and direct links).
   useEffect(() => {
     const syncRoute = () => {
