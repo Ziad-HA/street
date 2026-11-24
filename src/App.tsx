@@ -578,10 +578,10 @@ export default function App() {
         <main className="contact-page">
           <div className="page-kicker">STREET / GET IN TOUCH</div>
           <section className="contact-layout">
-            <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><a className="contact-email" href="mailto:hello@streetwear.com">HELLO@STREETWEAR.COM ↗</a></div>
+            <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
             <div className="contact-details">
-              <div><small>CUSTOMER CARE</small><b>Order support & product questions</b><a href="mailto:support@streetwear.com">SUPPORT@STREETWEAR.COM</a></div>
-              <div><small>COLLABORATIONS</small><b>Press, partnerships & creative projects</b><a href="mailto:collabs@streetwear.com">COLLABS@STREETWEAR.COM</a></div>
+              <div><small>CUSTOMER CARE</small><b>Order support & product questions</b><span>SUPPORT DETAILS COMING SOON</span></div>
+              <div><small>COLLABORATIONS</small><b>Press, partnerships & creative projects</b><span>COLLABORATION DETAILS COMING SOON</span></div>
               <div><small>SOCIAL</small><b>Follow the latest from STREET</b><span>INSTAGRAM · TIKTOK · X</span></div>
             </div>
           </section>
@@ -611,7 +611,7 @@ export default function App() {
               <button className="solid" type="submit">FIND MY ORDER ↗</button>
               {trackNotice && <span className="track-notice">{trackNotice}</span>}
             </form>
-            <a href="mailto:support@streetwear.com">NEED HELP? CONTACT SUPPORT ↗</a>
+            <span className="track-support">NEED HELP? SUPPORT DETAILS COMING SOON</span>
           </section>
           {footer()}
         </main>
