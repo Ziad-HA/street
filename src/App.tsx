@@ -57,7 +57,7 @@ function Logo({ className }: { className?: string }) {
   )
 }
 
-const money = (n: number) => `${n.toFixed(2)}`
+const money = (n: number) => n > 0 ? n.toFixed(2) : 'PRICE TBC'
 const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS' })[c]
 
 const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'HOODIES', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
@@ -269,7 +269,7 @@ export default function App() {
   const [trackNotice, setTrackNotice] = useState('')
 
   const add = (p: Product, size: string, q = 1) => {
-    if (p.soldOut || p.isDemo) return
+    if (p.soldOut) return
     setCart((c) => {
       const i = c.findIndex((x) => x.product.id === p.id && x.size === size)
       if (i > -1) return c.map((x, k) => (k === i ? { ...x, qty: x.qty + q } : x))
@@ -311,7 +311,6 @@ export default function App() {
       </div>
       <div className="dots"><i className="on" /><i /></div>
       {index !== undefined && <div className="idx">{String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>}
-      {p.isDemo && <div className="demo-flag">DEMO · NOT FOR SALE</div>}
       {p.soldOut && <div className="soldtxt">SOLD OUT</div>}
       <h3 onClick={() => openProduct(p)}>{p.name}</h3>
       <div className="price">{money(p.price)}</div>
@@ -322,7 +321,7 @@ export default function App() {
           ))}
         </div>
       )}
-      <button className="mini-bag" disabled={p.soldOut || p.isDemo} onClick={() => add(p, p.sizes[0])} aria-label="Add to bag">
+      <button className="mini-bag" disabled={p.soldOut} onClick={() => add(p, p.sizes[0])} aria-label="Add to bag">
         {Icon.bag}
       </button>
     </article>
@@ -396,7 +395,7 @@ export default function App() {
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
-    const order = ['PANTS','HOODIES','JACKETS','T-SHIRTS']
+    const order = ['PANTS','JACKETS','HOODIES','T-SHIRTS']
     return order.indexOf(a.category) - order.indexOf(b.category)
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
@@ -457,10 +456,9 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>01 — 02 / CATEGORIES</span><span>011 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{PRODUCTS.length} / PRODUCTS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
-          <div className="demo-notice"><b>CATALOGUE PREVIEW</b><span>All listings, photos and prices are temporary visual examples — not real stock and not available to purchase.</span></div>
-          <section className="shop-categories">
+              <section className="shop-categories">
             <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
             <div className="shop-category-list">
               {CATEGORIES.map((c,i) => (
@@ -473,7 +471,7 @@ export default function App() {
             </div>
           </section>
           <section className="shop-all">
-            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{PRODUCTS.length} ITEMS / SORTED BY DEPARTMENT</span></div>
+            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{PRODUCTS.length} PRODUCTS / SORTED BY DEPARTMENT</span></div>
             <div className="shop-grid">
               {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,PRODUCTS.length)}</Fragment>)}
             </div>
@@ -549,7 +547,6 @@ export default function App() {
             </div>
             <div className="info">
               <small>SHOP / {category} / {active.name}</small>
-              {active.isDemo && <div className="demo-pdp-label">CATALOGUE PREVIEW · NOT FOR SALE</div>}
               <h1>{active.name}</h1>
               <div className="p-price">{money(active.price)}</div>
               <label>SIZE</label>
@@ -566,8 +563,8 @@ export default function App() {
               <div className="links"><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE {sizeGuideOpen ? '−' : '+'}</button></div>
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Add verified garment measurements for this product before publishing.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="buy">
-                <button className="solid" disabled={active.soldOut || active.isDemo} onClick={() => add(active, sizeSel, qty)}>
-                  {Icon.bag} {active.isDemo ? 'PREVIEW ONLY · NOT FOR SALE' : active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
+                <button className="solid" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>
+                  {Icon.bag} {active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
                 </button>
                 <button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)}>♥</button>
               </div>
