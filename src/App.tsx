@@ -96,14 +96,6 @@ const Icon = {
 
 const Pay = () => <div className="pay"><span>PAYMENT OPTIONS WILL BE CONFIRMED AT CHECKOUT</span></div>
 
-const Socials = () => (
-  <div className="socials">
-    {['IG', 'TT', 'X', 'DC', 'WC', 'WB', '✉'].map((s) => (
-      <span key={s}>{s}</span>
-    ))}
-  </div>
-)
-
 function readStored<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback } catch { return fallback } }
 
 export default function App() {
@@ -393,7 +385,6 @@ export default function App() {
           <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
         ))}
       </div>
-      <Socials />
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
         <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
@@ -681,7 +672,6 @@ export default function App() {
           <ul>
             {NAV.map((n) => <li key={n.label} onClick={() => go(n.page)}>{n.label}<span> →</span></li>)}
           </ul>
-          <Socials />
         </div>
       </div>
 
