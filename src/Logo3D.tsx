@@ -2,11 +2,9 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Lightformer, useGLTF } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import type { Group } from 'three'
-import { Box3, Vector3 } from 'three'
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
-import fontJson from './assets/fonts/helvetiker_bold.typeface.json'
-import { ASSETS, BRAND } from './config'
+import { Box3, CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
+import { ASSETS } from './config'
+import { DOTS, MARK_H, MARK_W, MARK_STROKE, STROKES } from './mark'
 
 export interface Pose {
   rx: number
@@ -17,29 +15,43 @@ export interface Pose {
   y: number
 }
 
-function ChromeText() {
-  const geo = useMemo(() => {
-    const font = new FontLoader().parse(fontJson as never)
-    const g = new TextGeometry(BRAND, {
-      font,
-      size: 1,
-      depth: 0.35,
-      curveSegments: 10,
-      bevelEnabled: true,
-      bevelThickness: 0.06,
-      bevelSize: 0.04,
-      bevelSegments: 6,
+function ChromeMark() {
+  const parts = useMemo(() => {
+    const k = 3.8 / MARK_W
+    const P = (x: number, y: number) => new Vector3((x - MARK_W / 2) * k, -(y - MARK_H / 2) * k, 0)
+    const r = (MARK_STROKE / 2) * k
+    const tubes = STROKES.filter((st) => st.length > 2 || Math.hypot(st[1][0] - st[0][0], st[1][1] - st[0][1]) > 4).map((st) => {
+      const pts = st.map(([x, y]) => P(x, y))
+      const curve = new CatmullRomCurve3(pts.length > 2 ? pts : [pts[0], pts[0].clone().lerp(pts[1], 0.5), pts[1]], false, 'centripetal')
+      return {
+        geo: new TubeGeometry(curve, 48, r, 14, false),
+        ends: [pts[0], pts[pts.length - 1]],
+      }
     })
-    g.center()
-    const box = new Box3().setFromBufferAttribute(g.attributes.position as never)
-    const size = box.getSize(new Vector3())
-    g.scale(3 / size.x, 3 / size.x, 3 / size.x)
-    return g
+    const dots = DOTS.map((d) => ({ p: P(d.x, d.y), r: d.r * k }))
+    return { tubes, dots, r }
   }, [])
+  const mat = <meshStandardMaterial metalness={1} roughness={0.1} color="#c9ced6" envMapIntensity={1.5} />
   return (
-    <mesh geometry={geo}>
-      <meshStandardMaterial metalness={1} roughness={0.12} color="#c9ced6" envMapIntensity={1.5} />
-    </mesh>
+    <group>
+      {parts.tubes.map((t, i) => (
+        <group key={i}>
+          <mesh geometry={t.geo}>{mat}</mesh>
+          {t.ends.map((e, j) => (
+            <mesh key={j} position={e}>
+              <sphereGeometry args={[parts.r, 16, 16]} />
+              {mat}
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {parts.dots.map((d, i) => (
+        <mesh key={i} position={d.p}>
+          <sphereGeometry args={[d.r, 16, 16]} />
+          {mat}
+        </mesh>
+      ))}
+    </group>
   )
 }
 
@@ -84,7 +96,7 @@ function Rig({ pose, pointer, spin = 0, scrollSpin }: RigProps) {
     o.position.y += (pose.y - o.position.y) * k
   })
   return (
-    <group ref={g}>{ASSETS.logoModel ? <GLBLogo url={ASSETS.logoModel} /> : <ChromeText />}</group>
+    <group ref={g}>{ASSETS.logoModel ? <GLBLogo url={ASSETS.logoModel} /> : <ChromeMark />}</group>
   )
 }
 

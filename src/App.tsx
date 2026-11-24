@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { Logo3D } from './Logo3D'
 import type { Pose } from './Logo3D'
 import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
+import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
 import { CATEGORIES, OUTFIT_IDS, PRODUCTS, SIZES } from './data'
 import type { Category, Product } from './data'
 import './App.css'
@@ -47,11 +48,28 @@ function Img({ src, className, style }: { src?: string; className?: string; styl
   )
 }
 
+function smooth(st: [number, number][]): string {
+  if (st.length < 3) return `M${st.map((p) => p.join(' ')).join(' L')}`
+  let d = `M${st[0][0]} ${st[0][1]}`
+  for (let i = 0; i < st.length - 1; i++) {
+    const p0 = st[Math.max(0, i - 1)], p1 = st[i], p2 = st[i + 1], p3 = st[Math.min(st.length - 1, i + 2)]
+    d += ` C${p1[0] + (p2[0] - p0[0]) / 6} ${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6} ${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]} ${p2[1]}`
+  }
+  return d
+}
+
 function Logo({ className }: { className?: string }) {
-  return ASSETS.logo ? (
-    <img className={className} src={ASSETS.logo} alt={BRAND} />
-  ) : (
-    <span className={`logo-text ${className ?? ''}`}>{BRAND}</span>
+  if (ASSETS.logo) return <img className={className} src={ASSETS.logo} alt={BRAND} />
+  const pad = 6
+  return (
+    <svg className={`mark ${className ?? ''}`} viewBox={`${-pad} ${-pad} ${MARK_W + pad * 2} ${MARK_H + pad * 2}`} role="img" aria-label={BRAND}>
+      {STROKES.map((st, i) => (
+        <path key={i} d={smooth(st)} strokeWidth={MARK_STROKE} />
+      ))}
+      {DOTS.map((d, i) => (
+        <circle key={i} cx={d.x} cy={d.y} r={d.r} fill="currentColor" stroke="none" />
+      ))}
+    </svg>
   )
 }
 
