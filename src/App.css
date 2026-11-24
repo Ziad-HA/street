@@ -617,9 +617,9 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 .complete-outfit-head p{max-width:210px;font-size:7px;line-height:1.8;letter-spacing:.12em;color:var(--mut);text-align:right}
 .complete-outfit-marquee{width:100%;overflow:hidden;scrollbar-width:none}
 .complete-outfit-marquee::-webkit-scrollbar{display:none}
-.complete-outfit-track{display:flex;flex-direction:row;align-items:flex-start;gap:18px;width:max-content;min-width:0;margin:0;padding:0;animation:outfit-column-right 24s linear infinite;will-change:transform}
+.complete-outfit-track{display:flex;flex-direction:row;align-items:flex-start;gap:0;width:max-content;min-width:0;margin:0;padding:0;animation:outfit-column-right 24s linear infinite;will-change:transform}
 .complete-outfit-marquee:hover .complete-outfit-track{animation-play-state:paused}
-.complete-outfit-column{display:flex;flex:0 0 210px;flex-direction:column;gap:10px}
+.complete-outfit-column{display:flex;flex:0 0 210px;flex-direction:column;gap:10px;margin-right:18px}
 .complete-outfit-column[aria-hidden="true"]{pointer-events:none}
 .complete-outfit-track .card{flex:0 0 auto;width:210px;min-width:0;margin:0}
 .complete-outfit-track .card-img{aspect-ratio:1/1}
@@ -643,8 +643,8 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 @media(max-width:600px){
   .complete-outfit-head{align-items:flex-start;flex-direction:column;gap:9px}
   .complete-outfit-head p{text-align:left}
-  .complete-outfit-track{gap:12px}
-  .complete-outfit-column{flex-basis:145px;gap:8px}
+  .complete-outfit-track{gap:0}
+  .complete-outfit-column{flex-basis:145px;gap:8px;margin-right:12px}
   .complete-outfit-track .card{width:145px}
   .complete-outfit-track .card h3{font-size:8px}
 }
