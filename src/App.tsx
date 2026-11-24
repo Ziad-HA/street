@@ -59,7 +59,7 @@ function Logo({ className }: { className?: string }) {
 
 const money = (n: number) => `${n.toFixed(2)}`
 
-const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'ZIP-UPS', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
+const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'LAYERING', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
 const Icon = {
   search: (
@@ -106,7 +106,7 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart-v2', []))
   const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist-v2', []))
-  const [category, setCategory] = useState<Category>('ZIP-UPS')
+  const [category, setCategory] = useState<Category>('LAYERING')
   const [showAllShopProducts, setShowAllShopProducts] = useState(false)
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
@@ -283,7 +283,7 @@ export default function App() {
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.filter((p) => p.category === 'HEADWEAR' || p.id === 'crew-sock').slice(0, 4)
+    return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.filter((p) => p.category === 'ACCESSORIES' || p.id === 'crew-sock').slice(0, 4)
   }, [query])
 
   const dateStr = now
@@ -330,7 +330,7 @@ export default function App() {
   const rowOf = (id: string, title: string, items: Product[]) => (
     <section className="row">
       <h2 className="row-title">{title}</h2>
-      <button className="view-all" onClick={() => openCollection(items[0]?.category ?? 'ZIP-UPS')}>VIEW ALL</button>
+      <button className="view-all" onClick={() => openCollection(items[0]?.category ?? 'LAYERING')}>VIEW ALL</button>
       <div className="row-scroll" ref={(el) => { scrollRow.current[id] = el }} onScroll={() => onRow(id)}>
         {items.map((p) => <Fragment key={p.id}>{card(p)}</Fragment>)}
       </div>
@@ -395,7 +395,7 @@ export default function App() {
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
-    const order = ['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES']
+    const order = ['TOPS','LAYERING','BOTTOMS','ACCESSORIES']
     return order.indexOf(a.category) - order.indexOf(b.category)
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
@@ -456,13 +456,13 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>01 — 10 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>01 — 04 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
           <div className="demo-notice"><b>CATALOGUE PREVIEW</b><span>All listings, photos and prices are temporary visual examples — not real stock and not available to purchase.</span></div>
           <section className="shop-categories">
             <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
             <div className="shop-category-list">
-              {['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].map((c,i) => (
+              {CATEGORIES.map((c,i) => (
                 <button className="shop-category-card" key={c} onClick={() => openCollection(c as Category)}>
                   <sup>DEPARTMENT / {String(i+1).padStart(2,'0')}</sup>
                   <strong>{c}</strong>
@@ -493,12 +493,12 @@ export default function App() {
           </section>
           <section className="edit-grid">
             {[
-              {no:'01',name:'THE CORE',desc:'Everyday foundations. Clean shapes, easy rotation.',cat:'TEES',meta:'TEES / CREWS'},
-              {no:'02',name:'AFTER HOURS',desc:'Layer up. Heavier silhouettes for a different pace.',cat:'HOODIES',meta:'HOODIES / ZIP-UPS'},
-              {no:'03',name:'UTILITY MODE',desc:'Functional shapes with a utilitarian edge.',cat:'BOTTOMS',meta:'BOTTOMS / OUTERWEAR'},
-              {no:'04',name:'DENIM STUDY',desc:'The everyday essential, reworked through proportion.',cat:'DENIM',meta:'DENIM'},
-              {no:'05',name:'OBJECTS',desc:'The finishing details that complete the rotation.',cat:'HEADWEAR',meta:'HEADWEAR / ACCESSORIES'},
-              {no:'06',name:'TEXTURE LAB',desc:'A closer look at texture, structure and material.',cat:'KNITS',meta:'KNITS'},
+              {no:'01',name:'THE CORE',desc:'Everyday foundations. Clean shapes, easy rotation.',cat:'TOPS',meta:'TOPS'},
+              {no:'02',name:'AFTER HOURS',desc:'Layer up. Heavier silhouettes for a different pace.',cat:'LAYERING',meta:'LAYERING'},
+              {no:'03',name:'UTILITY MODE',desc:'Functional shapes with a utilitarian edge.',cat:'BOTTOMS',meta:'BOTTOMS'},
+              {no:'04',name:'DENIM STUDY',desc:'The everyday essential, reworked through proportion.',cat:'BOTTOMS',meta:'BOTTOMS'},
+              {no:'05',name:'OBJECTS',desc:'The finishing details that complete the rotation.',cat:'ACCESSORIES',meta:'ACCESSORIES'},
+              {no:'06',name:'TEXTURE LAB',desc:'A closer look at texture, structure and material.',cat:'TOPS',meta:'TOPS'},
             ].map((edit) => (
               <button className="edit-card" key={edit.no} onClick={() => openCollection(edit.cat as Category)}>
                 <div className="edit-card-art"><span>STREET / EDIT {edit.no}</span><b>{edit.name}</b><i>↗</i></div>
