@@ -6,8 +6,9 @@ import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
 import { CATEGORIES, PRODUCTS, SIZES } from './data'
 import type { Category, Product } from './data'
 import './App.css'
+import { supabase } from './lib/supabase'
 
-type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track'
+type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'admin'
 
 interface CartItem {
   product: Product
@@ -125,7 +126,7 @@ function routeFromLocation(): { page: Page; category?: Category; product?: Produ
   if (parts[0] === 'studio') return { page: 'studio' }
   if (parts[0] === 'contact') return { page: 'contact' }
   if (parts[0] === 'wishlist') return { page: 'wishlist' }
-  if (parts[0] === 'track') return { page: 'track' }
+  if (parts[0] === 'track') return { page: 'track' }\n  if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','admin'].includes(parts[0])) return { page: parts[0] as Page }
   if (parts.length === 0) {
     try { return { page: localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' } }
     catch { return { page: 'intro' } }
@@ -334,7 +335,7 @@ export default function App() {
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [openDetails, setOpenDetails] = useState(true)
   const [trackCode, setTrackCode] = useState('')
-  const [trackNotice, setTrackNotice] = useState('')
+  const [trackNotice, setTrackNotice] = useState('')\n  const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')\n  const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')\n  const [adminEmail, setAdminEmail] = useState('')\n  const [adminPassword, setAdminPassword] = useState('')\n  const [adminNotice, setAdminNotice] = useState('')\n  const [adminUser, setAdminUser] = useState<string | null>(null)\n  const [adminRole, setAdminRole] = useState<string | null>(null)\n  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
 
   const add = (p: Product, size: string, q = 1) => {
     if (p.soldOut) return
@@ -724,6 +725,84 @@ export default function App() {
             </form>
             <span className="track-support">Tracking will be available once order management is connected.</span>
           </section>
+          {footer()}
+        </main>
+      )}
+
+
+      {page === 'new-arrivals' && (
+        <main className="utility-page">
+          <div className="page-kicker">STREET / JUST LANDED / 004</div>
+          <div className="utility-heading"><small>THE LATEST ADDITIONS</small><h1>NEW<br/><span>ARRIVALS.</span></h1><p>Fresh pieces entering the STREET rotation.</p></div>
+          <div className="grid">{[...PRODUCTS].slice(-8).reverse().map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'best-sellers' && (
+        <main className="utility-page">
+          <div className="page-kicker">STREET / THE ROTATION / 005</div>
+          <div className="utility-heading"><small>THE COMMUNITY FAVOURITES</small><h1>BEST<br/><span>SELLERS.</span></h1><p>A curated selection from the current collection. Popularity labels will reflect verified sales once orders are active.</p></div>
+          <div className="grid">{PRODUCTS.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'lookbook' && (
+        <main className="utility-page lookbook-page">
+          <div className="page-kicker">STREET / VISUAL STORIES / 006</div>
+          <div className="utility-heading"><small>THE WAY WE SEE IT</small><h1>THE<br/><span>LOOKBOOK.</span></h1><p>Pieces are only the beginning. Build a look, make it personal, wear it your way.</p></div>
+          <div className="lookbook-grid">
+            {PRODUCTS.filter((p)=>['PANTS','JACKETS','HOODIES','T-SHIRTS'].includes(p.category)).slice(0,6).map((p,i)=>(
+              <button className="lookbook-tile" key={p.id} onClick={()=>openProduct(p)}><Img src={p.images[0]}/><span>STREET / FRAME {String(i+1).padStart(2,'0')}</span><b>{p.name}</b><i>DISCOVER PIECE ↗</i></button>
+            ))}
+          </div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'build-outfit' && (
+        <main className="utility-page outfit-builder-page">
+          <div className="page-kicker">STREET / PERSONAL STYLING / 007</div>
+          <div className="utility-heading"><small>MAKE THE COMBINATION YOURS</small><h1>BUILD YOUR<br/><span>OUTFIT.</span></h1><p>Choose a bottom and a top from the current STREET collection.</p></div>
+          <div className="outfit-builder">
+            <div className="outfit-preview">
+              <small>YOUR COMBINATION / LIVE PREVIEW</small>
+              <div className="outfit-preview-pieces">{[outfitBottom,outfitTop].map((id)=>{const p=PRODUCTS.find((item)=>item.id===id);return p?<button key={id} onClick={()=>openProduct(p)}><Img src={p.images[0]}/><b>{p.name}</b></button>:null})}</div>
+              <span>STREET / STYLE IT YOUR WAY</span>
+            </div>
+            <div className="outfit-choices">
+              <section><h2>01 / CHOOSE YOUR BOTTOM</h2><div>{PRODUCTS.filter((p)=>p.category==='PANTS').map((p)=><button className={outfitBottom===p.id?'selected':''} key={p.id} onClick={()=>setOutfitBottom(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
+              <section><h2>02 / CHOOSE YOUR TOP</h2><div>{PRODUCTS.filter((p)=>['HOODIES','JACKETS','T-SHIRTS'].includes(p.category)).map((p)=><button className={outfitTop===p.id?'selected':''} key={p.id} onClick={()=>setOutfitTop(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
+            </div>
+          </div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'size-guide' && (
+        <main className="utility-page">
+          <div className="page-kicker">STREET / FIT REFERENCE / 008</div>
+          <div className="utility-heading"><small>FIND YOUR FIT</small><h1>SIZE<br/><span>GUIDE.</span></h1><p>Use this page as a fit reference. Exact garment measurements will be published after the pieces are measured.</p></div>
+          <div className="size-guide-page-table"><div><b>CATEGORY</b><b>AVAILABLE SIZES</b><b>MEASUREMENTS</b></div>{CATEGORIES.map((c)=><div key={c}><b>{c}</b><span>{c==='PANTS'?'30 / 32 / 34 / 36 / 38 / 40 / 42':'S / M / L / XL'}</span><span>TO BE CONFIRMED</span></div>)}</div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'checkout' && (
+        <main className="utility-page checkout-page">
+          <div className="page-kicker">STREET / SECURE CHECKOUT / 009</div>
+          <div className="utility-heading"><small>ALMOST YOURS</small><h1>CHECK<br/><span>OUT.</span></h1><p>Review your selected pieces. Checkout will open once verified prices, delivery fees and a payment method are configured.</p></div>
+          <div className="checkout-summary">{cart.length===0?<p>YOUR BAG IS EMPTY.</p>:cart.map((item)=><div key={item.product.id+item.size}><Img src={item.product.images[0]}/><span>{item.product.name} / {item.size} × {item.qty}</span><b>{money(item.product.price*item.qty)}</b></div>)}<footer><span>SUBTOTAL</span><b>{money(subtotal)}</b></footer><button disabled>CHECKOUT UNAVAILABLE — SETUP REQUIRED</button></div>
+          {footer()}
+        </main>
+      )}
+
+      {page === 'admin' && (
+        <main className="utility-page admin-page">
+          <div className="page-kicker">STREET / CONTROL ROOM / 010</div>
+          <div className="utility-heading"><small>PRIVATE ACCESS</small><h1>STREET<br/><span>CONTROL.</span></h1><p>Manage the catalogue and review incoming orders. Access is restricted to accounts assigned the admin role.</p></div>
+          {!adminUser ? <form className="admin-login" onSubmit={adminSignIn}><label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Your password"/><button className="solid" type="submit">SIGN IN ↗</button>{adminNotice&&<p>{adminNotice}</p>}</form> : adminRole==='admin' ? <section className="admin-orders"><div><h2>RECENT ORDERS</h2><button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminOrders([])}}>SIGN OUT</button></div>{adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.customer_name}</span><span>{o.status.toUpperCase()}</span><strong>{money(Number(o.total))}</strong></article>)}</section>:<p className="admin-message">{adminNotice||'CHECKING ADMIN PERMISSIONS…'}</p>}
           {footer()}
         </main>
       )}
