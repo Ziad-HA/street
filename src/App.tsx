@@ -96,7 +96,7 @@ function readStored<T>(key: string, fallback: T): T { try { const raw = localSto
 
 export default function App() {
   const [page, setPage] = useState<Page>(() => {
-    try { return sessionStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' }
+    try { return localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' }
     catch { return 'intro' }
   })
   const [scene, setScene] = useState(0)
@@ -128,9 +128,9 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
 
-  // Show the brand intro only once per browser tab session.
+  // Show the brand intro only once on this browser.
   useEffect(() => {
-    try { sessionStorage.setItem('street-intro-seen-v1', '1') } catch { /* storage may be unavailable */ }
+    try { localStorage.setItem('street-intro-seen-v1', '1') } catch { /* storage may be unavailable */ }
   }, [])
 
   // intro -> hero
