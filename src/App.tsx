@@ -1335,19 +1335,9 @@ export default function App() {
                 <div><small>STREET / STYLE THE PIECE</small><h2>COMPLETE YOUR OUTFIT<span>.</span></h2></div>
                 <p>MAKE THE LOOK YOURS — EXPLORE PIECES THAT WORK TOGETHER.</p>
               </div>
-              <div className="complete-outfit-marquee">
-                {[0, 1].map((row) => (
-                  <div className={`complete-outfit-row complete-outfit-row-${row + 1}`} key={`outfit-row-${row}`}>
-                    <div className="complete-outfit-track">
-                      {[0, 1].map((copy) => (
-                        <div className="complete-outfit-set" key={`outfit-set-${row}-${copy}`} aria-hidden={copy === 1}>
-                          {outfitMarqueeProducts.slice(row * 2, row * 2 + 2).map((p, i) => (
-                            <Fragment key={`outfit-${row}-${copy}-${p.id}-${i}`}>{card(p, row * 2 + i + 1, 4, false, true)}</Fragment>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              <div className="complete-outfit-grid">
+                {outfitMarqueeProducts.slice(0, 4).map((p, i) => (
+                  <Fragment key={`outfit-${p.id}`}>{card(p, i + 1, 4, false, false)}</Fragment>
                 ))}
               </div>
             </section>
