@@ -338,6 +338,7 @@ export default function App() {
   const [openDetails, setOpenDetails] = useState(true)
   const [trackCode, setTrackCode] = useState('')
   const [trackNotice, setTrackNotice] = useState('')
+  const [trackResult, setTrackResult] = useState<{order_number:string;status:string;created_at:string;total:number}|null>(null)
   const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')
   const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')
   const [accountMode, setAccountMode] = useState<'signin'|'signup'>('signin')
@@ -450,6 +451,19 @@ export default function App() {
   const toggleWish = (id: string) =>
     setWish((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]))
 
+
+  const trackOrder = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setTrackNotice('SEARCHING YOUR ORDER…')
+    setTrackResult(null)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setTrackNotice('SIGN IN TO YOUR STREET ACCOUNT TO VIEW PRIVATE ORDER DETAILS.'); return }
+    const { data, error } = await supabase.from('orders').select('order_number,status,created_at,total').eq('order_number', trackCode.trim()).eq('user_id', user.id).maybeSingle()
+    if (error) { setTrackNotice('WE COULD NOT CHECK THIS ORDER RIGHT NOW.'); return }
+    if (!data) { setTrackNotice('NO ORDER FOUND FOR THIS ACCOUNT. CHECK THE NUMBER AND TRY AGAIN.'); return }
+    setTrackResult(data)
+    setTrackNotice('')
+  }
 
   const saveAdminPrice = async (id: string) => {
     const raw = adminPriceDrafts[id]?.trim() ?? ''
@@ -853,13 +867,14 @@ export default function App() {
           <section className="track-panel">
             <small>YOUR ORDER, YOUR WAY</small><h1>TRACK<br />YOUR ORDER.</h1>
             <p>Enter the order number from your confirmation email to find your delivery details.</p>
-            <form onSubmit={(e) => { e.preventDefault(); setTrackNotice(trackCode.trim() ? 'Tracking is not connected yet. Please contact our support team with your order number.' : 'Please enter your order number.'); }}>
+            <form onSubmit={trackOrder}>
               <label htmlFor="track-code">ORDER NUMBER</label>
-              <input id="track-code" value={trackCode} onChange={(e) => { setTrackCode(e.target.value); setTrackNotice(''); }} placeholder="e.g. ST-10482" />
+              <input id="track-code" value={trackCode} onChange={(e) => { setTrackCode(e.target.value); setTrackNotice(''); setTrackResult(null); }} placeholder="e.g. ST-10482" required />
               <button className="solid" type="submit">FIND MY ORDER ↗</button>
               {trackNotice && <span className="track-notice">{trackNotice}</span>}
             </form>
-            <span className="track-support">Tracking will be available once order management is connected.</span>
+            {trackResult && <div className="track-result"><small>ORDER / {trackResult.order_number}</small><b>{trackResult.status.toUpperCase()}</b><span>PLACED {new Date(trackResult.created_at).toLocaleDateString()}</span><strong>{money(Number(trackResult.total))}</strong></div>}
+            <span className="track-support">Private order details are available after signing in to your STREET account.</span>
           </section>
           {footer()}
         </main>
