@@ -535,23 +535,25 @@ export default function App() {
 
       {page === 'product' && (
         <main className="pdp">
-          <section className="pants-motion" aria-label={`${categoryLabel(active.category)} collection`}>
-            <div className="pants-motion-head">
-              <div><small>STREET / CURRENT EDIT</small><b>THE {categoryLabel(active.category)} ROTATION</b></div>
-              <span>{String(PRODUCTS.filter((p) => p.category === active.category).length).padStart(2, '0')} PIECES · MOVE THROUGH THE COLLECTION</span>
-            </div>
-            <div className="pants-motion-window">
-              <div className="pants-motion-track">
-                {[...PRODUCTS.filter((p) => p.category === active.category), ...PRODUCTS.filter((p) => p.category === active.category)].map((p, i) => (
-                  <button type="button" className={p.id === active.id ? 'pants-motion-card current' : 'pants-motion-card'} key={p.id + '-' + i} onClick={() => openProduct(p)}>
-                    <Img src={p.images[0]} />
-                    <span>{p.name}</span>
-                    <i>VIEW PIECE ↗</i>
-                  </button>
-                ))}
+          {active.category === 'PANTS' && (
+            <section className="pants-motion" aria-label="Pants collection">
+              <div className="pants-motion-head">
+                <div><small>STREET / BOTTOMS EDIT</small><b>THE PANTS ROTATION</b></div>
+                <span>03 PIECES · MOVE THROUGH THE COLLECTION</span>
               </div>
-            </div>
-          </section>
+              <div className="pants-motion-window">
+                <div className="pants-motion-track">
+                  {[...PRODUCTS.filter((p) => p.category === 'PANTS'), ...PRODUCTS.filter((p) => p.category === 'PANTS')].map((p, i) => (
+                    <button type="button" className={p.id === active.id ? 'pants-motion-card current' : 'pants-motion-card'} key={p.id + '-' + i} onClick={() => openProduct(p)}>
+                      <Img src={p.images[0]} />
+                      <span>{p.name}</span>
+                      <i>VIEW PIECE ↗</i>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
           <div className="pdp-wrap">
             <div className="thumbs">
               {active.images.map((im, i) => <button key={i} type="button" className={i === imgIdx ? 'thumb-button on' : 'thumb-button'} onClick={() => setImgIdx(i)} aria-label={`Show product image ${i + 1}`}><Img src={im} /></button>)}
