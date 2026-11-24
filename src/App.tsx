@@ -915,12 +915,16 @@ export default function App() {
             ] as const).map((edit, index) => (
               <button className="edit-card" key={edit.cat} onClick={() => openCollection(edit.cat)}>
                 <div className="edit-card-art">
+                  <Img
+                    src={catalogProducts.find((product) => product.category === edit.cat)?.images[0]}
+                    className="edit-card-cover"
+                  />
                   <div className="edit-card-products">
-                    {catalogProducts.filter((product) => product.category === edit.cat).slice(0, 3).map((product) => (
+                    {catalogProducts.filter((product) => product.category === edit.cat).slice(1, 3).map((product) => (
                       <Img key={product.id} src={product.images[0]} className="edit-card-product-image" />
                     ))}
                   </div>
-                  <span>STREET / EDIT {String(index + 1).padStart(2, '0')}</span>
+                  <span>STREET / COLLECTION {String(index + 1).padStart(2, '0')}</span>
                   <b>{edit.name}</b>
                   <i>↗</i>
                 </div>
@@ -1086,7 +1090,14 @@ export default function App() {
         <main className="utility-page">
           <div className="page-kicker">STREET / JUST LANDED / 004</div>
           <div className="utility-heading"><small>THE LATEST ADDITIONS</small><h1>NEW<br/><span>ARRIVALS.</span></h1><p>Fresh pieces entering the STREET rotation.</p></div>
-          <div className="grid">{catalogProducts.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          {catalogProducts[0] && (
+            <button className="drop-feature" onClick={() => openProduct(catalogProducts[0])}>
+              <Img src={catalogProducts[0].images[0]} className="drop-feature-image" />
+              <span className="drop-feature-kicker">STREET / NEW DROP / 001</span>
+              <span className="drop-feature-copy"><small>JUST LANDED</small><b>{catalogProducts[0].name}</b><i>DISCOVER THE DROP ↗</i></span>
+            </button>
+          )}
+          <div className="grid">{catalogProducts.slice(1,9).map((p,i)=><Fragment key={p.id}>{card(p,i+2, catalogProducts.length)}</Fragment>)}</div>
           {footer()}
         </main>
       )}
