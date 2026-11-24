@@ -345,7 +345,9 @@ export default function App() {
   const [adminNotice, setAdminNotice] = useState('')
   const [adminUser, setAdminUser] = useState<string | null>(null)
   const [adminRole, setAdminRole] = useState<string | null>(null)
-  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])\n  const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])\n  const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
+  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+  const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])
+  const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
 
   useEffect(() => {
     if (page !== 'admin') return
@@ -360,7 +362,9 @@ export default function App() {
       setAdminRole(data?.role ?? 'customer')
       if (data?.role === 'admin') {
         const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
-        if (alive) setAdminOrders(orders ?? [])\n        const { data: products } = await supabase.from('products').select('id,name,category,price,is_active').order('category').order('name')\n        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
+        if (alive) setAdminOrders(orders ?? [])
+        const { data: products } = await supabase.from('products').select('id,name,category,price,is_active').order('category').order('name')
+        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
       }
     }
     void loadAdmin()
