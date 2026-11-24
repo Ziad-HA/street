@@ -627,11 +627,11 @@ export default function App() {
             <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{catalogProducts.length} / PRODUCTS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
               <section className="shop-categories">
-            <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
+            <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>CHOOSE A CATEGORY ↗</span></div>
             <div className="shop-category-list">
               {CATEGORIES.map((c,i) => (
                 <button className="shop-category-card" key={c} onClick={() => openCollection(c as Category)}>
-                  <sup>DEPARTMENT / {String(i+1).padStart(2,'0')}</sup>
+                  <sup>{String(i+1).padStart(2,'0')}</sup>
                   <strong>{categoryLabel(c as Category)}</strong>
                   <span>EXPLORE <b>↗</b></span>
                 </button>
@@ -639,7 +639,7 @@ export default function App() {
             </div>
           </section>
           <section className="shop-all">
-            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{catalogProducts.length} PRODUCTS / SORTED BY DEPARTMENT</span></div>
+            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{catalogProducts.length} PRODUCTS / BY CATEGORY</span></div>
             <div className="shop-grid">
               {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,catalogProducts.length)}</Fragment>)}
             </div>
