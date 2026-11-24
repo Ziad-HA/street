@@ -906,13 +906,23 @@ export default function App() {
             <p>Shop is the complete catalogue. Collections are curated edits — grouped by mood, purpose and the way pieces work together.</p>
           </section>
           <section className="edit-grid">
-            {[
-              {no:'01',name:'THE PANTS EDIT',desc:'Relaxed fits, denim and everyday utility trousers.',cat:'PANTS',meta:'PANTS'},
-              {no:'02',name:'THE HOODIE EDIT',desc:'Heavyweight hoodies and zip-ups for everyday rotation.',cat:'HOODIES',meta:'HOODIES'},
-            ].map((edit) => (
-              <button className="edit-card" key={edit.no} onClick={() => openCollection(edit.cat as Category)}>
-                <div className="edit-card-art"><span>STREET / EDIT {edit.no}</span><b>{edit.name}</b><i>↗</i></div>
-                <div className="edit-card-copy"><div><small>{edit.meta}</small><h2>{edit.name}</h2><p>{edit.desc}</p></div><span>EXPLORE EDIT ↗</span></div>
+            {([
+              { cat: 'PANTS', name: 'THE PANTS EDIT', desc: 'Relaxed fits, denim and everyday utility trousers.' },
+              { cat: 'JACKETS', name: 'THE JACKET EDIT', desc: 'Outerwear built for layering and everyday rotation.' },
+              { cat: 'HOODIES', name: 'THE HOODIE EDIT', desc: 'Heavyweight hoodies and zip-ups for everyday wear.' },
+              { cat: 'T-SHIRTS', name: 'THE T-SHIRT EDIT', desc: 'Essential tees, clean graphics and daily staples.' },
+              { cat: 'CAPS', name: 'THE CAPS EDIT', desc: 'Finishing pieces made to complete the STREET look.' },
+            ] as const).map((edit, index) => (
+              <button className="edit-card" key={edit.cat} onClick={() => openCollection(edit.cat)}>
+                <div className="edit-card-art">
+                  <span>STREET / EDIT {String(index + 1).padStart(2, '0')}</span>
+                  <b>{edit.name}</b>
+                  <i>↗</i>
+                </div>
+                <div className="edit-card-copy">
+                  <div><small>{edit.cat} / {catalogProducts.filter((product) => product.category === edit.cat).length} PIECES</small><h2>{edit.name}</h2><p>{edit.desc}</p></div>
+                  <span>EXPLORE EDIT ↗</span>
+                </div>
               </button>
             ))}
           </section>
