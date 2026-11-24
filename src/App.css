@@ -1456,3 +1456,28 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .footer-legal-bottom .street-legal-nav{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
  .footer-legal-bottom .street-legal-nav button{min-height:36px;font-size:7px;line-height:1.5}
 }
+
+
+/* Compact mobile footer layout */
+@media(max-width:680px){
+  footer#footer{padding-top:26px}
+  footer#footer .benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px;padding:0 0 18px}
+  footer#footer .benefits>div{gap:7px;align-items:flex-start}
+  footer#footer .benefits i{width:5px;height:5px;flex:0 0 5px;margin-top:4px}
+  footer#footer .benefits b{font-size:7px;letter-spacing:.09em}
+  footer#footer .benefits small{font-size:6px;line-height:1.45}
+  footer#footer .footer-link-groups{padding:17px 0;gap:0}
+  footer#footer .street-utility-nav{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:0}
+  footer#footer .street-utility-nav>span{grid-column:1/-1;margin-bottom:7px}
+  footer#footer .street-utility-nav button{min-height:29px;font-size:7px;letter-spacing:.045em}
+  footer#footer .foot-mid{gap:9px;padding:15px 0;flex-direction:column}
+  footer#footer .foot-mid>div{gap:8px;flex-wrap:wrap}
+  footer#footer .foot-mid .secure{font-size:7px;line-height:1.5}
+  footer#footer .footer-mark{padding:13px 0 3px}
+  footer#footer .footer-logo{width:82%;max-height:66px;object-fit:contain}
+  footer#footer .footer-legal-bottom{margin-top:13px;padding:14px 0 10px;gap:11px}
+  footer#footer .footer-legal-bottom .street-legal-nav{column-gap:10px;row-gap:0}
+  footer#footer .footer-legal-bottom .street-legal-nav>span{margin-bottom:5px;font-size:7px}
+  footer#footer .footer-legal-bottom .street-legal-nav button{min-height:29px;font-size:6.5px;line-height:1.35;letter-spacing:.025em}
+  footer#footer .footer-legal-bottom>small{padding-top:10px;font-size:6px}
+}
