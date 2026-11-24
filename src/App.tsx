@@ -376,9 +376,10 @@ export default function App() {
   const [adminUser, setAdminUser] = useState<string | null>(null)
   const [adminRole, setAdminRole] = useState<string | null>(null)
   const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
-  const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])
+  const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean;sizes:string[]}>>([])
   const [adminCustomers, setAdminCustomers] = useState<Array<{email:string|null;full_name:string|null;created_at:string}>>([])
   const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
+  const [adminStockDrafts, setAdminStockDrafts] = useState<Record<string,string>>({})
 
   useEffect(() => {
     if (page !== 'account') return
@@ -434,8 +435,12 @@ export default function App() {
       if (data?.role === 'admin') {
         const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
         if (alive) setAdminOrders(orders ?? [])
-        const { data: products } = await supabase.from('products').select('id,name,category,price,is_active').order('category').order('name')
-        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
+        const { data: products } = await supabase.from('products').select('id,name,category,price,is_active,sizes').order('category').order('name')
+        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)])))
+    const { data: stock } = await supabase.from('inventory').select('product_id,size,quantity')
+    setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)]))) }
+        const { data: stock } = await supabase.from('inventory').select('product_id,size,quantity')
+        if (alive) setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)])))
         const { data: customers } = await supabase.from('profiles').select('email,full_name,created_at').order('created_at', { ascending: false }).limit(50)
         if (alive) setAdminCustomers(customers ?? [])
       }
@@ -500,6 +505,15 @@ export default function App() {
     setCatalogProducts((items) => items.map((item) => item.id === id ? { ...item, price: price ?? 0 } : item))
     setActive((item) => item.id === id ? { ...item, price: price ?? 0 } : item)
     setAdminNotice('PRODUCT PRICE UPDATED.')
+  }
+
+  const saveAdminStock = async (productId: string, size: string) => {
+    const key = `${productId}::${size}`
+    const quantity = Number(adminStockDrafts[key] ?? '')
+    if (!Number.isInteger(quantity) || quantity < 0) { setAdminNotice('ENTER A WHOLE NUMBER FOR STOCK.'); return }
+    const { error } = await supabase.from('inventory').upsert({ product_id: productId, size, quantity, updated_at: new Date().toISOString() }, { onConflict: 'product_id,size' })
+    if (error) { setAdminNotice(error.message); return }
+    setAdminNotice('STOCK UPDATED.')
   }
 
   const toggleAdminProduct = async (id: string, is_active: boolean) => {
@@ -1013,6 +1027,7 @@ export default function App() {
                   <label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label>
                   <button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button>
                   <button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button>
+                  <div className="admin-stock-grid">{p.sizes.map((size)=><label key={size}><span>{size} / QTY</span><input aria-label={p.name+' '+size+' stock'} inputMode="numeric" value={adminStockDrafts[`${p.id}::${size}`] ?? ''} placeholder="Not set" onChange={(e)=>setAdminStockDrafts((drafts)=>({...drafts,[`${p.id}::${size}`]:e.target.value}))}/><button onClick={()=>void saveAdminStock(p.id,size)}>SAVE STOCK</button></label>)}</div>
                 </article>)}
               </section>
               <section className="admin-customers">
