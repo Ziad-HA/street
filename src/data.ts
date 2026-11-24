@@ -62,18 +62,18 @@ const capProducts = [1, 2, 3].map((number) => ({
 }))
 
 export const PRODUCTS: Product[] = [
-  product('pant-01', 'PANT 01', 'PANTS', '#77766c', numberedImages('pants', 1, 4)),
-  product('pant-02', 'PANT 02', 'PANTS', '#52677a', numberedImages('pants', 2, 4)),
-  product('pant-03', 'PANT 03', 'PANTS', '#292929', numberedImages('pants', 3, 4)),
-  product('hoodie-01', 'HOODIE 01', 'HOODIES', '#202020', numberedImages('hoodies', 1, 3)),
+  product('pant-01', 'RELAXED DENIM', 'PANTS', '#77766c', numberedImages('pants', 1, 4)),
+  product('pant-02', 'WIDE LEG TROUSER', 'PANTS', '#52677a', numberedImages('pants', 2, 4)),
+  product('pant-03', 'UTILITY CARGO', 'PANTS', '#292929', numberedImages('pants', 3, 4)),
+  product('hoodie-01', 'HEAVYWEIGHT HOODIE', 'HOODIES', '#202020', numberedImages('hoodies', 1, 3)),
   ...jacketProducts.map(({ code, images }, index) =>
-    product(`jacket-${code}`, `JACKET ${String(index + 1).padStart(2, '0')}`, 'JACKETS', '#292929', images),
+    product(`jacket-${code}`, (['TRACK JACKET', 'FIELD JACKET', 'STUDIO JACKET'][index]), 'JACKETS', '#292929', images),
   ),
   ...tshirtProducts.map(({ code, images }, index) =>
-    product(`tshirt-${code}`, `T-SHIRT ${String(index + 1).padStart(2, '0')}`, 'T-SHIRTS', '#eeeeee', images),
+    product(`tshirt-${code}`, (['SIGNATURE TEE', 'GRAIN LONGSLEEVE'][index]), 'T-SHIRTS', '#eeeeee', images),
   ),
   ...capProducts.map(({ code, images }, index) =>
-    product(`cap-${code}`, `CAP ${String(index + 1).padStart(2, '0')}`, 'CAPS', '#292929', images),
+    product(`cap-${code}`, (['CORE CAP', 'STRUCTURE CAP', 'DAILY CAP'][index]), 'CAPS', '#292929', images),
   ),
 ]
 
