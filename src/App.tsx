@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { CSSProperties } from 'react'
 import { Logo3D } from './Logo3D'
-import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
+import { ANNOUNCEMENTS, ASSETS, BRAND } from './config'
 import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
 import { CATEGORIES, PRODUCTS } from './data'
 import type { Category, Product } from './data'
@@ -185,11 +185,7 @@ export default function App() {
   const [active, setActive] = useState<Product>(initialRoute.product ?? catalogProducts[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
   const [now, setNow] = useState(() => new Date())
-  const [playing, setPlaying] = useState(false)
-  const [muted, setMuted] = useState(false)
-  const [collapsed, setCollapsed] = useState(false)
   const [dark, setDark] = useState(false)
-  const audio = useRef<HTMLAudioElement>(null)
   const clickAudio = useRef<AudioContext | null>(null)
   const cursor = useRef<HTMLDivElement>(null)
   const pending = useRef<string | undefined>(undefined)
@@ -393,14 +389,6 @@ export default function App() {
     raf = requestAnimationFrame(loop)
     return () => { window.removeEventListener('mousemove', mv); cancelAnimationFrame(raf) }
   }, [])
-
-  useEffect(() => {
-    const a = audio.current
-    if (!a) return
-    a.muted = muted
-    if (playing) a.play().catch(() => setPlaying(false))
-    else a.pause()
-  }, [playing, muted])
 
   useEffect(() => {
     document.body.classList.toggle('dark', dark)
@@ -1831,17 +1819,6 @@ export default function App() {
         </div>
       </aside>
 
-      {/* music widget */}
-      {page !== 'intro' && (
-        <div className={`player ${collapsed ? 'min' : ''}`}>
-          <audio ref={audio} src={ASSETS.music || undefined} loop />
-          <Img className="cover" src={ASSETS.musicCover} />
-          <div className="meta"><b>{TRACK.title}</b><small>{TRACK.artist}</small></div>
-          <button onClick={() => setPlaying(!playing)} aria-label="Play">{playing ? '❚❚' : '▶'}</button>
-          <button onClick={() => setMuted(!muted)} aria-label="Mute">{muted ? '🔇' : '🔈'}</button>
-          <button onClick={() => setCollapsed(!collapsed)} aria-label="Collapse">‹</button>
-        </div>
-      )}
 
     </div>
   )
