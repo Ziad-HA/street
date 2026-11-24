@@ -1506,7 +1506,7 @@ export default function App() {
               <p>YOUR ORDER NUMBER</p><strong>{orderSuccess.order_number}</strong>
               <div><span>ORDER TOTAL</span><b>{money(orderSuccess.total)}</b></div>
               <p className="checkout-note">PAYMENT METHOD: CASH ON DELIVERY. THE STORE TEAM WILL CONFIRM DELIVERY DETAILS.</p>
-              {!orderSuccess.guest && <button className="solid" onClick={()=>{setOrderSuccess(null);go('account')}}>VIEW MY ACCOUNT ↗</button>}
+              {!orderSuccess.guest ? <button className="solid" onClick={()=>{setOrderSuccess(null);go('account')}}>VIEW MY ACCOUNT ↗</button> : <button className="solid" onClick={()=>{setOrderSuccess(null);go('store')}}>CONTINUE SHOPPING ↗</button>}
             </section>
           ) : cart.length === 0 ? (
             <div className="checkout-summary"><p>YOUR BAG IS EMPTY.</p><button onClick={()=>go('store')}>RETURN TO SHOP ↗</button></div>
@@ -1689,7 +1689,7 @@ export default function App() {
             <article><h2>04 / PLACING AN ORDER</h2><p>When you submit checkout, you are sending an order request. STREET checks the product, selected size, price and available stock before creating the order. An on-screen order confirmation means the order has been recorded by the store; if we cannot fulfil it, we will use the contact details supplied to discuss the next step.</p></article>
             <article><h2>05 / DELIVERY</h2><p>Available delivery options and the applicable fee are displayed at checkout. Delivery timing may depend on the destination and courier arrangements. If an order is delayed, the store should provide an update using the contact details on the order.</p></article>
             <article><h2>06 / CANCELLATIONS, RETURNS AND EXCHANGES</h2><p>STREET's detailed cancellation, return and exchange procedure has not yet been configured on this website. Please contact the store before ordering if you need to confirm eligibility or process. Nothing in these draft terms is intended to remove any rights that cannot legally be excluded.</p></article>
-            <article><h2>07 / ACCOUNT AND WEBSITE USE</h2><p>You are responsible for keeping your sign-in details private and for providing accurate order information. Do not misuse the website, attempt unauthorised access, interfere with its operation or submit unlawful content.</p></article>
+            <article><h2>07 / ACCOUNT AND WEBSITE USE</h2><p>You can place an order as a guest without creating an account. If you sign in, your order can be linked to your account; guest orders are not added to an account order history. Please provide accurate delivery and contact details. Do not misuse the website, attempt unauthorised access, interfere with its operation or submit unlawful content.</p></article>
             <article><h2>08 / CONTACT AND CHANGES</h2><p>For order questions, use the Contact or Help pages on this website. STREET may update product information and these terms when store operations change. The version displayed on this page is the version currently presented by the website.</p></article>
           </section>}
           {page === 'style-terms' && <section className="legal-copy">
