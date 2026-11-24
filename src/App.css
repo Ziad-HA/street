@@ -1797,3 +1797,21 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
   .shop-category-list button:hover sup,.shop-category-list button:hover span{color:var(--accent)}
   .shop-category-list button:hover span b{border-color:var(--accent)}
 }
+
+
+/* Tighter mobile category selector — reduce vertical scrolling. */
+@media(max-width:600px){
+  .shop-categories{padding-top:20px}
+  .shop-categories .section-head{padding-bottom:7px}
+  .shop-category-list{margin-top:8px}
+  .shop-category-list button{
+    min-height:52px;
+    padding:0 8px;
+    grid-template-columns:25px minmax(0,1fr) auto;
+    gap:8px;
+  }
+  .shop-category-list sup{font-size:7px}
+  .shop-category-list button strong{font-size:clamp(19px,5.2vw,23px)}
+  .shop-category-list button span{font-size:6px;gap:6px}
+  .shop-category-list button span b{width:23px;height:23px;font-size:12px}
+}
