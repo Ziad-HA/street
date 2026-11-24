@@ -1155,7 +1155,7 @@ export default function App() {
             </div>
             <div className="shop-masthead-visual">
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
-              <span>LIVE CATALOGUE / 030 ITEMS</span>
+              <span>LIVE CATALOGUE / {catalogProducts.length} ITEMS</span>
             </div>
             <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{catalogProducts.length} / PRODUCTS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
