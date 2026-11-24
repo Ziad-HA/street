@@ -121,6 +121,7 @@ export default function App() {
   const [collapsed, setCollapsed] = useState(false)
   const [dark, setDark] = useState(false)
   const audio = useRef<HTMLAudioElement>(null)
+  const clickAudio = useRef<AudioContext | null>(null)
   const cursor = useRef<HTMLDivElement>(null)
   const pending = useRef<string | undefined>(undefined)
 
@@ -148,6 +149,56 @@ export default function App() {
   useEffect(() => {
     const t = setInterval(() => setAnn((a) => (a + 1) % ANNOUNCEMENTS.length), 4500)
     return () => clearInterval(t)
+  }, [])
+
+  // Short mechanical calculator-key sound on every click.
+  useEffect(() => {
+    const playKeySound = () => {
+      try {
+        const AudioContextClass = window.AudioContext
+        if (!AudioContextClass) return
+        const ctx = clickAudio.current ?? (clickAudio.current = new AudioContextClass())
+        if (ctx.state === 'suspended') void ctx.resume()
+        const now = ctx.currentTime
+
+        const noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.025), ctx.sampleRate)
+        const noiseData = noiseBuffer.getChannelData(0)
+        for (let i = 0; i < noiseData.length; i++) noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseData.length)
+        const noise = ctx.createBufferSource()
+        noise.buffer = noiseBuffer
+        const filter = ctx.createBiquadFilter()
+        filter.type = 'highpass'
+        filter.frequency.setValueAtTime(900, now)
+        const noiseGain = ctx.createGain()
+        noiseGain.gain.setValueAtTime(0.16, now)
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025)
+        noise.connect(filter)
+        filter.connect(noiseGain)
+        noiseGain.connect(ctx.destination)
+        noise.start(now)
+        noise.stop(now + 0.026)
+
+        const tone = ctx.createOscillator()
+        const toneGain = ctx.createGain()
+        tone.type = 'square'
+        tone.frequency.setValueAtTime(1180, now)
+        tone.frequency.exponentialRampToValueAtTime(820, now + 0.035)
+        toneGain.gain.setValueAtTime(0.055, now)
+        toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04)
+        tone.connect(toneGain)
+        toneGain.connect(ctx.destination)
+        tone.start(now)
+        tone.stop(now + 0.042)
+      } catch {
+        // Audio may be unavailable or blocked by the browser.
+      }
+    }
+    document.addEventListener('click', playKeySound, true)
+    return () => {
+      document.removeEventListener('click', playKeySound, true)
+      void clickAudio.current?.close()
+      clickAudio.current = null
+    }
   }, [])
 
   // custom cursor follower
