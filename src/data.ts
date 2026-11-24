@@ -22,46 +22,39 @@ export interface Product {
   isDemo?: boolean
 }
 
-const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1100&q=85`
-
-function demoProduct(
+const localProduct = (
   id: string,
   name: string,
   category: Category,
   price: number,
   color: string,
-  image: string,
-  sizes: string[] = ['S', 'M', 'L', 'XL'],
-): Product {
-  return {
-    id, name, category, price, color, sizes,
-    images: [photo(image)],
-    isDemo: true,
-    details: [
-      'DEMO ITEM — NOT FOR SALE',
-      'This is a temporary catalogue example. Product specifications, fabric, fit and measurements are not verified.',
-      'Replace this demo entry with your real product information before accepting orders.',
-    ],
-  }
-}
+  images: string[],
+): Product => ({
+  id,
+  name,
+  category,
+  price,
+  color,
+  sizes: ['S', 'M', 'L', 'XL'],
+  images,
+  isDemo: true,
+  details: [
+    'DEMO ITEM — NOT FOR SALE',
+    'Product photos are connected. Add confirmed product details, pricing and stock before accepting orders.',
+  ],
+})
 
-// Temporary visual catalogue only. These examples are not real stock and cannot be purchased.
+const pantImages = (number: number) =>
+  [1, 2, 3, 4].map((view) => `/products/pants/${number}-${view}.webp`)
+
+const hoodieImages = [1, 2, 3].map((view) => `/products/hoodies/1-${view}.webp`)
+
+// Uploaded product photos are grouped by their leading product number.
 export const PRODUCTS: Product[] = [
-  demoProduct('demo-cargo-pant', 'RELAXED CARGO PANT', 'BOTTOMS', 58, '#77766c', 'photo-1515886657613-9f3515b0c78f'),
-  demoProduct('demo-track-pant', 'WIDE TRACK PANT', 'BOTTOMS', 49, '#292929', 'photo-1552902865-b72c031ac5ea'),
-  demoProduct('demo-denim-blue', 'RELAXED BLUE DENIM', 'BOTTOMS', 64, '#52677a', 'photo-1542272604-787c3835535d'),
-  demoProduct('demo-denim-black', 'WASHED BLACK DENIM', 'BOTTOMS', 68, '#292929', 'photo-1541099649105-f69ad21f3246'),
-  demoProduct('demo-denim-wide', 'WIDE LEG DENIM', 'BOTTOMS', 66, '#7a8791', 'photo-1511196044526-5cb3bcb7071b'),
-  demoProduct('demo-hoodie-black', 'OVERSIZED CORE HOODIE', 'LAYERING', 72, '#202020', 'photo-1556821840-3a63f95609a7'),
-  demoProduct('demo-hoodie-grey', 'HEAVYWEIGHT HOODIE', 'LAYERING', 78, '#888888', 'photo-1556821846-1a6e7e7e9f9d'),
-  demoProduct('demo-hoodie-cream', 'BOXY FLEECE HOODIE', 'LAYERING', 74, '#d7cdbd', 'photo-1578681994506-b8f463449011'),
-  demoProduct('demo-zip-black', 'CORE ZIP HOODIE', 'LAYERING', 82, '#242424', 'photo-1556821840-3a63f95609a7'),
-  demoProduct('demo-zip-grey', 'WASHED ZIP-UP', 'LAYERING', 86, '#8b8984', 'photo-1556821846-1a6e7e7e?'),
-  demoProduct('demo-zip-cream', 'BOXY ZIP JACKET', 'LAYERING', 84, '#d8d0c1', 'photo-1578681994506-b8f463449011'),
-  demoProduct('demo-jacket-black', 'OVERSIZED BOMBER JACKET', 'JACKETS', 96, '#252525', 'photo-1551028719-00167b16eac5'),
-  demoProduct('demo-jacket-workwear', 'UTILITY WORKWEAR JACKET', 'JACKETS', 104, '#77766c', 'photo-1591047139829-d91aecb6caea'),
-  demoProduct('demo-tee-white', 'HEAVYWEIGHT BOX T-SHIRT', 'T-SHIRTS', 38, '#e8e5df', 'photo-1521572163474-6864f9cf17ab'),
-  demoProduct('demo-tee-black', 'OVERSIZED BLACK T-SHIRT', 'T-SHIRTS', 38, '#242424', 'photo-1503342217505-b0a15ec3261c'),
+  localProduct('pant-01', 'PANT 01', 'BOTTOMS', 58, '#77766c', pantImages(1)),
+  localProduct('pant-02', 'PANT 02', 'BOTTOMS', 64, '#52677a', pantImages(2)),
+  localProduct('pant-03', 'PANT 03', 'BOTTOMS', 68, '#292929', pantImages(3)),
+  localProduct('hoodie-01', 'HOODIE 01', 'LAYERING', 72, '#202020', hoodieImages),
 ]
 
-export const OUTFIT_IDS: string[] = ['demo-tee-white', 'demo-denim-blue', 'demo-cap-black']
+export const OUTFIT_IDS: string[] = ['pant-02', 'hoodie-01']
