@@ -412,7 +412,11 @@ export default function App() {
             <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
             <div className="shop-category-list">
               {['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].map((c,i) => (
-                <button key={c} onClick={() => openCollection(c as Category)}><sup>{String(i+1).padStart(2,'0')}</sup>{c}<span>↗</span></button>
+                <button className="shop-category-card" key={c} onClick={() => openCollection(c as Category)}>
+                  <sup>DEPARTMENT / {String(i+1).padStart(2,'0')}</sup>
+                  <strong>{c}</strong>
+                  <span>EXPLORE <b>↗</b></span>
+                </button>
               ))}
             </div>
           </section>
