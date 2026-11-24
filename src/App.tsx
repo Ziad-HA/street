@@ -380,8 +380,10 @@ export default function App() {
             ))}
           </div>
           <div className="hero-top">
-            <Logo className="hero-logo" />
             <small>{dateStr} · {timeStr}</small>
+          </div>
+          <div className="hero-center-logo" aria-label="STREET logo">
+            <Logo3D pose={{ rx: 0, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} spin={0} fov={30} />
           </div>
           <button className="enter" onClick={() => go('store')}>ENTER STORE</button>
         </section>
