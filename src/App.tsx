@@ -361,7 +361,6 @@ export default function App() {
 
       {page === 'intro' && (
         <div className="intro">
-          <video className="intro-video" src={ASSETS.introVideo} autoPlay muted loop playsInline preload="auto" />
           <div className="intro-shade" />
           <div className="intro-hud"><span>STREET / SYSTEM 001</span><span>INITIALIZING EXPERIENCE</span></div>
           <Logo className="intro-logo" />
@@ -387,7 +386,20 @@ export default function App() {
             <Logo className="hero-logo" />
             <small>{dateStr} · {timeStr}</small>
           </div>
-          <Logo3D className="hero-3d" pose={POSES[scene]} pointer spin={scene === 3 ? 0.4 : 0} />
+          <div className="hero-center-stage">
+            <video className="hero-center-video" src={ASSETS.introVideo} autoPlay muted loop playsInline preload="auto" />
+            <div className="hero-orbit-3d" aria-hidden="true">
+              <svg viewBox="0 0 600 600" role="presentation">
+                <defs>
+                  <path id="street-orbit-path" d="M 300,300 m -226,0 a 226,226 0 1,1 452,0 a 226,226 0 1,1 -452,0" />
+                </defs>
+                <circle className="hero-orbit-line" cx="300" cy="300" r="226" />
+                <text className="hero-orbit-word">
+                  <textPath href="#street-orbit-path" startOffset="0%">STREET — STREET — STREET — STREET — </textPath>
+                </text>
+              </svg>
+            </div>
+          </div>
           <button className="enter" onClick={() => go('store')}>ENTER STORE</button>
         </section>
       )}
