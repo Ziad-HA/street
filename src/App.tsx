@@ -414,17 +414,16 @@ export default function App() {
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
 
   const outfitOrder: Category[] = active.category === 'PANTS'
-    ? ['HOODIES', 'JACKETS', 'T-SHIRTS', 'CAPS']
-    : active.category === 'HOODIES'
-      ? ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
-      : active.category === 'JACKETS'
-        ? ['PANTS', 'HOODIES', 'T-SHIRTS', 'CAPS']
-        : active.category === 'T-SHIRTS'
-          ? ['PANTS', 'JACKETS', 'HOODIES', 'CAPS']
-          : ['HOODIES', 'PANTS', 'JACKETS', 'T-SHIRTS']
+    ? ['JACKETS', 'T-SHIRTS']
+    : active.category === 'JACKETS'
+      ? ['T-SHIRTS', 'PANTS']
+      : active.category === 'T-SHIRTS'
+        ? ['JACKETS', 'PANTS']
+        : active.category === 'CAPS'
+          ? ['PANTS', 'JACKETS', 'HOODIES', 'T-SHIRTS', 'CAPS']
+          : ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
   const outfitProducts = outfitOrder
     .flatMap((c) => PRODUCTS.filter((p) => p.category === c && p.id !== active.id))
-    .slice(0, 4)
 
 
   return (
