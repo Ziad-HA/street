@@ -9,7 +9,7 @@ import type { Category, Product } from './data'
 import './App.css'
 import { supabase } from './lib/supabase'
 
-type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'admin'
+type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'account' | 'admin'
 
 interface CartItem {
   product: Product
@@ -128,7 +128,7 @@ function routeFromLocation(): { page: Page; category?: Category; product?: Produ
   if (parts[0] === 'contact') return { page: 'contact' }
   if (parts[0] === 'wishlist') return { page: 'wishlist' }
   if (parts[0] === 'track') return { page: 'track' }
-  if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','admin'].includes(parts[0])) return { page: parts[0] as Page }
+  if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','account','admin'].includes(parts[0])) return { page: parts[0] as Page }
   if (parts.length === 0) {
     try { return { page: localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' } }
     catch { return { page: 'intro' } }
@@ -340,6 +340,13 @@ export default function App() {
   const [trackNotice, setTrackNotice] = useState('')
   const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')
   const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')
+  const [accountMode, setAccountMode] = useState<'signin'|'signup'>('signin')
+  const [accountEmail, setAccountEmail] = useState('')
+  const [accountPassword, setAccountPassword] = useState('')
+  const [accountName, setAccountName] = useState('')
+  const [accountUser, setAccountUser] = useState<string | null>(null)
+  const [accountOrders, setAccountOrders] = useState<Array<{order_number:string;total:number;status:string;created_at:string}>>([])
+  const [accountNotice, setAccountNotice] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
   const [adminPassword, setAdminPassword] = useState('')
   const [adminNotice, setAdminNotice] = useState('')
@@ -348,6 +355,46 @@ export default function App() {
   const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
   const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])
   const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
+
+  useEffect(() => {
+    if (page !== 'account') return
+    let alive = true
+    const loadAccount = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!alive) return
+      setAccountUser(session?.user.email ?? null)
+      if (!session?.user) return
+      const { data: orders } = await supabase.from('orders').select('order_number,total,status,created_at').eq('user_id', session.user.id).order('created_at', { ascending: false })
+      if (alive) setAccountOrders(orders ?? [])
+    }
+    void loadAccount()
+    return () => { alive = false }
+  }, [page])
+
+  const submitAccount = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setAccountNotice('PLEASE WAIT…')
+    if (accountMode === 'signup') {
+      const { data, error } = await supabase.auth.signUp({ email: accountEmail.trim(), password: accountPassword, options: { data: { full_name: accountName.trim() } } })
+      if (error) { setAccountNotice(error.message); return }
+      if (data.session) { setAccountUser(data.user?.email ?? null); setAccountNotice('ACCOUNT CREATED.') }
+      else setAccountNotice('CHECK YOUR EMAIL TO CONFIRM YOUR ACCOUNT, THEN SIGN IN.')
+      return
+    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email: accountEmail.trim(), password: accountPassword })
+    if (error || !data.user) { setAccountNotice(error?.message ?? 'Unable to sign in.'); return }
+    setAccountUser(data.user.email ?? null)
+    const { data: orders } = await supabase.from('orders').select('order_number,total,status,created_at').eq('user_id', data.user.id).order('created_at', { ascending: false })
+    setAccountOrders(orders ?? [])
+    setAccountNotice('SIGNED IN.')
+  }
+
+  const signOutAccount = async () => {
+    await supabase.auth.signOut()
+    setAccountUser(null)
+    setAccountOrders([])
+    setAccountNotice('SIGNED OUT.')
+  }
 
   useEffect(() => {
     if (page !== 'admin') return
@@ -538,6 +585,7 @@ export default function App() {
         <button onClick={() => go('size-guide')}>SIZE GUIDE ↗</button>
         <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
         <button onClick={() => go('checkout')}>YOUR BAG ↗</button>
+        <button onClick={() => go('account')}>ACCOUNT ↗</button>
         <button onClick={() => go('admin')}>CONTROL ROOM ↗</button>
       </nav>
       <div className="foot-mid">
@@ -882,6 +930,16 @@ export default function App() {
           <div className="page-kicker">STREET / SECURE CHECKOUT / 009</div>
           <div className="utility-heading"><small>ALMOST YOURS</small><h1>CHECK<br/><span>OUT.</span></h1><p>Review your selected pieces. Checkout will open once verified prices, delivery fees and a payment method are configured.</p></div>
           <div className="checkout-summary">{cart.length===0?<p>YOUR BAG IS EMPTY.</p>:cart.map((item)=><div key={item.product.id+item.size}><Img src={item.product.images[0]}/><span>{item.product.name} / {item.size} × {item.qty}</span><b>{money(item.product.price*item.qty)}</b></div>)}<footer><span>SUBTOTAL</span><b>{money(subtotal)}</b></footer><button disabled>CHECKOUT UNAVAILABLE — SETUP REQUIRED</button></div>
+          {footer()}
+        </main>
+      )}
+
+
+      {page === 'account' && (
+        <main className="utility-page account-page">
+          <div className="page-kicker">STREET / YOUR ACCOUNT / 011</div>
+          <div className="utility-heading"><small>YOUR STREET PROFILE</small><h1>YOUR<br/><span>ACCOUNT.</span></h1><p>Sign in to view your account and order history, or create an account for your next STREET order.</p></div>
+          {!accountUser ? <form className="admin-login" onSubmit={submitAccount}><div className="account-mode"><button type="button" className={accountMode==='signin'?'on':''} onClick={()=>{setAccountMode('signin');setAccountNotice('')}}>SIGN IN</button><button type="button" className={accountMode==='signup'?'on':''} onClick={()=>{setAccountMode('signup');setAccountNotice('')}}>CREATE ACCOUNT</button></div>{accountMode==='signup'&&<><label>FULL NAME</label><input required value={accountName} onChange={(e)=>setAccountName(e.target.value)} placeholder="Your name"/></>}<label>EMAIL</label><input type="email" required value={accountEmail} onChange={(e)=>setAccountEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required minLength={6} value={accountPassword} onChange={(e)=>setAccountPassword(e.target.value)} placeholder="At least 6 characters"/><button className="solid" type="submit">{accountMode==='signup'?'CREATE ACCOUNT ↗':'SIGN IN ↗'}</button>{accountNotice&&<p>{accountNotice}</p>}</form> : <section className="account-orders"><div><h2>WELCOME BACK</h2><span>{accountUser}</span><button onClick={()=>void signOutAccount()}>SIGN OUT</button></div><h3>YOUR ORDERS</h3>{accountOrders.length===0?<p>NO ORDERS LINKED TO THIS ACCOUNT YET.</p>:accountOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.status.toUpperCase()}</span><strong>{money(Number(o.total))}</strong><small>{new Date(o.created_at).toLocaleDateString()}</small></article>)}</section>}
           {footer()}
         </main>
       )}
