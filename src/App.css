@@ -1760,3 +1760,40 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     bottom:28px;
   }
 }
+
+/* Mobile category selector — one connected editorial list, not separate tiles. */
+@media(max-width:600px){
+  .shop-categories{padding-top:30px}
+  .shop-categories .section-head{align-items:flex-end;padding-bottom:11px}
+  .shop-categories .section-head>span{max-width:105px;text-align:right;line-height:1.5}
+  .shop-category-list{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    margin-top:12px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .shop-category-list button{
+    min-height:68px;
+    padding:0 10px;
+    display:grid;
+    grid-template-columns:34px minmax(0,1fr) auto;
+    align-items:center;
+    justify-content:initial;
+    gap:10px;
+    border:0;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    transform:none;
+  }
+  .shop-category-list button:last-child{border-bottom:0}
+  .shop-category-list button:after{display:none}
+  .shop-category-list sup{font-size:8px;letter-spacing:.08em;color:var(--accent);align-self:center}
+  .shop-category-list button strong{font-size:clamp(21px,6vw,27px);line-height:1;letter-spacing:-.035em}
+  .shop-category-list button span{align-items:center;gap:8px;font-size:7px;letter-spacing:.12em;color:var(--mut)}
+  .shop-category-list button span b{display:grid;place-items:center;width:27px;height:27px;border:1px solid var(--line);border-radius:50%;font-size:14px}
+  .shop-category-list button:hover{background:color-mix(in srgb,var(--accent) 8%,transparent);color:var(--fg);transform:none}
+  .shop-category-list button:hover sup,.shop-category-list button:hover span{color:var(--accent)}
+  .shop-category-list button:hover span b{border-color:var(--accent)}
+}
