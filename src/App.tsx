@@ -118,6 +118,7 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart-v2', []))
   const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist-v2', []))
   const [category, setCategory] = useState<Category>('ZIP-UPS')
+  const [showAllShopProducts, setShowAllShopProducts] = useState(false)
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
@@ -347,6 +348,11 @@ export default function App() {
 
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
+  const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
+    const order = ['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES']
+    return order.indexOf(a.category) - order.indexOf(b.category)
+  })
+  const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
 
 
   return (
@@ -415,8 +421,9 @@ export default function App() {
           <section className="shop-all">
             <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{PRODUCTS.length} ITEMS / SORTED BY DEPARTMENT</span></div>
             <div className="shop-grid">
-              {[...PRODUCTS].sort((a,b) => ['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].indexOf(a.category)-['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].indexOf(b.category)).map((p,i) => <Fragment key={p.id}>{card(p,i+1,PRODUCTS.length)}</Fragment>)}
+              {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,PRODUCTS.length)}</Fragment>)}
             </div>
+            <button className="shop-expand" onClick={() => setShowAllShopProducts((v) => !v)}>{showAllShopProducts ? 'SHOW LESS ↑' : `VIEW ALL ${PRODUCTS.length} PRODUCTS ↓`}</button>
           </section>
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
           {footer()}
