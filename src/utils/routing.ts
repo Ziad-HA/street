@@ -14,6 +14,16 @@ const UTILITY_PAGES: Page[] = [
   'admin',
 ]
 
+export function productSlug(name: string): string {
+  return name
+    .normalize('NFKD')
+    .replace(/[\\u0300-\\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 export function routeFromLocation(): RouteState {
   const parts = window.location.pathname.split('/').filter(Boolean)
   if (parts[0] === 'shop') return { page: 'store' }
@@ -26,7 +36,7 @@ export function routeFromLocation(): RouteState {
   if (parts[0] === 'collections') return { page: 'collections' }
   if (parts[0] === 'product' && parts[1]) {
     const id = decodeURIComponent(parts[1])
-    const product = PRODUCTS.find((item) => item.id === id)
+    const product = PRODUCTS.find((item) => item.id === id || productSlug(item.name) === id)
     if (product) return { page: 'product', product, category: product.category }
     const category =
       CATEGORIES.find((item) => id.startsWith(`${item.toLowerCase().replace(/\s+/g, '-')}-`)) ??
