@@ -20,7 +20,7 @@ export const ASSETS = {
   /** غلاف الأغنية */
   musicCover: '',
   /** صورة (أو فيديو) الهيرو في أول صفحة المتجر */
-  storeHero: '',
+  storeHero: '/assets/hero1.mp4',
   /** صورة صفحة About Us */
   about: '',
 }
