@@ -1986,3 +1986,16 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
   .card-img>.card-image-primary,
   .card-img>.card-image-hover{transition:none}
 }
+
+
+/* Slightly larger hero entry button on phones. */
+@media(max-width:600px){
+  .enter{
+    min-width:220px;
+    min-height:58px;
+    padding:17px 34px;
+    font-size:13px;
+    letter-spacing:.25em;
+    bottom:28px;
+  }
+}
