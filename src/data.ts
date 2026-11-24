@@ -17,6 +17,7 @@ export interface Product {
   price: number
   sizes: string[]
   soldOut?: boolean
+  stockBySize?: Record<string, number>
   color: string
   images: string[]
   details: string[]
