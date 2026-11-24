@@ -952,7 +952,7 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
   .d-item small{font-size:8px}
   .d-foot{padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
   .d-foot .solid,.d-foot .outline{min-height:44px}
-  .player{right:8px;bottom:calc(8px + env(safe-area-inset-bottom));gap:7px;padding:5px 8px 5px 5px}
+  .player{left:12px;right:auto;top:calc(68px + env(safe-area-inset-top));bottom:auto;gap:7px;padding:5px 8px 5px 5px}
   .player .meta{width:62px}
   .player button{min-width:24px;min-height:28px}
   .search{padding:14px}
