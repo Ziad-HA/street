@@ -162,6 +162,7 @@ function pathForPage(page: Page, category?: Category): string {
 export default function App() {
   const initialRoute = routeFromLocation()
   const [catalogProducts, setCatalogProducts] = useState<Product[]>(PRODUCTS)
+  const [catalogReady, setCatalogReady] = useState(false)
   const [page, setPage] = useState<Page>(initialRoute.page)
   const [scene, setScene] = useState(0)
   const [menu, setMenu] = useState(false)
@@ -219,7 +220,8 @@ export default function App() {
         supabasePublic.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false }),
         supabasePublic.from('inventory').select('product_id,size,quantity'),
       ])
-      if (!alive || error || !data) return
+      if (!alive) return
+      if (error || !data) { setCatalogReady(true); return }
       const stockByProduct = new Map<string, Record<string, number>>()
       ;(stockRows ?? []).forEach((row) => {
         const current = stockByProduct.get(row.product_id) ?? {}
@@ -244,6 +246,7 @@ export default function App() {
         }
       })
       setCatalogProducts(next)
+      setCatalogReady(true)
       setCart((items) => items.map((item) => {
         const current = next.find((product) => product.id === item.product.id)
         return current ? { ...item, product: current } : item
@@ -1284,7 +1287,7 @@ export default function App() {
             </div>
             <aside className="info">
               <div className="product-panel-top"><small>STREET / {category}</small><button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)} aria-label="Save to wishlist">♡</button></div>
-              <div className="product-title-line"><h1>{active.name}</h1><div className="p-price">{money(active.price)}</div></div>
+              <div className="product-title-line"><h1>{active.name}</h1><div className="p-price" aria-live="polite">{catalogReady ? money(active.price) : 'LOADING…'}</div></div>
               <div className="product-color-row"><div className="swatch" style={{ background: active.color }} /><span>SELECTED COLOUR</span></div>
               <div className="product-size-head"><label>SIZE</label><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE</button></div>
               <div className="sizes">
@@ -1292,7 +1295,7 @@ export default function App() {
               </div>
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Verified garment measurements will be added when available.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button disabled={Boolean(active.stockBySize && qty >= (active.stockBySize[sizeSel] ?? 0))} onClick={() => setQty(qty + 1)}>+</button></div></div>
-              <button className="product-add" disabled={active.soldOut || Boolean(active.stockBySize && (active.stockBySize[sizeSel] ?? 0) < qty)} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
+              <button className="product-add" disabled={active.soldOut || Boolean(active.stockBySize && (active.stockBySize[sizeSel] ?? 0) < qty)} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{catalogReady ? money(active.price) : 'LOADING…'}</span></button>
               <div className="product-specific-details">
                 <small>ABOUT THIS PIECE</small>
                 <p>{active.details.length ? active.details.join(' ') : 'A considered STREET essential, selected for everyday styling.'}</p>
