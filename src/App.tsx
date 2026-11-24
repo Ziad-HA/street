@@ -201,6 +201,14 @@ export default function App() {
   }, [quickView])
 
   useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
+
+  useEffect(() => {
+    let active = true
+    void supabase.auth.getUser().then(({ data }) => {
+      if (active && data.user?.email) setCheckoutEmail((current) => current || data.user!.email!)
+    })
+    return () => { active = false }
+  }, [])
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
 
@@ -490,7 +498,7 @@ export default function App() {
   const [checkoutDiscount, setCheckoutDiscount] = useState(0)
   const [checkoutNotice, setCheckoutNotice] = useState('')
   const [checkoutBusy, setCheckoutBusy] = useState(false)
-  const [orderSuccess, setOrderSuccess] = useState<{order_number:string;total:number}|null>(null)
+  const [orderSuccess, setOrderSuccess] = useState<{order_number:string;total:number;guest:boolean}|null>(null)
   const [adminCoupons, setAdminCoupons] = useState<Array<{id:string;code:string;discount_type:'percent'|'fixed';discount_value:number;min_subtotal:number;max_discount:number|null;usage_limit:number|null;per_user_limit:number;used_count:number;is_active:boolean;expires_at:string|null}>>([])
   const [adminReviews, setAdminReviews] = useState<Array<{id:string;product_id:string;rating:number;title:string;body:string;status:string;created_at:string}>>([])
   const [adminShippingDraft, setAdminShippingDraft] = useState('')
@@ -863,15 +871,14 @@ export default function App() {
     setCheckoutBusy(true)
     setCheckoutNotice('VALIDATING YOUR ORDER…')
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setCheckoutBusy(false); setCheckoutNotice('SIGN IN TO YOUR ACCOUNT BEFORE CHECKOUT.'); return }
     const { data, error } = await supabase.rpc('create_street_order', {
-      p_customer: { full_name: checkoutName, phone: checkoutPhone, address: checkoutAddress, city: checkoutCity, notes: checkoutNotes },
+      p_customer: { email: checkoutEmail.trim(), full_name: checkoutName, phone: checkoutPhone, address: checkoutAddress, city: checkoutCity, notes: checkoutNotes },
       p_items: cart.map((item) => ({ product_id: item.product.id, size: item.size, quantity: item.qty })),
       p_coupon_code: checkoutCouponCode || null,
     })
     setCheckoutBusy(false)
     if (error || !data?.order_number) { setCheckoutNotice(error?.message ?? 'ORDER COULD NOT BE CREATED.'); return }
-    setOrderSuccess({ order_number: data.order_number, total: Number(data.total) })
+    setOrderSuccess({ order_number: data.order_number, total: Number(data.total), guest: !user })
     setCatalogProducts((products) => products.map((product) => {
       const stockBySize = { ...(product.stockBySize ?? {}) }
       cart.filter((item) => item.product.id === product.id).forEach((item) => {
@@ -1499,20 +1506,19 @@ export default function App() {
               <p>YOUR ORDER NUMBER</p><strong>{orderSuccess.order_number}</strong>
               <div><span>ORDER TOTAL</span><b>{money(orderSuccess.total)}</b></div>
               <p className="checkout-note">PAYMENT METHOD: CASH ON DELIVERY. THE STORE TEAM WILL CONFIRM DELIVERY DETAILS.</p>
-              <button className="solid" onClick={()=>{setOrderSuccess(null);go('account')}}>VIEW MY ACCOUNT ↗</button>
+              {!orderSuccess.guest && <button className="solid" onClick={()=>{setOrderSuccess(null);go('account')}}>VIEW MY ACCOUNT ↗</button>}
             </section>
           ) : cart.length === 0 ? (
             <div className="checkout-summary"><p>YOUR BAG IS EMPTY.</p><button onClick={()=>go('store')}>RETURN TO SHOP ↗</button></div>
-          ) : !checkoutEmail ? (
-            <div className="checkout-summary checkout-login-prompt"><p>SIGN IN BEFORE CHECKOUT TO KEEP YOUR ORDER LINKED TO YOUR ACCOUNT.</p><button onClick={()=>go('account')}>SIGN IN / CREATE ACCOUNT ↗</button></div>
           ) : (
             <div className="checkout-layout">
               <form className="checkout-form" onSubmit={submitCheckout}>
-                <div className="checkout-form-head"><small>01 / DELIVERY DETAILS</small><span>{checkoutEmail}</span></div>
-                <label>FULL NAME<input required minLength={2} value={checkoutName} onChange={(e)=>setCheckoutName(e.target.value)} placeholder="Full name"/></label>
-                <label>PHONE NUMBER<input required type="tel" minLength={7} value={checkoutPhone} onChange={(e)=>setCheckoutPhone(e.target.value)} placeholder="+20"/></label>
-                <label>CITY / AREA<input required value={checkoutCity} onChange={(e)=>setCheckoutCity(e.target.value)} placeholder="City"/></label>
-                <label>DELIVERY ADDRESS<textarea required minLength={5} rows={3} value={checkoutAddress} onChange={(e)=>setCheckoutAddress(e.target.value)} placeholder="Street, building, floor and apartment"/></label>
+                <div className="checkout-form-head"><small>01 / DELIVERY DETAILS</small><span>{checkoutEmail ? 'ACCOUNT OR GUEST' : 'GUEST CHECKOUT'}</span></div>
+                <label>EMAIL <span>OPTIONAL</span><input type="email" autoComplete="email" value={checkoutEmail} onChange={(e)=>setCheckoutEmail(e.target.value)} placeholder="name@example.com"/></label>
+                <label>FULL NAME<input required minLength={2} autoComplete="name" value={checkoutName} onChange={(e)=>setCheckoutName(e.target.value)} placeholder="Full name"/></label>
+                <label>PHONE NUMBER<input required type="tel" autoComplete="tel" minLength={7} value={checkoutPhone} onChange={(e)=>setCheckoutPhone(e.target.value)} placeholder="+20"/></label>
+                <label>CITY / AREA<input required autoComplete="address-level2" value={checkoutCity} onChange={(e)=>setCheckoutCity(e.target.value)} placeholder="City"/></label>
+                <label>DELIVERY ADDRESS<textarea required autoComplete="street-address" minLength={5} rows={3} value={checkoutAddress} onChange={(e)=>setCheckoutAddress(e.target.value)} placeholder="Street, building, floor and apartment"/></label>
                 <label>ORDER NOTES <span>OPTIONAL</span><textarea rows={2} value={checkoutNotes} onChange={(e)=>setCheckoutNotes(e.target.value)} placeholder="Anything the delivery team should know"/></label>
                 <div className="checkout-form-head"><small>02 / PAYMENT</small><span>CASH ON DELIVERY</span></div>
                 <div className="checkout-payment-option"><b>CASH ON DELIVERY</b><span>Pay when your order arrives. No card details are collected by STREET.</span></div>
