@@ -216,8 +216,9 @@ export default function App() {
         stockByProduct.set(row.product_id, current)
       })
       const next: Product[] = data.map((row) => {
-        const stockBySize = stockByProduct.get(row.id) ?? {}
-        const soldOut = (row.sizes ?? []).every((size: string) => (stockBySize[size] ?? 0) <= 0)
+        const storedStock = stockByProduct.get(row.id) ?? {}
+        const stockBySize = Object.fromEntries((row.sizes ?? []).map((size: string) => [size, storedStock[size] ?? 0]))
+        const soldOut = (row.sizes ?? []).every((size: string) => stockBySize[size] <= 0)
         return {
           id: row.id,
           name: row.name,
@@ -743,15 +744,15 @@ export default function App() {
     if (error) { setAdminNotice(error.message); return }
     setCatalogProducts((items) => items.map((product) => {
       if (product.id !== productId) return product
-      const stockBySize = { ...(product.stockBySize ?? {}), [size]: quantity }
-      const allSizesSet = product.sizes.every((item) => Object.prototype.hasOwnProperty.call(stockBySize, item))
-      return { ...product, stockBySize, soldOut: allSizesSet && product.sizes.every((item) => (stockBySize[item] ?? 0) <= 0) }
+      const stockBySize = Object.fromEntries(product.sizes.map((item) => [item, product.stockBySize?.[item] ?? 0]))
+      stockBySize[size] = quantity
+      return { ...product, stockBySize, soldOut: product.sizes.every((item) => stockBySize[item] <= 0) }
     }))
     setActive((product) => {
       if (product.id !== productId) return product
-      const stockBySize = { ...(product.stockBySize ?? {}), [size]: quantity }
-      const allSizesSet = product.sizes.every((item) => Object.prototype.hasOwnProperty.call(stockBySize, item))
-      return { ...product, stockBySize, soldOut: allSizesSet && product.sizes.every((item) => (stockBySize[item] ?? 0) <= 0) }
+      const stockBySize = Object.fromEntries(product.sizes.map((item) => [item, product.stockBySize?.[item] ?? 0]))
+      stockBySize[size] = quantity
+      return { ...product, stockBySize, soldOut: product.sizes.every((item) => stockBySize[item] <= 0) }
     })
     setAdminNotice('STOCK UPDATED.')
   }
