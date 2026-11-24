@@ -1511,3 +1511,20 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     text-align:right;
   }
 }
+
+
+/* Roomier mobile navigation and a larger, clearer rotating brand mark. */
+@media(max-width:900px){
+  .hdr{height:72px;min-height:72px;padding:0 15px;gap:12px}
+  .hdr-logo{width:68px;height:66px;flex:0 0 68px;margin:0}
+  .hdr-logo canvas{width:100%!important;height:100%!important}
+  .mobile-menu-toggle{font-size:20px;padding:10px}
+  .icons{gap:clamp(10px,3vw,16px)}
+  .icons button{min-width:32px;min-height:42px}
+}
+@media(max-width:380px){
+  .hdr{height:68px;min-height:68px;padding:0 9px;gap:7px}
+  .hdr-logo{width:60px;height:60px;flex-basis:60px}
+  .mobile-menu-toggle{padding:8px;font-size:19px}
+  .icons{gap:6px}
+}
