@@ -867,6 +867,13 @@ export default function App() {
   const cartCount = cart.reduce((n, i) => n + i.qty, 0)
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
   const checkoutTotal = Math.max(0, subtotal - checkoutDiscount) + (checkoutShipping ?? 0)
+  useEffect(() => {
+    if (!checkoutCouponCode) return
+    setCheckoutCouponCode('')
+    setCheckoutDiscount(0)
+    setCheckoutNotice('YOUR BAG CHANGED. APPLY THE COUPON AGAIN.')
+  }, [subtotal])
+
   const averageRating = productReviews.length ? productReviews.reduce((sum, review) => sum + review.rating, 0) / productReviews.length : 0
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
