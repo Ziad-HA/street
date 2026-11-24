@@ -7,7 +7,7 @@ import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
 import { CATEGORIES, PRODUCTS } from './data'
 import type { Category, Product } from './data'
 import './App.css'
-import { supabase } from './lib/supabase'
+import { supabase, supabasePublic } from './lib/supabase'
 
 type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'help' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'account' | 'admin'
 
@@ -208,7 +208,7 @@ export default function App() {
     const loadCatalogPrices = async () => {
       const [{ data, error }, { data: stockRows }] = await Promise.all([
         supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false }),
-        supabase.from('inventory').select('product_id,size,quantity'),
+        supabasePublic.from('inventory').select('product_id,size,quantity'),
       ])
       if (!alive || error || !data) return
       const stockByProduct = new Map<string, Record<string, number>>()
@@ -533,7 +533,7 @@ export default function App() {
     if (page !== 'product' || !active.id) return
     let alive = true
     const loadReviews = async () => {
-      const { data } = await supabase.from('product_reviews').select('id,rating,title,body,created_at,user_id').eq('product_id',active.id).eq('status','approved').order('created_at',{ascending:false}).limit(30)
+      const { data } = await supabasePublic.from('product_reviews').select('id,rating,title,body,created_at,user_id').eq('product_id',active.id).eq('status','approved').order('created_at',{ascending:false}).limit(30)
       if (alive) setProductReviews(data ?? [])
     }
     void loadReviews()
