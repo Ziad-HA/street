@@ -1,16 +1,16 @@
 export const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL']
 
 export const CATEGORIES = [
-  'ACCESSORIES',
-  'BOTTOMS',
-  'CREWS',
-  'DENIM',
-  'HEADWEAR',
-  'HOODIES',
-  'KNITS',
-  'OUTERWEAR',
   'TEES',
+  'HOODIES',
   'ZIP-UPS',
+  'BOTTOMS',
+  'DENIM',
+  'OUTERWEAR',
+  'CREWS',
+  'KNITS',
+  'HEADWEAR',
+  'ACCESSORIES',
 ] as const
 
 export type Category = (typeof CATEGORIES)[number]
