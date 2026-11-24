@@ -469,12 +469,6 @@ export default function App() {
   const [checkoutNotice, setCheckoutNotice] = useState('')
   const [checkoutBusy, setCheckoutBusy] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState<{order_number:string;total:number}|null>(null)
-  const [productReviews, setProductReviews] = useState<Array<{id:string;rating:number;title:string;body:string;created_at:string;user_id:string}>>([])
-  const [reviewOrderNumber, setReviewOrderNumber] = useState('')
-  const [reviewRating, setReviewRating] = useState(5)
-  const [reviewTitle, setReviewTitle] = useState('')
-  const [reviewBody, setReviewBody] = useState('')
-  const [reviewNotice, setReviewNotice] = useState('')
   const [adminCoupons, setAdminCoupons] = useState<Array<{id:string;code:string;discount_type:'percent'|'fixed';discount_value:number;min_subtotal:number;max_discount:number|null;usage_limit:number|null;per_user_limit:number;used_count:number;is_active:boolean;expires_at:string|null}>>([])
   const [adminReviews, setAdminReviews] = useState<Array<{id:string;product_id:string;rating:number;title:string;body:string;status:string;created_at:string}>>([])
   const [adminShippingDraft, setAdminShippingDraft] = useState('')
@@ -528,17 +522,6 @@ export default function App() {
     void loadCheckoutSession()
     return () => { alive = false }
   }, [page])
-
-  useEffect(() => {
-    if (page !== 'product' || !active.id) return
-    let alive = true
-    const loadReviews = async () => {
-      const { data } = await supabasePublic.from('product_reviews').select('id,rating,title,body,created_at,user_id').eq('product_id',active.id).eq('status','approved').order('created_at',{ascending:false}).limit(30)
-      if (alive) setProductReviews(data ?? [])
-    }
-    void loadReviews()
-    return () => { alive = false }
-  }, [page, active.id])
 
   useEffect(() => {
     if (page !== 'account') return
@@ -882,23 +865,6 @@ export default function App() {
     setCheckoutNotice('ORDER PLACED. PAYMENT IS CASH ON DELIVERY.')
   }
 
-  const submitProductReview = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setReviewNotice('SUBMITTING REVIEW…')
-    const { data, error } = await supabase.rpc('submit_street_review', {
-      p_order_number: reviewOrderNumber.trim(),
-      p_product_id: active.id,
-      p_rating: reviewRating,
-      p_title: reviewTitle.trim(),
-      p_body: reviewBody.trim(),
-    })
-    if (error) { setReviewNotice(error.message); return }
-    setReviewNotice(data?.message ?? 'REVIEW SUBMITTED FOR MODERATION.')
-    setReviewOrderNumber('')
-    setReviewTitle('')
-    setReviewBody('')
-  }
-
   const createAdminCoupon = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const code = newCouponCode.trim().toUpperCase()
@@ -956,7 +922,6 @@ export default function App() {
     setCheckoutNotice('YOUR BAG CHANGED. APPLY THE COUPON AGAIN.')
   }, [subtotal])
 
-  const averageRating = productReviews.length ? productReviews.reduce((sum, review) => sum + review.rating, 0) / productReviews.length : 0
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? catalogProducts.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : catalogProducts.slice(0, 4)
@@ -1290,21 +1255,6 @@ export default function App() {
               </div>
             </aside>
           </div>
-          <section className="product-reviews">
-            <div className="product-reviews-head"><div><small>STREET / CUSTOMER FEEDBACK</small><h2>THE REVIEWS<span>.</span></h2></div><div className="review-rating"><strong>{productReviews.length ? averageRating.toFixed(1) : '—'}</strong><span>{productReviews.length ? '★'.repeat(Math.round(averageRating)) : 'NO RATINGS YET'}<small>{productReviews.length} APPROVED REVIEWS</small></span></div></div>
-            <div className="product-review-list">
-              {productReviews.length===0?<p>NO REVIEWS YET. VERIFIED CUSTOMERS CAN SHARE THEIR EXPERIENCE AFTER AN ORDER.</p>:productReviews.map((review)=><article key={review.id}><div><b>{review.title}</b><span>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</span></div><p>{review.body}</p><small>VERIFIED ORDER / {new Date(review.created_at).toLocaleDateString()}</small></article>)}
-            </div>
-            <form className="product-review-form" onSubmit={submitProductReview}>
-              <div><small>REVIEW THIS PIECE</small><span>Only customers with this product in a delivered order can submit a review.</span></div>
-              <label>ORDER NUMBER<input required value={reviewOrderNumber} onChange={(e)=>setReviewOrderNumber(e.target.value)} placeholder="ST-XXXXXXXXXX"/></label>
-              <label>RATING<select value={reviewRating} onChange={(e)=>setReviewRating(Number(e.target.value))}><option value={5}>5 / EXCELLENT</option><option value={4}>4 / GREAT</option><option value={3}>3 / GOOD</option><option value={2}>2 / FAIR</option><option value={1}>1 / POOR</option></select></label>
-              <label>REVIEW TITLE<input required minLength={3} maxLength={80} value={reviewTitle} onChange={(e)=>setReviewTitle(e.target.value)} placeholder="Give your review a title"/></label>
-              <label>YOUR REVIEW<textarea required minLength={10} maxLength={1000} rows={4} value={reviewBody} onChange={(e)=>setReviewBody(e.target.value)} placeholder="Tell us about the fit, quality and your experience."/></label>
-              <button className="solid" type="submit">SUBMIT FOR REVIEW ↗</button>
-              {reviewNotice&&<p role="status">{reviewNotice}</p>}
-            </form>
-          </section>
           {outfitProducts.length > 0 && (
             <section className="complete-outfit">
               <div className="complete-outfit-head">
