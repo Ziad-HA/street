@@ -32,6 +32,17 @@ function Img({ src, className, style }: { src?: string; className?: string; styl
   )
 }
 
+
+function RotatingProductImage({ images }: { images: string[] }) {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (images.length < 2) return
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % images.length), 2200)
+    return () => window.clearInterval(timer)
+  }, [images])
+  return <Img src={images[index] ?? images[0]} />
+}
+
 function smooth(st: [number, number][]): string {
   if (st.length < 3) return `M${st.map((p) => p.join(' ')).join(' L')}`
   let d = `M${st[0][0]} ${st[0][1]}`
@@ -300,13 +311,13 @@ export default function App() {
     setProgress((p) => ({ ...p, [k]: max > 0 ? el.scrollLeft / max : 0 }))
   }
 
-  const card = (p: Product, index?: number, total?: number, row?: boolean) => (
+  const card = (p: Product, index?: number, total?: number, row?: boolean, rotateImages = false) => (
     <article className={`card ${p.soldOut ? 'sold' : ''}`}>
       <button className={`heart ${wish.includes(p.id) ? 'on' : ''}`} onClick={() => toggleWish(p.id)} aria-label="Wishlist">
         {Icon.heart}
       </button>
       <div className="card-img" onClick={() => openProduct(p)}>
-        <Img src={p.images[0]} />
+        {rotateImages ? <RotatingProductImage images={p.images} /> : <Img src={p.images[0]} />}
       </div>
       <div className="dots"><i className="on" /><i /></div>
       {index !== undefined && <div className="idx">{String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>}
@@ -589,8 +600,8 @@ export default function App() {
               </div>
               <div className="complete-outfit-marquee">
                 <div className="complete-outfit-track">
-                  {[...outfitProducts, ...outfitProducts].map((p, i) => (
-                    <Fragment key={`${p.id}-outfit-${i}`}>{card(p, (i % outfitProducts.length) + 1, outfitProducts.length, false)}</Fragment>
+                  {outfitProducts.map((p, i) => (
+                    <Fragment key={`${p.id}-outfit`}>{card(p, i + 1, outfitProducts.length, false, true)}</Fragment>
                   ))}
                 </div>
               </div>
