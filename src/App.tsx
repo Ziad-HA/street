@@ -562,49 +562,32 @@ export default function App() {
               {active.images.map((im, i) => <button key={i} type="button" className={i === imgIdx ? 'thumb-button on' : 'thumb-button'} onClick={() => setImgIdx(i)} aria-label={`Show product image ${i + 1}`}><Img src={im} /></button>)}
             </div>
             <div className="gallery" aria-label="Automatically rotating product gallery">
-              <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)} aria-label="Previous image">‹</button>
               <Img src={active.images[imgIdx]} className="g-img" />
-              <button className="arr r" onClick={() => setImgIdx((i) => (i + 1) % active.images.length)} aria-label="Next image">›</button>
-              <div className="gallery-progress" aria-label={`Image ${imgIdx + 1} of ${active.images.length}`}>
-                {active.images.map((_, i) => <button key={i} className={i === imgIdx ? 'on' : ''} onClick={() => setImgIdx(i)} aria-label={`Show image ${i + 1}`} />)}
+              <div className="gallery-controls">
+                <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)} aria-label="Previous image">‹</button>
+                <div className="gallery-progress" aria-label={`Image ${imgIdx + 1} of ${active.images.length}`}>
+                  {active.images.map((_, i) => <button key={i} className={i === imgIdx ? 'on' : ''} onClick={() => setImgIdx(i)} aria-label={`Show image ${i + 1}`} />)}
+                </div>
+                <button className="arr r" onClick={() => setImgIdx((i) => (i + 1) % active.images.length)} aria-label="Next image">›</button>
               </div>
             </div>
-            <div className="info">
-              <small>SHOP / {category} / {active.name}</small>
-              <h1>{active.name}</h1>
-              <div className="p-price">{money(active.price)}</div>
-              <label>SIZE</label>
+            <aside className="info">
+              <div className="product-panel-top"><small>STREET / {category}</small><button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)} aria-label="Save to wishlist">♡</button></div>
+              <div className="product-title-line"><h1>{active.name}</h1><div className="p-price">{money(active.price)}</div></div>
+              <div className="product-color-row"><div className="swatch" style={{ background: active.color }} /><span>SELECTED COLOUR</span></div>
+              <div className="product-size-head"><label>SIZE</label><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE</button></div>
               <div className="sizes">
                 {active.sizes.map((s) => <button key={s} className={sizeSel === s ? 'on' : ''} onClick={() => setSizeSel(s)}>{s}</button>)}
               </div>
-              <div className="swatch" style={{ background: active.color }} />
-              <label>FABRIC</label>
-              <div className="sizes"><button className="on">COTTON</button></div>
-              <div className="qty-row">
-                <label>QUANTITY</label>
-                <div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div>
-              </div>
-              <div className="links"><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE {sizeGuideOpen ? '−' : '+'}</button></div>
-              {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Add verified garment measurements for this product before publishing.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
-              <div className="buy">
-                <button className="solid" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>
-                  {Icon.bag} {active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
-                </button>
-                <button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)}>♥</button>
-              </div>
-              <button className="outline" disabled={active.soldOut} onClick={() => { add(active, sizeSel, qty) }}>BUY IT NOW</button>
-              <Pay />
+              {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Verified garment measurements will be added when available.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
+              <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div></div>
+              <button className="product-add" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
+              <div className="product-info-links"><button type="button" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '−' : '+'}</span></button>{openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}<button type="button">DELIVERY & RETURNS <span>+</span></button></div>
               <div className="prevnext">
                 <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
                 <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) + 1) % l.length]) }}>NEXT ›</span>
               </div>
-              <ul className="perks">
-                <li><b>PRODUCT INFORMATION</b><small>Review the item details and measurements before ordering.</small></li>
-                <li><b>ORDER SUPPORT</b><small>Official support and delivery policies will be published here.</small></li>
-              </ul>
-              <button className="acc" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '⌃' : '⌄'}</span></button>
-              {openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}
-            </div>
+            </aside>
           </div>
           {outfitProducts.length > 0 && (
             <section className="complete-outfit">
