@@ -460,7 +460,7 @@ export default function App() {
   const [adminNotice, setAdminNotice] = useState('')
   const [adminUser, setAdminUser] = useState<string | null>(null)
   const [adminRole, setAdminRole] = useState<string | null>(null)
-  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string; subtotal:number; shipping_fee:number; discount_amount:number; coupon_code:string|null; payment_method:string|null; payment_status:string}>>([])
   const [adminExportNotice, setAdminExportNotice] = useState('')
   const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean;sizes:string[];images:string[]}>>([])
   const [adminCustomers, setAdminCustomers] = useState<Array<{email:string|null;full_name:string|null;created_at:string}>>([])
@@ -568,7 +568,7 @@ export default function App() {
       if (!alive) return
       setAdminRole(data?.role ?? 'customer')
       if (data?.role === 'admin') {
-        const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(100)
+        const { data: orders } = await supabase.from('orders').select('order_number,customer_name,subtotal,shipping_fee,discount_amount,coupon_code,total,status,payment_method,payment_status,created_at').order('created_at', { ascending: false }).limit(100)
         if (alive) setAdminOrders(orders ?? [])
         const { data: products } = await supabase.from('products').select('id,name,category,price,is_active,sizes,images').order('category').order('name')
         if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
@@ -608,7 +608,7 @@ export default function App() {
     setAdminUser(data.user.email ?? null)
     setAdminRole('admin')
     setAdminNotice('ACCESS GRANTED.')
-    const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(100)
+    const { data: orders } = await supabase.from('orders').select('order_number,customer_name,subtotal,shipping_fee,discount_amount,coupon_code,total,status,payment_method,payment_status,created_at').order('created_at', { ascending: false }).limit(100)
     setAdminOrders(orders ?? [])
     const [{ data: products }, { data: stock }, { data: customers }] = await Promise.all([
       supabase.from('products').select('id,name,category,price,is_active,sizes,images').order('category').order('name'),
@@ -775,11 +775,17 @@ export default function App() {
 
   const exportAdminOrders = () => {
     if (!adminOrders.length) { setAdminExportNotice('NO ORDER DATA TO EXPORT.'); return }
-    const columns = ['order_number', 'customer_name', 'total_egp', 'status', 'created_at']
+    const columns = ['order_number', 'customer_name', 'subtotal_egp', 'shipping_egp', 'discount_egp', 'coupon_code', 'total_egp', 'payment_method', 'payment_status', 'order_status', 'created_at']
     const rows = adminOrders.map((order) => [
       order.order_number,
       order.customer_name,
+      Number(order.subtotal).toFixed(2),
+      Number(order.shipping_fee).toFixed(2),
+      Number(order.discount_amount).toFixed(2),
+      order.coupon_code ?? '',
       Number(order.total).toFixed(2),
+      order.payment_method ?? '',
+      order.payment_status,
       order.status,
       order.created_at,
     ])
@@ -1249,7 +1255,7 @@ export default function App() {
               {productReviews.length===0?<p>NO REVIEWS YET. VERIFIED CUSTOMERS CAN SHARE THEIR EXPERIENCE AFTER AN ORDER.</p>:productReviews.map((review)=><article key={review.id}><div><b>{review.title}</b><span>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</span></div><p>{review.body}</p><small>VERIFIED ORDER / {new Date(review.created_at).toLocaleDateString()}</small></article>)}
             </div>
             <form className="product-review-form" onSubmit={submitProductReview}>
-              <div><small>REVIEW THIS PIECE</small><span>Only customers with this product in an order can submit a review.</span></div>
+              <div><small>REVIEW THIS PIECE</small><span>Only customers with this product in a delivered order can submit a review.</span></div>
               <label>ORDER NUMBER<input required value={reviewOrderNumber} onChange={(e)=>setReviewOrderNumber(e.target.value)} placeholder="ST-XXXXXXXXXX"/></label>
               <label>RATING<select value={reviewRating} onChange={(e)=>setReviewRating(Number(e.target.value))}><option value={5}>5 / EXCELLENT</option><option value={4}>4 / GREAT</option><option value={3}>3 / GOOD</option><option value={2}>2 / FAIR</option><option value={1}>1 / POOR</option></select></label>
               <label>REVIEW TITLE<input required minLength={3} maxLength={80} value={reviewTitle} onChange={(e)=>setReviewTitle(e.target.value)} placeholder="Give your review a title"/></label>
@@ -1537,7 +1543,7 @@ export default function App() {
               <section id="admin-orders" className="admin-orders">
                 <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} / 100 RECORDS</span></div>
                 {adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}>
-                  <b>{o.order_number}</b><span>{o.customer_name}</span>
+                  <b>{o.order_number}</b><span>{o.customer_name}<small className="admin-order-meta">{o.payment_method === 'cash_on_delivery' ? 'CASH ON DELIVERY' : (o.payment_method ?? 'PAYMENT UNSET')} / {(o.payment_status ?? 'unpaid').toUpperCase()}{o.coupon_code ? ' / '+o.coupon_code : ''}</small></span>
                   <select value={o.status} onChange={(e)=>void updateAdminOrder(o.order_number,e.target.value)}>
                     <option value="pending">PENDING</option><option value="confirmed">CONFIRMED</option><option value="processing">PROCESSING</option><option value="shipped">SHIPPED</option><option value="delivered">DELIVERED</option><option value="cancelled">CANCELLED</option>
                   </select>
