@@ -931,7 +931,7 @@ export default function App() {
               {trackNotice && <span className="track-notice">{trackNotice}</span>}
             </form>
             {trackResult && <div className="track-result"><small>ORDER / {trackResult.order_number}</small><b>{trackResult.status.toUpperCase()}</b><span>PLACED {new Date(trackResult.created_at).toLocaleDateString()}</span><strong>{money(Number(trackResult.total))}</strong></div>}
-            <span className="track-support">Private order details are available after signing in to your STREET account.</span>
+            <span className="track-support">Private order details are available after signing in to your STREET account. <button onClick={() => go('account')}>SIGN IN ↗</button></span>
           </section>
           {footer()}
         </main>
@@ -950,7 +950,7 @@ export default function App() {
       {page === 'best-sellers' && (
         <main className="utility-page">
           <div className="page-kicker">STREET / THE ROTATION / 005</div>
-          <div className="utility-heading"><small>THE COMMUNITY FAVOURITES</small><h1>BEST<br/><span>SELLERS.</span></h1><p>A curated selection from the current collection. Popularity labels will reflect verified sales once orders are active.</p></div>
+          <div className="utility-heading"><small>THE CURRENT EDIT</small><h1>BEST<br/><span>SELLERS.</span></h1><p>A curated selection from the current STREET rotation. Verified sales rankings will replace this edit once orders are active.</p></div>
           <div className="grid">{catalogProducts.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
           {footer()}
         </main>
@@ -1118,7 +1118,7 @@ export default function App() {
         <div className="d-foot">
           <div className="sub"><span>SUBTOTAL</span><b>{money(subtotal)}</b></div>
           <small>CHECKOUT IS NOT ACTIVE YET. PAYMENT AND SHIPPING MUST BE CONFIGURED BEFORE TAKING ORDERS.</small>
-          <button className="solid" disabled>CHECKOUT COMING SOON</button>
+          <button className="solid" onClick={() => go('checkout')}>REVIEW CHECKOUT ↗</button>
           <button className="outline" onClick={() => setCartOpen(false)}>CONTINUE SHOPPING</button>
           <Pay />
         </div>
