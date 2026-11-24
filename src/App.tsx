@@ -204,18 +204,34 @@ export default function App() {
   useEffect(() => {
     let alive = true
     const loadCatalogPrices = async () => {
-      const { data, error } = await supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false })
+      const [{ data, error }, { data: stockRows }] = await Promise.all([
+        supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false }),
+        supabase.from('inventory').select('product_id,size,quantity'),
+      ])
       if (!alive || error || !data) return
-      const next: Product[] = data.map((row) => ({
-        id: row.id,
-        name: row.name,
-        category: row.category as Category,
-        price: row.price == null ? defaultPriceFor(row.category as Category) : Number(row.price),
-        sizes: row.sizes ?? [],
-        images: row.images ?? [],
-        color: row.color ?? '#292929',
-        details: row.description ? [row.description] : [],
-      }))
+      const stockByProduct = new Map<string, Record<string, number>>()
+      ;(stockRows ?? []).forEach((row) => {
+        const current = stockByProduct.get(row.product_id) ?? {}
+        current[row.size] = Number(row.quantity) || 0
+        stockByProduct.set(row.product_id, current)
+      })
+      const next: Product[] = data.map((row) => {
+        const stockBySize = stockByProduct.get(row.id) ?? {}
+        const hasInventoryRows = (row.sizes ?? []).some((size: string) => Object.prototype.hasOwnProperty.call(stockBySize, size))
+        const soldOut = hasInventoryRows && (row.sizes ?? []).every((size: string) => (stockBySize[size] ?? 0) <= 0)
+        return {
+          id: row.id,
+          name: row.name,
+          category: row.category as Category,
+          price: row.price == null ? defaultPriceFor(row.category as Category) : Number(row.price),
+          sizes: row.sizes ?? [],
+          images: row.images ?? [],
+          color: row.color ?? '#292929',
+          stockBySize,
+          soldOut,
+          details: row.description ? [row.description] : [],
+        }
+      })
       setCatalogProducts(next)
       setCart((items) => items.map((item) => {
         const current = next.find((product) => product.id === item.product.id)
@@ -689,7 +705,7 @@ export default function App() {
       price, sizes, images: [], color: '#292929', is_active: true,
     }).select('id,name,category,price,is_active,sizes,images').single()
     if (error || !data) { setAdminNotice(error?.message ?? 'PRODUCT COULD NOT BE CREATED.'); return }
-    const product: Product = { id: data.id, name: data.name, category: data.category as Category, price: data.price == null ? 0 : Number(data.price), sizes: data.sizes, images: data.images ?? [], color: '#292929', details: ['Product information will be updated.'] }
+    const product: Product = { id: data.id, name: data.name, category: data.category as Category, price: data.price == null ? 0 : Number(data.price), sizes: data.sizes, images: data.images ?? [], color: '#292929', stockBySize: Object.fromEntries(data.sizes.map((size: string) => [size, 0])), soldOut: true, details: ['Product information will be updated.'] }
     setAdminProducts((items) => [...items, data])
     setAdminPriceDrafts((items) => ({ ...items, [id]: rawPrice }))
     setAdminStockDrafts((items) => items)
@@ -726,6 +742,18 @@ export default function App() {
     if (rawQuantity === '' || !Number.isInteger(quantity) || quantity < 0) { setAdminNotice('ENTER A WHOLE NUMBER FOR STOCK.'); return }
     const { error } = await supabase.from('inventory').upsert({ product_id: productId, size, quantity, updated_at: new Date().toISOString() }, { onConflict: 'product_id,size' })
     if (error) { setAdminNotice(error.message); return }
+    setCatalogProducts((items) => items.map((product) => {
+      if (product.id !== productId) return product
+      const stockBySize = { ...(product.stockBySize ?? {}), [size]: quantity }
+      const allSizesSet = product.sizes.every((item) => Object.prototype.hasOwnProperty.call(stockBySize, item))
+      return { ...product, stockBySize, soldOut: allSizesSet && product.sizes.every((item) => (stockBySize[item] ?? 0) <= 0) }
+    }))
+    setActive((product) => {
+      if (product.id !== productId) return product
+      const stockBySize = { ...(product.stockBySize ?? {}), [size]: quantity }
+      const allSizesSet = product.sizes.every((item) => Object.prototype.hasOwnProperty.call(stockBySize, item))
+      return { ...product, stockBySize, soldOut: allSizesSet && product.sizes.every((item) => (stockBySize[item] ?? 0) <= 0) }
+    })
     setAdminNotice('STOCK UPDATED.')
   }
 
