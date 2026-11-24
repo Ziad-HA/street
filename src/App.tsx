@@ -4,12 +4,12 @@ import type { CSSProperties } from 'react'
 import { Logo3D } from './Logo3D'
 import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
 import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
-import { CATEGORIES, PRODUCTS, SIZES } from './data'
+import { CATEGORIES, PRODUCTS } from './data'
 import type { Category, Product } from './data'
 import './App.css'
 import { supabase } from './lib/supabase'
 
-type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'account' | 'admin'
+type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'help' | 'wishlist' | 'track' | 'new-arrivals' | 'best-sellers' | 'lookbook' | 'build-outfit' | 'size-guide' | 'checkout' | 'account' | 'admin'
 
 interface CartItem {
   product: Product
@@ -139,6 +139,7 @@ function routeFromLocation(): { page: Page; category?: Category; product?: Produ
   }
   if (parts[0] === 'studio') return { page: 'studio' }
   if (parts[0] === 'contact') return { page: 'contact' }
+  if (parts[0] === 'help') return { page: 'help' }
   if (parts[0] === 'wishlist') return { page: 'wishlist' }
   if (parts[0] === 'track') return { page: 'track' }
   if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','account','admin'].includes(parts[0])) return { page: parts[0] as Page }
@@ -375,6 +376,40 @@ export default function App() {
   useEffect(() => {
     document.body.classList.toggle('dark', dark)
   }, [dark])
+
+  useEffect(() => {
+    const pageNames: Record<Page, string> = {
+      intro: 'STREET', hero: 'STREET — Independent Streetwear', store: 'Shop All Pieces — STREET',
+      collections: 'Collections — STREET', collection: `${category} — STREET`, product: `${active.name} — STREET`,
+      studio: 'The Studio — STREET', contact: 'Contact — STREET', help: 'Help & FAQs — STREET', wishlist: 'Wishlist — STREET',
+      track: 'Order Tracking — STREET', 'new-arrivals': 'New Arrivals — STREET', 'best-sellers': 'The Current Edit — STREET',
+      lookbook: 'Lookbook — STREET', 'build-outfit': 'Build Your Outfit — STREET', 'size-guide': 'Size Guide — STREET',
+      checkout: 'Checkout — STREET', account: 'Your Account — STREET', admin: 'Store Admin — STREET',
+    }
+    const descriptions: Partial<Record<Page, string>> = {
+      hero: 'Discover STREET: considered everyday streetwear, current collections and pieces made for your own direction.',
+      store: 'Shop the STREET catalogue. Explore clothing, check available sizes and build your rotation.',
+      collections: 'Explore the latest STREET clothing collections and curated edits.',
+      product: `Discover ${active.name} from STREET. View product images, available sizes and details.`,
+      help: 'Find answers about STREET orders, payment, stock, accounts and product reviews.',
+    }
+    document.title = pageNames[page] ?? 'STREET'
+    let description = document.querySelector<HTMLMetaElement>('meta[name="description"]')
+    if (!description) { description = document.createElement('meta'); description.name = 'description'; document.head.appendChild(description) }
+    description.content = descriptions[page] ?? 'STREET is an independent streetwear project built around movement, utility and personal expression.'
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical) }
+    canonical.href = `${window.location.origin}${window.location.pathname}`
+    const setMeta = (property: string, content: string) => {
+      let meta = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`)
+      if (!meta) { meta = document.createElement('meta'); meta.setAttribute('property', property); document.head.appendChild(meta) }
+      meta.content = content
+    }
+    setMeta('og:title', document.title)
+    setMeta('og:description', description.content)
+    setMeta('og:type', 'website')
+    setMeta('og:url', canonical.href)
+  }, [page, category, active.name])
 
   const go = (p: Page, anchor?: string) => {
     setMenu(false)
@@ -1031,6 +1066,7 @@ export default function App() {
         <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
         <button onClick={() => go('checkout')}>YOUR BAG ↗</button>
         <button onClick={() => go('account')}>ACCOUNT ↗</button>
+        <button onClick={() => go('help')}>HELP & FAQ ↗</button>
       </nav>
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
@@ -1040,6 +1076,7 @@ export default function App() {
     </footer>
   )
 
+  const categorySizes = Array.from(new Set(catalogProducts.filter((p) => p.category === category).flatMap((p) => p.sizes)))
   const filtered = catalogProducts.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter)) && (minPrice === '' || p.price >= Number(minPrice)) && (maxPrice === '' || p.price <= Number(maxPrice))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => catalogProducts.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...catalogProducts].sort((a,b) => {
@@ -1063,6 +1100,7 @@ export default function App() {
 
   return (
     <div className={`app page-${page}`}>
+      <a className="skip-link" href="#main-content">SKIP TO CONTENT</a>
       <div className="cursor" ref={cursor} />
 
       {page === 'intro' && (
@@ -1104,7 +1142,7 @@ export default function App() {
       {page !== 'intro' && page !== 'hero' && header()}
 
       {page === 'store' && (
-        <main className="store shop-page">
+        <main id="main-content" className="store shop-page">
           <section className="shop-masthead">
             <div className="shop-masthead-copy">
               <div className="page-kicker">STREET / PRODUCT DATABASE / 001</div>
@@ -1143,7 +1181,7 @@ export default function App() {
       )}
 
       {page === 'collections' && (
-        <main className="collections-page">
+        <main id="main-content" className="collections-page">
           <div className="page-kicker">STREET / CURATED EDITS / 002</div>
           <section className="collections-intro">
             <small>NOT A PRODUCT LIST. A POINT OF VIEW.</small>
@@ -1185,7 +1223,7 @@ export default function App() {
       )}
 
       {page === 'collection' && (
-        <main className="collection">
+        <main id="main-content" className="collection">
           <h1>{categoryLabel(category)}</h1>
           <small>{filtered.length} PRODUCTS</small>
           <div className="tabs">
@@ -1194,7 +1232,7 @@ export default function App() {
             ))}
           </div>
           <div className="toolbar">
-            <div className="sz"><span>SIZE</span>{SIZES.map((s) => (
+            <div className="sz"><span>SIZE</span>{categorySizes.map((s) => (
               <button key={s} className={sizeFilter === s ? 'on' : ''} onClick={() => setSizeFilter(sizeFilter === s ? null : s)}>{s}</button>
             ))}</div>
             <div className="tools">
@@ -1214,7 +1252,7 @@ export default function App() {
       )}
 
       {page === 'product' && (
-        <main className="pdp">
+        <main id="main-content" className="pdp">
           <div className="pdp-wrap">
             <div className={`gallery ${galleryPaused ? 'is-paused' : ''}`} aria-label="Continuously moving horizontal product gallery">
               <div className="product-gallery-track">
@@ -1284,7 +1322,7 @@ export default function App() {
       )}
 
       {page === 'studio' && (
-        <main className="studio-page">
+        <main id="main-content" className="studio-page">
           <div className="page-kicker">STREET / THE STUDIO / 003</div>
           <section className="studio-hero">
             <div className="studio-title"><small>AN INDEPENDENT STREETWEAR PROJECT</small><h1>BUILT<br />TO MOVE<br /><span>DIFFERENT.</span></h1></div>
@@ -1302,7 +1340,7 @@ export default function App() {
       )}
 
       {page === 'contact' && (
-        <main className="contact-page">
+        <main id="main-content" className="contact-page">
           <div className="page-kicker">STREET / GET IN TOUCH</div>
           <section className="contact-layout">
             <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
@@ -1317,8 +1355,26 @@ export default function App() {
         </main>
       )}
 
+      {page === 'help' && (
+        <main id="main-content" className="utility-page help-page">
+          <div className="page-kicker">STREET / CUSTOMER SUPPORT / 012</div>
+          <div className="utility-heading"><small>GOOD TO KNOW BEFORE YOU ORDER</small><h1>HELP<br/><span>& ANSWERS.</span></h1><p>Clear information about how the current STREET store works.</p></div>
+          <section className="help-intro"><b>THE CURRENT STORE SETUP</b><p>STREET currently supports cash on delivery. Product availability is based on the live size-level stock shown in the store. Some store services may remain unavailable until the team completes their setup.</p></section>
+          <section className="help-faq-list">
+            <article><small>01 / ORDERS</small><h2>How do I place an order?</h2><p>Add available pieces to your bag, sign in or create an account, then enter your delivery details at checkout. Your order is checked against current prices and stock before it is created.</p></article>
+            <article><small>02 / PAYMENT</small><h2>Which payment methods are available?</h2><p>Cash on delivery is the currently supported payment method. STREET does not collect card details through this checkout.</p></article>
+            <article><small>03 / AVAILABILITY</small><h2>Why is my size unavailable?</h2><p>Sizes are enabled only when inventory has been added for that exact product and size. If a size is disabled, it is currently unavailable to order.</p></article>
+            <article><small>04 / TRACKING</small><h2>Where can I track my order?</h2><p>Sign in to your STREET account to view your order history and status. Private order details are only available to the account that placed the order.</p><button className="text-button" onClick={() => go('account')}>GO TO MY ACCOUNT ↗</button></article>
+            <article><small>05 / REVIEWS</small><h2>Who can leave a review?</h2><p>Reviews are available after a delivered order containing that product. Submitted reviews are checked before appearing publicly.</p></article>
+            <article><small>06 / RETURNS</small><h2>How do returns and exchanges work?</h2><p>The store's return and exchange terms have not yet been published. Please confirm the policy with the store team before placing an order.</p></article>
+            <article><small>07 / SUPPORT</small><h2>How can I contact STREET?</h2><p>Official contact details have not yet been configured on the website. The Contact page will be updated when the store's support channel is confirmed.</p><button className="text-button" onClick={() => go('contact')}>CONTACT PAGE ↗</button></article>
+          </section>
+          {footer()}
+        </main>
+      )}
+
       {page === 'wishlist' && (
-        <main className="wishlist-page">
+        <main id="main-content" className="wishlist-page">
           <div className="page-kicker">STREET / YOUR SAVED PIECES</div>
           <div className="wishlist-heading"><div><small>KEEP YOUR FAVOURITES CLOSE</small><h1>WISHLIST</h1></div><span>{wish.length} SAVED ITEMS</span></div>
           {wish.length ? <div className="grid">{catalogProducts.filter((p) => wish.includes(p.id)).map((p, i) => <Fragment key={p.id}>{card(p, i + 1, wish.length)}</Fragment>)}</div> : <div className="wishlist-empty"><h2>NOTHING SAVED. YET.</h2><p>Save the pieces you like and they’ll be waiting here.</p><button className="solid" onClick={() => go('store')}>DISCOVER THE STORE</button></div>}
@@ -1327,7 +1383,7 @@ export default function App() {
       )}
 
       {page === 'track' && (
-        <main className="track-page">
+        <main id="main-content" className="track-page">
           <div className="page-kicker">STREET / ORDER SUPPORT</div>
           <section className="track-panel">
             <small>YOUR ORDER, YOUR WAY</small><h1>TRACK<br />YOUR ORDER.</h1>
@@ -1347,7 +1403,7 @@ export default function App() {
 
 
       {page === 'new-arrivals' && (
-        <main className="utility-page">
+        <main id="main-content" className="utility-page">
           <div className="page-kicker">STREET / JUST LANDED / 004</div>
           <div className="utility-heading"><small>THE LATEST ADDITIONS</small><h1>NEW<br/><span>ARRIVALS.</span></h1><p>Fresh pieces entering the STREET rotation.</p></div>
           {catalogProducts[0] && (
@@ -1363,7 +1419,7 @@ export default function App() {
       )}
 
       {page === 'best-sellers' && (
-        <main className="utility-page">
+        <main id="main-content" className="utility-page">
           <div className="page-kicker">STREET / THE ROTATION / 005</div>
           <div className="utility-heading"><small>THE CURRENT EDIT</small><h1>BEST<br/><span>SELLERS.</span></h1><p>A curated selection from the current STREET rotation. Verified sales rankings will replace this edit once orders are active.</p></div>
           <div className="grid">{catalogProducts.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
@@ -1372,7 +1428,7 @@ export default function App() {
       )}
 
       {page === 'lookbook' && (
-        <main className="utility-page lookbook-page">
+        <main id="main-content" className="utility-page lookbook-page">
           <div className="page-kicker">STREET / VISUAL STORIES / 006</div>
           <div className="utility-heading"><small>THE WAY WE SEE IT</small><h1>THE<br/><span>LOOKBOOK.</span></h1><p>Pieces are only the beginning. Build a look, make it personal, wear it your way.</p></div>
           <div className="lookbook-grid">
@@ -1385,7 +1441,7 @@ export default function App() {
       )}
 
       {page === 'build-outfit' && (
-        <main className="utility-page outfit-builder-page">
+        <main id="main-content" className="utility-page outfit-builder-page">
           <div className="page-kicker">STREET / PERSONAL STYLING / 007</div>
           <div className="utility-heading"><small>MAKE THE COMBINATION YOURS</small><h1>BUILD YOUR<br/><span>OUTFIT.</span></h1><p>Choose a bottom and a top from the current STREET collection.</p></div>
           <div className="outfit-builder">
@@ -1404,7 +1460,7 @@ export default function App() {
       )}
 
       {page === 'size-guide' && (
-        <main className="utility-page">
+        <main id="main-content" className="utility-page">
           <div className="page-kicker">STREET / FIT REFERENCE / 008</div>
           <div className="utility-heading"><small>FIND YOUR FIT</small><h1>SIZE<br/><span>GUIDE.</span></h1><p>Use this page as a fit reference. Exact garment measurements will be published after the pieces are measured.</p></div>
           <div className="size-guide-page-table"><div><b>CATEGORY</b><b>AVAILABLE SIZES</b><b>MEASUREMENTS</b></div>{CATEGORIES.map((c)=><div key={c}><b>{c}</b><span>{c==='PANTS'?'30 / 32 / 34 / 36 / 38 / 40 / 42':'S / M / L / XL'}</span><span>TO BE CONFIRMED</span></div>)}</div>
@@ -1413,7 +1469,7 @@ export default function App() {
       )}
 
       {page === 'checkout' && (
-        <main className="utility-page checkout-page">
+        <main id="main-content" className="utility-page checkout-page">
           <div className="page-kicker">STREET / SECURE CHECKOUT / 009</div>
           <div className="utility-heading"><small>ALMOST YOURS</small><h1>CHECK<br/><span>OUT.</span></h1><p>Place a cash-on-delivery order. Your prices, coupon and available stock are verified securely before the order is created.</p></div>
           {orderSuccess ? (
@@ -1458,7 +1514,7 @@ export default function App() {
 
 
       {page === 'account' && (
-        <main className="utility-page account-page">
+        <main id="main-content" className="utility-page account-page">
           <div className="page-kicker">STREET / YOUR ACCOUNT / 011</div>
           <div className="utility-heading"><small>YOUR STREET PROFILE</small><h1>YOUR<br/><span>ACCOUNT.</span></h1><p>Sign in to view your account and order history, or create an account for your next STREET order.</p></div>
           {!accountUser ? <form className="admin-login" onSubmit={submitAccount}><div className="account-mode"><button type="button" className={accountMode==='signin'?'on':''} onClick={()=>{setAccountMode('signin');setAccountNotice('')}}>SIGN IN</button><button type="button" className={accountMode==='signup'?'on':''} onClick={()=>{setAccountMode('signup');setAccountNotice('')}}>CREATE ACCOUNT</button></div>{accountMode==='signup'&&<><label>FULL NAME</label><input required value={accountName} onChange={(e)=>setAccountName(e.target.value)} placeholder="Your name"/></>}<label>EMAIL</label><input type="email" required value={accountEmail} onChange={(e)=>setAccountEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required minLength={6} value={accountPassword} onChange={(e)=>setAccountPassword(e.target.value)} placeholder="At least 6 characters"/><button className="solid" type="submit">{accountMode==='signup'?'CREATE ACCOUNT ↗':'SIGN IN ↗'}</button>{accountNotice&&<p>{accountNotice}</p>}{accountMode==='signin'&&<button type="button" className="text-button" onClick={()=>void resendAccountConfirmation()}>RESEND CONFIRMATION EMAIL ↗</button>}</form> : <section className="account-orders"><div><h2>WELCOME BACK</h2><span>{accountUser}</span><button onClick={()=>void signOutAccount()}>SIGN OUT</button></div><h3>YOUR ORDERS</h3>{accountOrders.length===0?<p>NO ORDERS LINKED TO THIS ACCOUNT YET.</p>:accountOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.status.toUpperCase()}</span><strong>{money(Number(o.total))}</strong><small>{new Date(o.created_at).toLocaleDateString()}</small></article>)}</section>}
@@ -1467,7 +1523,7 @@ export default function App() {
       )}
 
       {page === 'admin' && (
-        <main className="utility-page admin-page modern-admin">
+        <main id="main-content" className="utility-page admin-page modern-admin">
           <div className="admin-topbar">
             <div className="admin-brand"><span className="admin-brand-mark">S</span><div><b>STREET</b><small>COMMERCE / ADMIN</small></div></div>
             <div className="admin-topbar-meta"><span className="admin-live-dot" /> PRIVATE WORKSPACE <span className="admin-topbar-divider">/</span> 010</div>
