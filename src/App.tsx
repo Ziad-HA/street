@@ -146,6 +146,7 @@ function pathForPage(page: Page, category?: Category): string {
 
 export default function App() {
   const initialRoute = routeFromLocation()
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(PRODUCTS)
   const [page, setPage] = useState<Page>(initialRoute.page)
   const [scene, setScene] = useState(0)
   const [menu, setMenu] = useState(false)
@@ -161,7 +162,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
   const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed-v2', []))
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
-  const [active, setActive] = useState<Product>(initialRoute.product ?? PRODUCTS[0] ?? EMPTY_PRODUCT)
+  const [active, setActive] = useState<Product>(initialRoute.product ?? catalogProducts[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
   const [now, setNow] = useState(() => new Date())
   const [playing, setPlaying] = useState(false)
@@ -176,6 +177,23 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
+
+  useEffect(() => {
+    let alive = true
+    const loadCatalogPrices = async () => {
+      const { data, error } = await supabase.from('products').select('id,price,is_active')
+      if (!alive || error || !data) return
+      const next = PRODUCTS.map((product) => {
+        const row = data.find((item) => item.id === product.id)
+        return row ? { ...product, price: row.price == null ? 0 : Number(row.price), soldOut: !row.is_active } : product
+      })
+      setCatalogProducts(next)
+      setActive((current) => next.find((product) => product.id === current.id) ?? current)
+    }
+    void loadCatalogPrices()
+    return () => { alive = false }
+  }, [])
+
 
   // Keep the visible page in sync with real browser URLs (back/forward and direct links).
   useEffect(() => {
@@ -339,8 +357,8 @@ export default function App() {
   const [trackCode, setTrackCode] = useState('')
   const [trackNotice, setTrackNotice] = useState('')
   const [trackResult, setTrackResult] = useState<{order_number:string;status:string;created_at:string;total:number}|null>(null)
-  const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')
-  const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')
+  const [outfitBottom, setOutfitBottom] = useState(catalogProducts.find((p) => p.category === 'PANTS')?.id ?? '')
+  const [outfitTop, setOutfitTop] = useState(catalogProducts.find((p) => p.category === 'HOODIES')?.id ?? '')
   const [accountMode, setAccountMode] = useState<'signin'|'signup'>('signin')
   const [accountEmail, setAccountEmail] = useState('')
   const [accountPassword, setAccountPassword] = useState('')
@@ -472,6 +490,8 @@ export default function App() {
     const { error } = await supabase.from('products').update({ price, updated_at: new Date().toISOString() }).eq('id', id)
     if (error) { setAdminNotice(error.message); return }
     setAdminProducts((items) => items.map((item) => item.id === id ? { ...item, price } : item))
+    setCatalogProducts((items) => items.map((item) => item.id === id ? { ...item, price: price ?? 0 } : item))
+    setActive((item) => item.id === id ? { ...item, price: price ?? 0 } : item)
     setAdminNotice('PRODUCT PRICE UPDATED.')
   }
 
@@ -491,8 +511,8 @@ export default function App() {
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.slice(0, 4)
-  }, [query])
+    return q ? catalogProducts.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : catalogProducts.slice(0, 4)
+  }, [query, catalogProducts])
 
   const dateStr = now
     .toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
@@ -610,9 +630,9 @@ export default function App() {
     </footer>
   )
 
-  const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
-  const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
-  const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
+  const filtered = catalogProducts.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
+  const recentlyViewed = recentIds.map((id) => catalogProducts.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
+  const orderedShopProducts = [...catalogProducts].sort((a,b) => {
     const order = ['PANTS','JACKETS','HOODIES','T-SHIRTS','CAPS']
     return order.indexOf(a.category) - order.indexOf(b.category)
   })
@@ -628,7 +648,7 @@ export default function App() {
           ? ['PANTS', 'JACKETS', 'HOODIES', 'T-SHIRTS', 'CAPS']
           : ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
   const outfitProducts = outfitOrder
-    .flatMap((c) => PRODUCTS.filter((p) => p.category === c && p.id !== active.id))
+    .flatMap((c) => catalogProducts.filter((p) => p.category === c && p.id !== active.id))
 
 
   return (
@@ -686,7 +706,7 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{PRODUCTS.length} / PRODUCTS</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{catalogProducts.length} / catalogProducts</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
               <section className="shop-categories">
             <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
@@ -701,11 +721,11 @@ export default function App() {
             </div>
           </section>
           <section className="shop-all">
-            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{PRODUCTS.length} PRODUCTS / SORTED BY DEPARTMENT</span></div>
+            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{catalogProducts.length} catalogProducts / SORTED BY DEPARTMENT</span></div>
             <div className="shop-grid">
-              {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,PRODUCTS.length)}</Fragment>)}
+              {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,catalogProducts.length)}</Fragment>)}
             </div>
-            <button className="shop-expand" onClick={() => setShowAllShopProducts((v) => !v)}>{showAllShopProducts ? 'SHOW LESS ↑' : `VIEW ALL ${PRODUCTS.length} PRODUCTS ↓`}</button>
+            <button className="shop-expand" onClick={() => setShowAllShopProducts((v) => !v)}>{showAllShopProducts ? 'SHOW LESS ↑' : `VIEW ALL ${catalogProducts.length} catalogProducts ↓`}</button>
           </section>
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
           {footer()}
@@ -738,7 +758,7 @@ export default function App() {
       {page === 'collection' && (
         <main className="collection">
           <h1>{categoryLabel(category)}</h1>
-          <small>{filtered.length} PRODUCTS</small>
+          <small>{filtered.length} catalogProducts</small>
           <div className="tabs">
             {CATEGORIES.map((c) => (
               <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null); window.history.pushState({}, '', `/collections/${encodeURIComponent(String(c).toLowerCase())}`) }}>{categoryLabel(c as Category)}</button>
@@ -758,7 +778,7 @@ export default function App() {
           <div className="grid">
             {filtered.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, filtered.length)}</Fragment>)}
           </div>
-          {filtered.length === 0 && <div className="catalog-empty"><h2>NO PRODUCTS IN THIS COLLECTION YET.</h2><p>Product listings will appear here once the real product photos, prices and sizes are added.</p></div>}
+          {filtered.length === 0 && <div className="catalog-empty"><h2>NO catalogProducts IN THIS COLLECTION YET.</h2><p>Product listings will appear here once the real product photos, prices and sizes are added.</p></div>}
           {footer()}
         </main>
       )}
@@ -794,8 +814,8 @@ export default function App() {
               <button className="product-add" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
               <div className="product-info-links"><button type="button" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '−' : '+'}</span></button>{openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}<button type="button">DELIVERY & RETURNS <span>+</span></button></div>
               <div className="prevnext">
-                <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
-                <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) + 1) % l.length]) }}>NEXT ›</span>
+                <span onClick={() => { const l = catalogProducts.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
+                <span onClick={() => { const l = catalogProducts.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) + 1) % l.length]) }}>NEXT ›</span>
               </div>
             </aside>
           </div>
@@ -843,7 +863,7 @@ export default function App() {
             <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
             <div className="contact-details">
               <div><small>ORDERS</small><b>Questions about an order</b><span>Use the contact channel provided with your order confirmation.</span></div>
-              <div><small>PRODUCTS</small><b>Sizing, fit and product information</b><span>Product-specific details will be listed on each product page.</span></div>
+              <div><small>catalogProducts</small><b>Sizing, fit and product information</b><span>Product-specific details will be listed on each product page.</span></div>
               <div><small>COLLABORATIONS</small><b>Press and creative enquiries</b><span>Official contact details will be added here.</span></div>
             </div>
           </section>
@@ -856,7 +876,7 @@ export default function App() {
         <main className="wishlist-page">
           <div className="page-kicker">STREET / YOUR SAVED PIECES</div>
           <div className="wishlist-heading"><div><small>KEEP YOUR FAVOURITES CLOSE</small><h1>WISHLIST</h1></div><span>{wish.length} SAVED ITEMS</span></div>
-          {wish.length ? <div className="grid">{PRODUCTS.filter((p) => wish.includes(p.id)).map((p, i) => <Fragment key={p.id}>{card(p, i + 1, wish.length)}</Fragment>)}</div> : <div className="wishlist-empty"><h2>NOTHING SAVED. YET.</h2><p>Save the pieces you like and they’ll be waiting here.</p><button className="solid" onClick={() => go('store')}>DISCOVER THE STORE</button></div>}
+          {wish.length ? <div className="grid">{catalogProducts.filter((p) => wish.includes(p.id)).map((p, i) => <Fragment key={p.id}>{card(p, i + 1, wish.length)}</Fragment>)}</div> : <div className="wishlist-empty"><h2>NOTHING SAVED. YET.</h2><p>Save the pieces you like and they’ll be waiting here.</p><button className="solid" onClick={() => go('store')}>DISCOVER THE STORE</button></div>}
           {footer()}
         </main>
       )}
@@ -885,7 +905,7 @@ export default function App() {
         <main className="utility-page">
           <div className="page-kicker">STREET / JUST LANDED / 004</div>
           <div className="utility-heading"><small>THE LATEST ADDITIONS</small><h1>NEW<br/><span>ARRIVALS.</span></h1><p>Fresh pieces entering the STREET rotation.</p></div>
-          <div className="grid">{[...PRODUCTS].slice(-8).reverse().map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          <div className="grid">{[...catalogProducts].slice(-8).reverse().map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
           {footer()}
         </main>
       )}
@@ -894,7 +914,7 @@ export default function App() {
         <main className="utility-page">
           <div className="page-kicker">STREET / THE ROTATION / 005</div>
           <div className="utility-heading"><small>THE COMMUNITY FAVOURITES</small><h1>BEST<br/><span>SELLERS.</span></h1><p>A curated selection from the current collection. Popularity labels will reflect verified sales once orders are active.</p></div>
-          <div className="grid">{PRODUCTS.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
+          <div className="grid">{catalogProducts.slice(0,8).map((p,i)=><Fragment key={p.id}>{card(p,i+1,8)}</Fragment>)}</div>
           {footer()}
         </main>
       )}
@@ -904,7 +924,7 @@ export default function App() {
           <div className="page-kicker">STREET / VISUAL STORIES / 006</div>
           <div className="utility-heading"><small>THE WAY WE SEE IT</small><h1>THE<br/><span>LOOKBOOK.</span></h1><p>Pieces are only the beginning. Build a look, make it personal, wear it your way.</p></div>
           <div className="lookbook-grid">
-            {PRODUCTS.filter((p)=>['PANTS','JACKETS','HOODIES','T-SHIRTS'].includes(p.category)).slice(0,6).map((p,i)=>(
+            {catalogProducts.filter((p)=>['PANTS','JACKETS','HOODIES','T-SHIRTS'].includes(p.category)).slice(0,6).map((p,i)=>(
               <button className="lookbook-tile" key={p.id} onClick={()=>openProduct(p)}><Img src={p.images[0]}/><span>STREET / FRAME {String(i+1).padStart(2,'0')}</span><b>{p.name}</b><i>DISCOVER PIECE ↗</i></button>
             ))}
           </div>
@@ -919,12 +939,12 @@ export default function App() {
           <div className="outfit-builder">
             <div className="outfit-preview">
               <small>YOUR COMBINATION / LIVE PREVIEW</small>
-              <div className="outfit-preview-pieces">{[outfitBottom,outfitTop].map((id)=>{const p=PRODUCTS.find((item)=>item.id===id);return p?<button key={id} onClick={()=>openProduct(p)}><Img src={p.images[0]}/><b>{p.name}</b></button>:null})}</div>
+              <div className="outfit-preview-pieces">{[outfitBottom,outfitTop].map((id)=>{const p=catalogProducts.find((item)=>item.id===id);return p?<button key={id} onClick={()=>openProduct(p)}><Img src={p.images[0]}/><b>{p.name}</b></button>:null})}</div>
               <span>STREET / STYLE IT YOUR WAY</span>
             </div>
             <div className="outfit-choices">
-              <section><h2>01 / CHOOSE YOUR BOTTOM</h2><div>{PRODUCTS.filter((p)=>p.category==='PANTS').map((p)=><button className={outfitBottom===p.id?'selected':''} key={p.id} onClick={()=>setOutfitBottom(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
-              <section><h2>02 / CHOOSE YOUR TOP</h2><div>{PRODUCTS.filter((p)=>['HOODIES','JACKETS','T-SHIRTS'].includes(p.category)).map((p)=><button className={outfitTop===p.id?'selected':''} key={p.id} onClick={()=>setOutfitTop(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
+              <section><h2>01 / CHOOSE YOUR BOTTOM</h2><div>{catalogProducts.filter((p)=>p.category==='PANTS').map((p)=><button className={outfitBottom===p.id?'selected':''} key={p.id} onClick={()=>setOutfitBottom(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
+              <section><h2>02 / CHOOSE YOUR TOP</h2><div>{catalogProducts.filter((p)=>['HOODIES','JACKETS','T-SHIRTS'].includes(p.category)).map((p)=><button className={outfitTop===p.id?'selected':''} key={p.id} onClick={()=>setOutfitTop(p.id)}><Img src={p.images[0]}/><span>{p.name}</span></button>)}</div></section>
             </div>
           </div>
           {footer()}
@@ -988,7 +1008,7 @@ export default function App() {
             <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="WHAT ARE YOU LOOKING FOR?" />
             <button onClick={() => setSearch(false)}>{Icon.close}</button>
           </div>
-          <small>FEATURED PRODUCTS</small>
+          <small>FEATURED catalogProducts</small>
           <div className="s-grid">{results.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, results.length)}</Fragment>)}</div>
           <small>COLLECTIONS</small>
           <ul className="s-cols">
