@@ -679,8 +679,8 @@ export default function App() {
     ])
     const csv = [columns, ...rows].map((row) => row.map((value) => {
       const safe = String(value ?? '').replace(/"/g, '""')
-      return /[",\\n]/.test(safe) ? `"${safe}"` : safe
-    }).join(',')).join('\\r\\n')
+      return /[",\n]/.test(safe) ? `"${safe}"` : safe
+    }).join(',')).join('\r\n')
     const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
