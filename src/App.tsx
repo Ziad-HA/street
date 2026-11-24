@@ -452,7 +452,8 @@ export default function App() {
   const [sizeSel, setSizeSel] = useState('XS')
   const [qty, setQty] = useState(1)
   const [galleryPaused, setGalleryPaused] = useState(false)
-  const [openDetails, setOpenDetails] = useState(true)
+  const [openMaterials, setOpenMaterials] = useState(false)
+  const [openDelivery, setOpenDelivery] = useState(false)
   const [trackCode, setTrackCode] = useState('')
   const [trackNotice, setTrackNotice] = useState('')
   const [trackResult, setTrackResult] = useState<{order_number:string;status:string;created_at:string;total:number}|null>(null)
@@ -1248,7 +1249,37 @@ export default function App() {
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Verified garment measurements will be added when available.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="product-quantity"><label>QUANTITY</label><div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button disabled={Boolean(active.stockBySize && qty >= (active.stockBySize[sizeSel] ?? 0))} onClick={() => setQty(qty + 1)}>+</button></div></div>
               <button className="product-add" disabled={active.soldOut || Boolean(active.stockBySize && (active.stockBySize[sizeSel] ?? 0) < qty)} onClick={() => add(active, sizeSel, qty)}>{active.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(active.price)}</span></button>
-              <div className="product-info-links"><button type="button" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '−' : '+'}</span></button>{openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}<button type="button">DELIVERY & RETURNS <span>+</span></button></div>
+              <div className="product-specific-details">
+                <small>ABOUT THIS PIECE</small>
+                <p>{active.details.length ? active.details.join(' ') : 'A considered STREET essential, selected for everyday styling.'}</p>
+              </div>
+              <div className="product-info-links">
+                <section className={openMaterials ? 'is-open' : ''}>
+                  <button type="button" onClick={() => setOpenMaterials((open) => !open)} aria-expanded={openMaterials}>
+                    <span className="product-accordion-label">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5C12 3.5 5 6.5 5 13.2c0 3.2 2.2 5.3 5.1 5.3 6.7 0 9.7-7 10.4-15Z"/><path d="M3.5 21c3.2-5.2 7.2-8.7 12.1-11.3"/></svg>
+                      MATERIALS, CARE AND SOURCE
+                    </span><span className="product-accordion-symbol">{openMaterials ? '−' : '+'}</span>
+                  </button>
+                  {openMaterials && <div className="product-accordion-content">
+                    <p><b>Materials</b><br/>The exact fabric composition has not been confirmed for this piece yet. Please check the garment label for verified fibre details.</p>
+                    <p><b>Care</b><br/>Follow the care label. To help preserve the colour and print, wash inside out with similar colours and avoid high heat.</p>
+                    <p><b>Source</b><br/>Designed and selected for the STREET collection. Country of manufacture is not currently listed.</p>
+                  </div>}
+                </section>
+                <section className={openDelivery ? 'is-open' : ''}>
+                  <button type="button" onClick={() => setOpenDelivery((open) => !open)} aria-expanded={openDelivery}>
+                    <span className="product-accordion-label">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h11v11H3z"/><path d="M14 10h4l3 3v4h-7z"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg>
+                      DELIVERIES AND RETURNS
+                    </span><span className="product-accordion-symbol">{openDelivery ? '−' : '+'}</span>
+                  </button>
+                  {openDelivery && <div className="product-accordion-content">
+                    <p><b>Delivery</b><br/>The delivery fee is shown at checkout for your order. Payment is currently cash on delivery.</p>
+                    <p><b>Returns and exchanges</b><br/>The store's return and exchange terms have not yet been published. Please contact the STREET team to confirm eligibility before ordering.</p>
+                  </div>}
+                </section>
+              </div>
               <div className="prevnext">
                 <span onClick={() => { const l = catalogProducts.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
                 <span onClick={() => { const l = catalogProducts.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) + 1) % l.length]) }}>NEXT ›</span>
