@@ -380,6 +380,7 @@ export default function App() {
             ))}
           </div>
           <div className="hero-top">
+            <Logo className="hero-logo" />
             <small>{dateStr} · {timeStr}</small>
           </div>
           <div className="hero-center-logo" aria-label="STREET logo">
