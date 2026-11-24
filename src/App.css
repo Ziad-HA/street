@@ -342,3 +342,12 @@ body.dark .scrim{background:#000c}
 .catalog-empty{padding:48px 20px;text-align:center;border:1px solid var(--line);margin:24px 0}
 .catalog-empty h2{font-size:clamp(20px,3vw,32px);letter-spacing:-.04em}
 .catalog-empty p{font-size:11px;color:var(--mut);margin-top:10px;line-height:1.7}
+
+
+/* Demo catalogue disclosure */
+.demo-notice{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;margin:18px 0;border:1px solid var(--line);font-size:10px;line-height:1.6}
+.demo-notice b,.demo-pdp-label{font-size:9px;letter-spacing:.12em;font-weight:800}
+.demo-notice span{color:var(--mut)}
+.demo-flag{position:absolute;z-index:2;top:10px;left:10px;padding:6px 8px;background:#e5ff45;color:#111;font-size:8px;font-weight:800;letter-spacing:.08em}
+.demo-pdp-label{display:inline-block;margin:10px 0;padding:7px 9px;background:#e5ff45;color:#111}
+.card{position:relative}
