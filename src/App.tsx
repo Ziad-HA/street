@@ -759,7 +759,6 @@ export default function App() {
         <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
         <button onClick={() => go('checkout')}>YOUR BAG ↗</button>
         <button onClick={() => go('account')}>ACCOUNT ↗</button>
-        <button onClick={() => go('admin')}>CONTROL ROOM ↗</button>
       </nav>
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
