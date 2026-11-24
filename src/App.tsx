@@ -1198,6 +1198,21 @@ export default function App() {
               </div>
             </aside>
           </div>
+          <section className="product-reviews">
+            <div className="product-reviews-head"><div><small>STREET / CUSTOMER FEEDBACK</small><h2>THE REVIEWS<span>.</span></h2></div><div className="review-rating"><strong>{productReviews.length ? averageRating.toFixed(1) : '—'}</strong><span>{productReviews.length ? '★'.repeat(Math.round(averageRating)) : 'NO RATINGS YET'}<small>{productReviews.length} APPROVED REVIEWS</small></span></div></div>
+            <div className="product-review-list">
+              {productReviews.length===0?<p>NO REVIEWS YET. VERIFIED CUSTOMERS CAN SHARE THEIR EXPERIENCE AFTER AN ORDER.</p>:productReviews.map((review)=><article key={review.id}><div><b>{review.title}</b><span>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</span></div><p>{review.body}</p><small>VERIFIED ORDER / {new Date(review.created_at).toLocaleDateString()}</small></article>)}
+            </div>
+            <form className="product-review-form" onSubmit={submitProductReview}>
+              <div><small>REVIEW THIS PIECE</small><span>Only customers with this product in an order can submit a review.</span></div>
+              <label>ORDER NUMBER<input required value={reviewOrderNumber} onChange={(e)=>setReviewOrderNumber(e.target.value)} placeholder="ST-XXXXXXXXXX"/></label>
+              <label>RATING<select value={reviewRating} onChange={(e)=>setReviewRating(Number(e.target.value))}><option value={5}>5 / EXCELLENT</option><option value={4}>4 / GREAT</option><option value={3}>3 / GOOD</option><option value={2}>2 / FAIR</option><option value={1}>1 / POOR</option></select></label>
+              <label>REVIEW TITLE<input required minLength={3} maxLength={80} value={reviewTitle} onChange={(e)=>setReviewTitle(e.target.value)} placeholder="Give your review a title"/></label>
+              <label>YOUR REVIEW<textarea required minLength={10} maxLength={1000} rows={4} value={reviewBody} onChange={(e)=>setReviewBody(e.target.value)} placeholder="Tell us about the fit, quality and your experience."/></label>
+              <button className="solid" type="submit">SUBMIT FOR REVIEW ↗</button>
+              {reviewNotice&&<p role="status">{reviewNotice}</p>}
+            </form>
+          </section>
           {outfitProducts.length > 0 && (
             <section className="complete-outfit">
               <div className="complete-outfit-head">
@@ -1349,8 +1364,43 @@ export default function App() {
       {page === 'checkout' && (
         <main className="utility-page checkout-page">
           <div className="page-kicker">STREET / SECURE CHECKOUT / 009</div>
-          <div className="utility-heading"><small>ALMOST YOURS</small><h1>CHECK<br/><span>OUT.</span></h1><p>Review your selected pieces. Checkout will open once verified prices, delivery fees and a payment method are configured.</p></div>
-          <div className="checkout-summary">{cart.length===0?<p>YOUR BAG IS EMPTY.</p>:cart.map((item)=><div key={item.product.id+item.size}><Img src={item.product.images[0]}/><span>{item.product.name} / {item.size} × {item.qty}</span><b>{money(item.product.price*item.qty)}</b></div>)}<footer><span>SUBTOTAL</span><b>{money(subtotal)}</b></footer><button disabled>CHECKOUT UNAVAILABLE — SETUP REQUIRED</button></div>
+          <div className="utility-heading"><small>ALMOST YOURS</small><h1>CHECK<br/><span>OUT.</span></h1><p>Place a cash-on-delivery order. Your prices, coupon and available stock are verified securely before the order is created.</p></div>
+          {orderSuccess ? (
+            <section className="checkout-success">
+              <small>STREET / ORDER CONFIRMED</small><h2>YOU'RE<br/>IN.</h2>
+              <p>YOUR ORDER NUMBER</p><strong>{orderSuccess.order_number}</strong>
+              <div><span>ORDER TOTAL</span><b>{money(orderSuccess.total)}</b></div>
+              <p className="checkout-note">PAYMENT METHOD: CASH ON DELIVERY. THE STORE TEAM WILL CONFIRM DELIVERY DETAILS.</p>
+              <button className="solid" onClick={()=>{setOrderSuccess(null);go('account')}}>VIEW MY ACCOUNT ↗</button>
+            </section>
+          ) : cart.length === 0 ? (
+            <div className="checkout-summary"><p>YOUR BAG IS EMPTY.</p><button onClick={()=>go('store')}>RETURN TO SHOP ↗</button></div>
+          ) : !checkoutEmail ? (
+            <div className="checkout-summary checkout-login-prompt"><p>SIGN IN BEFORE CHECKOUT TO KEEP YOUR ORDER LINKED TO YOUR ACCOUNT.</p><button onClick={()=>go('account')}>SIGN IN / CREATE ACCOUNT ↗</button></div>
+          ) : (
+            <div className="checkout-layout">
+              <form className="checkout-form" onSubmit={submitCheckout}>
+                <div className="checkout-form-head"><small>01 / DELIVERY DETAILS</small><span>{checkoutEmail}</span></div>
+                <label>FULL NAME<input required minLength={2} value={checkoutName} onChange={(e)=>setCheckoutName(e.target.value)} placeholder="Full name"/></label>
+                <label>PHONE NUMBER<input required type="tel" minLength={7} value={checkoutPhone} onChange={(e)=>setCheckoutPhone(e.target.value)} placeholder="+20"/></label>
+                <label>CITY / AREA<input required value={checkoutCity} onChange={(e)=>setCheckoutCity(e.target.value)} placeholder="City"/></label>
+                <label>DELIVERY ADDRESS<textarea required minLength={5} rows={3} value={checkoutAddress} onChange={(e)=>setCheckoutAddress(e.target.value)} placeholder="Street, building, floor and apartment"/></label>
+                <label>ORDER NOTES <span>OPTIONAL</span><textarea rows={2} value={checkoutNotes} onChange={(e)=>setCheckoutNotes(e.target.value)} placeholder="Anything the delivery team should know"/></label>
+                <div className="checkout-form-head"><small>02 / PAYMENT</small><span>CASH ON DELIVERY</span></div>
+                <div className="checkout-payment-option"><b>CASH ON DELIVERY</b><span>Pay when your order arrives. No card details are collected by STREET.</span></div>
+                <button className="solid checkout-submit" type="submit" disabled={checkoutBusy || checkoutShipping === null}>{checkoutBusy?'PLACING ORDER…':'PLACE ORDER ↗'}</button>
+                {checkoutNotice && <p className="checkout-notice" role="status">{checkoutNotice}</p>}
+                {checkoutShipping === null && <p className="checkout-notice">DELIVERY FEE IS NOT CONFIGURED YET. PLEASE CONTACT THE STORE.</p>}
+              </form>
+              <aside className="checkout-summary">
+                <div className="checkout-form-head"><small>03 / YOUR BAG</small><span>{cartCount} PIECES</span></div>
+                {cart.map((item)=><div className="checkout-line" key={item.product.id+item.size}><Img src={item.product.images[0]}/><span>{item.product.name}<small>{item.size} × {item.qty}</small></span><b>{money(item.product.price*item.qty)}</b></div>)}
+                <div className="checkout-coupon"><label htmlFor="checkout-coupon">DISCOUNT CODE</label><div><input id="checkout-coupon" value={checkoutCoupon} onChange={(e)=>{setCheckoutCoupon(e.target.value.toUpperCase());setCheckoutCouponCode('');setCheckoutDiscount(0);setCheckoutNotice('')}} placeholder="ENTER CODE"/><button type="button" onClick={()=>void applyCheckoutCoupon()}>APPLY</button></div></div>
+                <div className="checkout-totals"><p><span>SUBTOTAL</span><b>{money(subtotal)}</b></p><p><span>DISCOUNT {checkoutCouponCode && <i>{checkoutCouponCode}</i>}</span><b>− {money(checkoutDiscount)}</b></p><p><span>DELIVERY</span><b>{checkoutShipping===null?'TO BE CONFIRMED':money(checkoutShipping)}</b></p><footer><span>TOTAL</span><strong>{money(checkoutTotal)}</strong></footer></div>
+                {checkoutNotice && <p className="checkout-notice" role="status">{checkoutNotice}</p>}
+              </aside>
+            </div>
+          )}
           {footer()}
         </main>
       )}
@@ -1391,6 +1441,9 @@ export default function App() {
                   <a className="admin-side-link" href="#admin-products"><span>03</span> Products</a>
                   <a className="admin-side-link" href="#admin-customers"><span>04</span> Customers</a>
                   <a className="admin-side-link" href="#admin-orders"><span>05</span> Orders</a>
+                  <a className="admin-side-link" href="#admin-coupons"><span>06</span> Coupons</a>
+                  <a className="admin-side-link" href="#admin-reviews"><span>07</span> Reviews</a>
+                  <a className="admin-side-link" href="#admin-settings"><span>08</span> Settings</a>
                   <div className="admin-sidebar-bottom"><span className="admin-live-dot"/> STORE SYSTEM<br/><b>OPERATIONAL</b></div>
                 </aside>
                 <div className="admin-content">
@@ -1445,6 +1498,28 @@ export default function App() {
                   </select>
                   <strong>{money(Number(o.total))}</strong>
                 </article>)}
+              </section>
+              <section id="admin-coupons" className="admin-coupons">
+                <div className="admin-section-title"><h2>DISCOUNT CODES / {adminCoupons.length}</h2><span>COUPON MANAGEMENT</span></div>
+                <form className="admin-coupon-form" onSubmit={createAdminCoupon}>
+                  <label>CODE<input required minLength={3} maxLength={32} value={newCouponCode} onChange={(e)=>setNewCouponCode(e.target.value.toUpperCase())} placeholder="STREET10"/></label>
+                  <label>TYPE<select value={newCouponType} onChange={(e)=>setNewCouponType(e.target.value as 'percent'|'fixed')}><option value="percent">PERCENT</option><option value="fixed">FIXED EGP</option></select></label>
+                  <label>VALUE<input required type="number" min="1" step="0.01" max={newCouponType==='percent'?100:undefined} value={newCouponValue} onChange={(e)=>setNewCouponValue(e.target.value)}/></label>
+                  <label>MINIMUM EGP<input type="number" min="0" value={newCouponMin} onChange={(e)=>setNewCouponMin(e.target.value)}/></label>
+                  <label>USAGE LIMIT<input type="number" min="1" value={newCouponLimit} onChange={(e)=>setNewCouponLimit(e.target.value)} placeholder="Unlimited"/></label>
+                  <label>EXPIRES<input type="date" value={newCouponExpiry} onChange={(e)=>setNewCouponExpiry(e.target.value)}/></label>
+                  <button type="submit">CREATE COUPON ↗</button>
+                </form>
+                {adminCoupons.length===0?<p>NO COUPONS CREATED YET.</p>:adminCoupons.map((coupon)=><article className="admin-coupon-row" key={coupon.id}><div><b>{coupon.code}</b><small>{coupon.discount_type==='percent'?coupon.discount_value+'% OFF':money(coupon.discount_value)+' OFF'} / MIN {money(coupon.min_subtotal)}</small></div><span>{coupon.used_count}{coupon.usage_limit===null?'':' / '+coupon.usage_limit} USED</span><small>{coupon.expires_at?'EXPIRES '+new Date(coupon.expires_at).toLocaleDateString():'NO EXPIRY'}</small><button className={coupon.is_active?'active':''} onClick={()=>void toggleAdminCoupon(coupon.id,coupon.is_active)}>{coupon.is_active?'ACTIVE':'PAUSED'}</button></article>)}
+              </section>
+              <section id="admin-reviews" className="admin-review-moderation">
+                <div className="admin-section-title"><h2>REVIEW MODERATION / {adminReviews.filter((review)=>review.status==='pending').length} PENDING</h2><span>CUSTOMER FEEDBACK</span></div>
+                {adminReviews.length===0?<p>NO CUSTOMER REVIEWS YET.</p>:adminReviews.map((review)=><article key={review.id}><div><b>{review.title}</b><span>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</span></div><p>{review.body}</p><small>{review.product_id} / {review.status.toUpperCase()} / {new Date(review.created_at).toLocaleDateString()}</small>{review.status==='pending'&&<div><button onClick={()=>void moderateReview(review.id,'approved')}>APPROVE</button><button onClick={()=>void moderateReview(review.id,'rejected')}>REJECT</button></div>}</article>)}
+              </section>
+              <section id="admin-settings" className="admin-store-settings">
+                <div className="admin-section-title"><h2>STORE SETTINGS</h2><span>DELIVERY CONFIGURATION</span></div>
+                <form onSubmit={saveAdminShipping}><label>STANDARD DELIVERY FEE / EGP<input required type="number" min="0" step="1" value={adminShippingDraft} onChange={(e)=>setAdminShippingDraft(e.target.value)} placeholder="Enter delivery fee"/></label><button type="submit">SAVE DELIVERY FEE ↗</button></form>
+                <p>Checkout remains unavailable until a delivery fee is configured. Payment is currently cash on delivery only.</p>
               </section>
                 </div>
               </div>
