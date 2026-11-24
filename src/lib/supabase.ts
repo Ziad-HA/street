@@ -1,10 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 
-// The publishable key is designed for browser use. Keep all authorization in RLS policies.
 const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || 'https://hmyasmkguxkawhnyojtb.supabase.co'
-const supabasePublishableKey =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  'sb_publishable_6vbLWo2BguDY-6oghYkMCg_9zHTXXfW'
 
+// This is the active publishable key registered for the STREET Supabase project.
+const supabasePublishableKey = 'sb_publishable_6vbLWo2BguDY-6oghYkMCg_9zHTXXfW'
+
+// Authenticated client for account, checkout and admin operations.
 export const supabase = createClient(supabaseUrl, supabasePublishableKey)
+
+// Isolated public client for catalog stock and approved reviews.
+// It deliberately does not reuse a possibly expired signed-in user's JWT.
+export const supabasePublic = createClient(supabaseUrl, supabasePublishableKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+})
