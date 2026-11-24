@@ -516,8 +516,9 @@ export default function App() {
 
   const saveAdminStock = async (productId: string, size: string) => {
     const key = `${productId}::${size}`
-    const quantity = Number(adminStockDrafts[key] ?? '')
-    if (!Number.isInteger(quantity) || quantity < 0) { setAdminNotice('ENTER A WHOLE NUMBER FOR STOCK.'); return }
+    const rawQuantity = adminStockDrafts[key]?.trim() ?? ''
+    const quantity = Number(rawQuantity)
+    if (rawQuantity === '' || !Number.isInteger(quantity) || quantity < 0) { setAdminNotice('ENTER A WHOLE NUMBER FOR STOCK.'); return }
     const { error } = await supabase.from('inventory').upsert({ product_id: productId, size, quantity, updated_at: new Date().toISOString() }, { onConflict: 'product_id,size' })
     if (error) { setAdminNotice(error.message); return }
     setAdminNotice('STOCK UPDATED.')
