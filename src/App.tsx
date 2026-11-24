@@ -396,6 +396,8 @@ export default function App() {
       if (!session?.user) return
       const { data: orders } = await supabase.from('orders').select('order_number,total,status,created_at').eq('user_id', session.user.id).order('created_at', { ascending: false })
       if (alive) setAccountOrders(orders ?? [])
+      const { data: saved } = await supabase.from('wishlist_items').select('product_id').eq('user_id', session.user.id)
+      if (alive && saved) setWish(saved.map((item) => item.product_id))
     }
     void loadAccount()
     return () => { alive = false }
@@ -416,6 +418,8 @@ export default function App() {
     setAccountUser(data.user.email ?? null)
     const { data: orders } = await supabase.from('orders').select('order_number,total,status,created_at').eq('user_id', data.user.id).order('created_at', { ascending: false })
     setAccountOrders(orders ?? [])
+    const { data: saved } = await supabase.from('wishlist_items').select('product_id').eq('user_id', data.user.id)
+    if (saved) setWish(saved.map((item) => item.product_id))
     setAccountNotice('SIGNED IN.')
   }
 
@@ -490,8 +494,17 @@ export default function App() {
     })
     setCartOpen(true)
   }
-  const toggleWish = (id: string) =>
-    setWish((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]))
+  const toggleWish = async (id: string) => {
+    const removing = wish.includes(id)
+    setWish((items) => removing ? items.filter((item) => item !== id) : [...items, id])
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    if (removing) {
+      await supabase.from('wishlist_items').delete().eq('user_id', user.id).eq('product_id', id)
+    } else {
+      await supabase.from('wishlist_items').upsert({ user_id: user.id, product_id: id })
+    }
+  }
 
 
   const trackOrder = async (event: FormEvent<HTMLFormElement>) => {
