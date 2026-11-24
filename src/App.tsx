@@ -82,7 +82,15 @@ function Logo({ className }: { className?: string }) {
   )
 }
 
-const money = (n: number) => n > 0 ? n.toFixed(2) : 'PRICE TBC'
+const PRICE_RANGES: Record<Category, { min: number; max: number; default: number }> = {
+  JACKETS: { min: 2000, max: 3200, default: 2790 },
+  PANTS: { min: 900, max: 1800, default: 1290 },
+  'T-SHIRTS': { min: 800, max: 1500, default: 990 },
+  HOODIES: { min: 1200, max: 1700, default: 1490 },
+  CAPS: { min: 200, max: 600, default: 390 },
+}
+const money = (n: number) => n > 0 ? `EGP ${Math.round(n).toLocaleString('en-EG')}` : 'PRICE UNAVAILABLE'
+const defaultPriceFor = (category: Category) => PRICE_RANGES[category].default
 const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS', CAPS: 'CAPS' })[c]
 
 const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'HOODIES', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
@@ -191,13 +199,17 @@ export default function App() {
         id: row.id,
         name: row.name,
         category: row.category as Category,
-        price: row.price == null ? 0 : Number(row.price),
+        price: row.price == null ? defaultPriceFor(row.category as Category) : Number(row.price),
         sizes: row.sizes ?? [],
         images: row.images ?? [],
         color: row.color ?? '#292929',
         details: row.description ? [row.description] : [],
       }))
       setCatalogProducts(next)
+      setCart((items) => items.map((item) => {
+        const current = next.find((product) => product.id === item.product.id)
+        return current ? { ...item, product: current } : item
+      }))
       const matchedInitialProduct = initialRoute.product ? next.find((product) => product.id === initialRoute.product?.id) : undefined
       setActive((current) => next.find((product) => product.id === current.id) ?? next[0] ?? current)
       if (matchedInitialProduct) {
@@ -539,13 +551,20 @@ export default function App() {
 
   const saveAdminPrice = async (id: string) => {
     const raw = adminPriceDrafts[id]?.trim() ?? ''
-    const price = raw === '' ? null : Number(raw)
-    if (price !== null && (!Number.isFinite(price) || price < 0)) { setAdminNotice('ENTER A VALID NON-NEGATIVE PRICE.'); return }
+    const product = adminProducts.find((item) => item.id === id)
+    if (!product) return
+    const price = Number(raw)
+    const range = PRICE_RANGES[product.category as Category]
+    if (!raw || !Number.isFinite(price) || price < range.min || price > range.max) {
+      setAdminNotice(`PRICE MUST BE BETWEEN EGP ${range.min.toLocaleString('en-EG')} AND EGP ${range.max.toLocaleString('en-EG')} FOR ${product.category}.`)
+      return
+    }
     const { error } = await supabase.from('products').update({ price, updated_at: new Date().toISOString() }).eq('id', id)
     if (error) { setAdminNotice(error.message); return }
     setAdminProducts((items) => items.map((item) => item.id === id ? { ...item, price } : item))
-    setCatalogProducts((items) => items.map((item) => item.id === id ? { ...item, price: price ?? 0 } : item))
-    setActive((item) => item.id === id ? { ...item, price: price ?? 0 } : item)
+    setCatalogProducts((items) => items.map((item) => item.id === id ? { ...item, price } : item))
+    setCart((items) => items.map((item) => item.product.id === id ? { ...item, product: { ...item.product, price } } : item))
+    setActive((item) => item.id === id ? { ...item, price } : item)
     setAdminNotice('PRODUCT PRICE UPDATED.')
   }
 
@@ -555,8 +574,12 @@ export default function App() {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     const id = `${newProductCategory.toLowerCase()}-${slug}-${Date.now().toString(36)}`
     const rawPrice = newProductPrice.trim()
-    const price = rawPrice === '' ? null : Number(rawPrice)
-    if (price !== null && (!Number.isFinite(price) || price < 0)) { setAdminNotice('ENTER A VALID PRICE OR LEAVE IT EMPTY.'); return }
+    const range = PRICE_RANGES[newProductCategory]
+    const price = rawPrice === '' ? range.default : Number(rawPrice)
+    if (!Number.isFinite(price) || price < range.min || price > range.max) {
+      setAdminNotice(`PRICE MUST BE BETWEEN EGP ${range.min.toLocaleString('en-EG')} AND EGP ${range.max.toLocaleString('en-EG')} FOR ${newProductCategory}.`)
+      return
+    }
     const sizes = newProductCategory === 'PANTS' ? ['30','32','34','36','38','40','42'] : ['S','M','L','XL']
     const { data, error } = await supabase.from('products').insert({
       id, name, category: newProductCategory, description: 'STREET product.',
@@ -1111,14 +1134,14 @@ export default function App() {
                 <div className="admin-section-title"><h2>ADD A NEW PIECE</h2><span>CATALOGUE ENTRY</span></div>
                 <input required value={newProductName} onChange={(e)=>setNewProductName(e.target.value)} placeholder="PRODUCT NAME"/>
                 <select value={newProductCategory} onChange={(e)=>setNewProductCategory(e.target.value as Category)}>{CATEGORIES.map((category)=><option key={category} value={category}>{category}</option>)}</select>
-                <input inputMode="decimal" value={newProductPrice} onChange={(e)=>setNewProductPrice(e.target.value)} placeholder="PRICE / OPTIONAL"/>
+                <input inputMode="decimal" value={newProductPrice} onChange={(e)=>setNewProductPrice(e.target.value)} placeholder={`PRICE / EGP ${PRICE_RANGES[newProductCategory].min}–${PRICE_RANGES[newProductCategory].max}`}/>
                 <button type="submit">CREATE PRODUCT ↗</button>
               </form>
               <section className="admin-products">
                 <div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES, STOCK, PHOTOS & VISIBILITY</span></div>
                 {adminProducts.map((p)=><article key={p.id}>
                   <div><b>{p.name}</b><small>{p.category}</small></div>
-                  <label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label>
+                  <label><span>PRICE / EGP {PRICE_RANGES[p.category as Category].min}–{PRICE_RANGES[p.category as Category].max}</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? String(p.price ?? '')} placeholder="Set price" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label>
                   <button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button>
                   <button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button>
                   <div className="admin-stock-grid">{p.sizes.map((size)=><label key={size}><span>{size} / QTY</span><input aria-label={p.name+' '+size+' stock'} inputMode="numeric" value={adminStockDrafts[`${p.id}::${size}`] ?? ''} placeholder="Not set" onChange={(e)=>setAdminStockDrafts((drafts)=>({...drafts,[`${p.id}::${size}`]:e.target.value}))}/><button onClick={()=>void saveAdminStock(p.id,size)}>SAVE STOCK</button></label>)}</div>
