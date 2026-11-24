@@ -112,6 +112,8 @@ const Socials = () => (
   </div>
 )
 
+function readStored<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback } catch { return fallback } }
+
 export default function App() {
   const [page, setPage] = useState<Page>('intro')
   const [veil, setVeil] = useState(false)
@@ -120,11 +122,14 @@ export default function App() {
   const [search, setSearch] = useState(false)
   const [query, setQuery] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [wish, setWish] = useState<string[]>(['snakeskin-zip', 'plaid-zip', 'canvas-backpack'])
+  const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart', []))
+  const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist', []))
   const [category, setCategory] = useState<Category>('ZIP-UPS')
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
+  const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
+  const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed', []))
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [active, setActive] = useState<Product>(PRODUCTS[0])
   const [ann, setAnn] = useState(0)
   const [hoverCat, setHoverCat] = useState<Category>('ACCESSORIES')
@@ -136,6 +141,10 @@ export default function App() {
   const audio = useRef<HTMLAudioElement>(null)
   const cursor = useRef<HTMLDivElement>(null)
   const pending = useRef<string | undefined>(undefined)
+
+  useEffect(() => { localStorage.setItem('street-cart', JSON.stringify(cart)) }, [cart])
+  useEffect(() => { localStorage.setItem('street-wishlist', JSON.stringify(wish)) }, [wish])
+  useEffect(() => { localStorage.setItem('street-recently-viewed', JSON.stringify(recentIds)) }, [recentIds])
 
   // intro -> hero
   useEffect(() => {
@@ -198,6 +207,7 @@ export default function App() {
   }
 
   const openProduct = (p: Product) => {
+    setRecentIds((ids) => [p.id, ...ids.filter((id) => id !== p.id)].slice(0, 8))
     setActive(p)
     setSizeSel(p.sizes[0])
     setQty(1)
@@ -346,7 +356,8 @@ export default function App() {
     </footer>
   )
 
-  const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter)))
+  const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
+  const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
 
   const outfit = OUTFIT_IDS.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean)
 
@@ -403,6 +414,7 @@ export default function App() {
           </section>
           {rowOf('zip', 'ZIP HOODIES', byCat('ZIP-UPS'))}
           {rowOf('acc', 'ACCESSORIES', byCat('ACCESSORIES').slice(0, 4))}
+          {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
 
           <section className="outfit">
             <div className="outfit-head">
@@ -467,7 +479,7 @@ export default function App() {
               <button key={s} className={sizeFilter === s ? 'on' : ''} onClick={() => setSizeFilter(sizeFilter === s ? null : s)}>{s}</button>
             ))}</div>
             <div className="tools">
-              <span>SORT BY ⌄</span>
+              <label className="sort-label">SORT BY <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name</option></select></label>
               <label>IN STOCK <i className={`tog ${inStock ? 'on' : ''}`} onClick={() => setInStock(!inStock)}><b /></i></label>
               <span>▽ FILTER</span>
               <span className="grid2" /><span className="grid3" />
@@ -484,9 +496,7 @@ export default function App() {
         <main className="pdp">
           <div className="pdp-wrap">
             <div className="thumbs">
-              {active.images.map((im, i) => (
-                <Img key={i} src={im} className={i === imgIdx ? 'on' : ''} style={{ cursor: 'pointer' }} />
-              ))}
+              {active.images.map((im, i) => <button key={i} type="button" className={i === imgIdx ? 'thumb-button on' : 'thumb-button'} onClick={() => setImgIdx(i)} aria-label={`Show product image ${i + 1}`}><Img src={im} /></button>)}
             </div>
             <div className="gallery">
               <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)}>‹</button>
@@ -508,7 +518,8 @@ export default function App() {
                 <label>QUANTITY</label>
                 <div className="qty"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div>
               </div>
-              <div className="links"><span>SIZE GUIDE ▭</span><span>⊢ FIND MY SIZE</span></div>
+              <div className="links"><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE {sizeGuideOpen ? '−' : '+'}</button></div>
+              {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Add verified garment measurements for this product before publishing.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="buy">
                 <button className="solid" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>
                   {Icon.bag} {active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
@@ -522,10 +533,8 @@ export default function App() {
                 <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) + 1) % l.length]) }}>NEXT ›</span>
               </div>
               <ul className="perks">
-                <li><b>FREE SHIPPING</b><small>On all orders — no minimum</small></li>
-                <li><b>SECURE PAYMENT</b><small>Encrypted checkout — shop with confidence</small></li>
-                <li><b>EASY RETURNS</b><small>Hassle-free returns within 30 days</small></li>
-                <li><b>WORLDWIDE SHIPPING</b><small>Delivered to your door, wherever you are</small></li>
+                <li><b>PRODUCT INFORMATION</b><small>Review the item details and measurements before ordering.</small></li>
+                <li><b>ORDER SUPPORT</b><small>Official support and delivery policies will be published here.</small></li>
               </ul>
               <button className="acc" onClick={() => setOpenDetails(!openDetails)}>PRODUCT DETAILS <span>{openDetails ? '⌃' : '⌄'}</span></button>
               {openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}
@@ -541,13 +550,9 @@ export default function App() {
           <div className="about-txt">
             <small>OUR STORY</small>
             <h1>BUILT FOR THOSE WHO MOVE DIFFERENTLY.</h1>
-            <p>Independent by nature. Rooted in London. Built for those who refuse to follow.</p>
-            <div className="about-meta">
-              <div><small>BASED IN</small><b>LONDON</b></div>
-              <div><small>FOUNDED</small><b>2017</b></div>
-              <div><small>PHILOSOPHY</small><b>RULES THE WORLD</b></div>
-            </div>
-            <em>No rules. No limits. Just culture.</em>
+            <p>STREET is an independent space for considered everyday pieces. Our story, materials and production details will be published here as the brand information is confirmed.</p>
+            <div className="about-meta"><div><small>OUR FOCUS</small><b>EVERYDAY WEAR</b></div><div><small>OUR APPROACH</small><b>CONSIDERED DESIGN</b></div></div>
+            <em>More about STREET coming soon.</em>
           </div>
         </main>
       )}
@@ -580,9 +585,9 @@ export default function App() {
           <section className="contact-layout">
             <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
             <div className="contact-details">
-              <div><small>CUSTOMER CARE</small><b>Order support & product questions</b><span>SUPPORT DETAILS COMING SOON</span></div>
-              <div><small>COLLABORATIONS</small><b>Press, partnerships & creative projects</b><span>COLLABORATION DETAILS COMING SOON</span></div>
-              <div><small>SOCIAL</small><b>Follow the latest from STREET</b><span>INSTAGRAM · TIKTOK · X</span></div>
+              <div><small>ORDERS</small><b>Questions about an order</b><span>Use the contact channel provided with your order confirmation.</span></div>
+              <div><small>PRODUCTS</small><b>Sizing, fit and product information</b><span>Product-specific details will be listed on each product page.</span></div>
+              <div><small>COLLABORATIONS</small><b>Press and creative enquiries</b><span>Official contact details will be added here.</span></div>
             </div>
           </section>
           <div className="contact-bottom"><span>MON — FRI</span><b>09:00 — 18:00 GMT</b><span>WE USUALLY REPLY WITHIN 1–2 BUSINESS DAYS.</span></div>
@@ -611,7 +616,7 @@ export default function App() {
               <button className="solid" type="submit">FIND MY ORDER ↗</button>
               {trackNotice && <span className="track-notice">{trackNotice}</span>}
             </form>
-            <span className="track-support">NEED HELP? SUPPORT DETAILS COMING SOON</span>
+            <span className="track-support">Tracking will be available once order management is connected.</span>
           </section>
           {footer()}
         </main>
