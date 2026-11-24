@@ -1331,15 +1331,19 @@ export default function App() {
                 <p>MAKE THE LOOK YOURS — EXPLORE PIECES THAT WORK TOGETHER.</p>
               </div>
               <div className="complete-outfit-marquee">
-                <div className="complete-outfit-track">
-                  {[0, 1].map((copy) => (
-                    <div className="complete-outfit-column" key={`outfit-column-${copy}`} aria-hidden={copy === 1}>
-                      {outfitMarqueeProducts.map((p, i) => (
-                        <Fragment key={`${copy}-${p.id}-${i}`}>{card(p, i + 1, 4, false, true)}</Fragment>
+                {[0, 1].map((row) => (
+                  <div className={`complete-outfit-row complete-outfit-row-${row + 1}`} key={`outfit-row-${row}`}>
+                    <div className="complete-outfit-track">
+                      {[0, 1].map((copy) => (
+                        <div className="complete-outfit-set" key={`outfit-set-${row}-${copy}`} aria-hidden={copy === 1}>
+                          {outfitMarqueeProducts.map((p, i) => (
+                            <Fragment key={`outfit-${row}-${copy}-${p.id}-${i}`}>{card(p, i + 1, 4, false, true)}</Fragment>
+                          ))}
+                        </div>
                       ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </section>
           )}
