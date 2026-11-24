@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
 import type { CSSProperties } from 'react'
 import { Logo3D } from './Logo3D'
 import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
@@ -126,7 +127,8 @@ function routeFromLocation(): { page: Page; category?: Category; product?: Produ
   if (parts[0] === 'studio') return { page: 'studio' }
   if (parts[0] === 'contact') return { page: 'contact' }
   if (parts[0] === 'wishlist') return { page: 'wishlist' }
-  if (parts[0] === 'track') return { page: 'track' }\n  if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','admin'].includes(parts[0])) return { page: parts[0] as Page }
+  if (parts[0] === 'track') return { page: 'track' }
+  if (['new-arrivals','best-sellers','lookbook','build-outfit','size-guide','checkout','admin'].includes(parts[0])) return { page: parts[0] as Page }
   if (parts.length === 0) {
     try { return { page: localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' } }
     catch { return { page: 'intro' } }
