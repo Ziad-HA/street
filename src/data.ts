@@ -46,67 +46,20 @@ const product = (
 const numberedImages = (folder: string, number: number, count: number) =>
   Array.from({ length: count }, (_, index) => `/products/${folder}/${number}-${index + 1}.webp`)
 
-const filesByProduct = (folder: string, filenames: string[]) => {
-  const grouped = new Map<string, string[]>()
-  filenames.forEach((filename) => {
-    const code = filename.slice(0, filename.lastIndexOf('-'))
-    const current = grouped.get(code) ?? []
-    current.push(`/products/${folder}/${filename}`)
-    grouped.set(code, current)
-  })
-  return Array.from(grouped.entries()).map(([code, images]) => ({
-    code,
-    images: images.sort((a, b) => a.localeCompare(b)),
-  }))
-}
+const jacketProducts = [1, 2, 3].map((number) => ({
+  code: String(number).padStart(2, '0'),
+  images: numberedImages('jackets', number, 6),
+}))
 
-const jacketProducts = filesByProduct('jackets', [
-  '02152046800-a1t.webp',
-  '02152046800-a2d.webp',
-  '02152046800-a3o.webp',
-  '02152046800-a4o.webp',
-  '02152046800-b.webp',
-  '02152046800-p.webp',
-  '02162551462-a1t.webp',
-  '02162551462-a3o.webp',
-  '02162551462-a4o.webp',
-  '02162551462-a5o.webp',
-  '02162551462-b.webp',
-  '02162551462-p.webp',
-  '03099273501-a1t.webp',
-  '03099273501-a2d.webp',
-  '03099273501-a3o.webp',
-  '03099273501-a4o.webp',
-  '03099273501-b.webp',
-  '03099273501-p.webp',
-])
+const tshirtProducts = [1, 2].map((number) => ({
+  code: String(number).padStart(2, '0'),
+  images: numberedImages('t-shirts', number, number === 1 ? 5 : 6),
+}))
 
-const tshirtProducts = filesByProduct('t-shirts', [
-  '00069154250-a1t.webp',
-  '00069154250-a2d.webp',
-  '00069154250-a4o.webp',
-  '00069154250-b.webp',
-  '00069154250-p.webp',
-  '03247120252-a1t.webp',
-  '03247120252-a2d.webp',
-  '03247120252-a3o.webp',
-  '03247120252-a4o.webp',
-  '03247120252-b.webp',
-  '03247120252-p.webp',
-])
-
-const capProducts = filesByProduct('caps', [
-  '03157702800-p.webp',
-  '03157702800-a1t.webp',
-  '03157702800-a4o.webp',
-  '03669668700-p.webp',
-  '03669668700-a1t.webp',
-  '03669668700-a2d.webp',
-  '03669668700-a4o.webp',
-  '03720668800-p.webp',
-  '03720668800-a1t.webp',
-  '03720668800-a4o.webp',
-])
+const capProducts = [1, 2, 3].map((number) => ({
+  code: String(number).padStart(2, '0'),
+  images: numberedImages('caps', number, number === 2 ? 4 : 3),
+}))
 
 export const PRODUCTS: Product[] = [
   product('pant-01', 'PANT 01', 'PANTS', '#77766c', numberedImages('pants', 1, 4)),
