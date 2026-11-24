@@ -1329,7 +1329,7 @@ export default function App() {
               </div>
             </aside>
           </div>
-          {outfitProducts.length > 0 && (
+          {outfitMarqueeProducts.length > 0 && (
             <section className="complete-outfit">
               <div className="complete-outfit-head">
                 <div><small>STREET / STYLE THE PIECE</small><h2>COMPLETE YOUR OUTFIT<span>.</span></h2></div>
