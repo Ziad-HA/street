@@ -98,13 +98,7 @@ const Icon = {
   ),
 }
 
-const Pay = () => (
-  <div className="pay">
-    {['VISA', 'MC', 'AMEX', 'P', 'D', 'DISC'].map((p) => (
-      <span key={p}>{p}</span>
-    ))}
-  </div>
-)
+const Pay = () => <div className="pay"><span>PAYMENT OPTIONS WILL BE CONFIRMED AT CHECKOUT</span></div>
 
 const Socials = () => (
   <div className="socials">
@@ -124,13 +118,13 @@ export default function App() {
   const [search, setSearch] = useState(false)
   const [query, setQuery] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
-  const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart', []))
-  const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist', []))
+  const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart-v2', []))
+  const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist-v2', []))
   const [category, setCategory] = useState<Category>('ZIP-UPS')
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
-  const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed', []))
+  const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed-v2', []))
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [active, setActive] = useState<Product>(PRODUCTS[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
@@ -144,9 +138,9 @@ export default function App() {
   const cursor = useRef<HTMLDivElement>(null)
   const pending = useRef<string | undefined>(undefined)
 
-  useEffect(() => { localStorage.setItem('street-cart', JSON.stringify(cart)) }, [cart])
-  useEffect(() => { localStorage.setItem('street-wishlist', JSON.stringify(wish)) }, [wish])
-  useEffect(() => { localStorage.setItem('street-recently-viewed', JSON.stringify(recentIds)) }, [recentIds])
+  useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
+  useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
+  useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
 
   // intro -> hero
   useEffect(() => {
@@ -328,7 +322,6 @@ export default function App() {
         </nav>
         <div className="icons">
           <button onClick={() => setSearch(true)}>{Icon.search}</button>
-          <button>{Icon.user}</button>
           <button onClick={() => go('wishlist')}>{Icon.heart}<span>({wish.length})</span></button>
           <button onClick={() => setDark((d) => !d)}>{Icon.moon}</button>
           <button onClick={() => setCartOpen(true)}>{Icon.bag}<span>({cartCount})</span></button>
@@ -341,10 +334,10 @@ export default function App() {
     <footer id="footer">
       <div className="benefits">
         {[
-          ['FREE SHIPPING', 'On orders over $150'],
-          ['EASY RETURNS', '14-day hassle-free returns'],
-          ['SECURE PAYMENT', 'Safe & encrypted checkout'],
-          ['WORLDWIDE SHIPPING', 'We ship worldwide'],
+          ['PRODUCT DETAILS', 'Verified information on each item'],
+          ['SIZING', 'Check measurements before ordering'],
+          ['ORDER STATUS', 'Tracking once order tools are connected'],
+          ['SUPPORT', 'Official contact details coming soon'],
         ].map(([a, b]) => (
           <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
         ))}
@@ -352,7 +345,7 @@ export default function App() {
       <Socials />
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
-        <div><span className="secure">● Secure Checkout — We Accept</span><Pay /></div>
+        <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
       </div>
       <div className="giant">{BRAND}</div>
     </footer>
@@ -659,8 +652,7 @@ export default function App() {
       <aside className={`drawer ${cartOpen ? 'open' : ''}`}>
         <div className="d-head"><span>CART ({cartCount})</span><button onClick={() => setCartOpen(false)}>{Icon.close}</button></div>
         <div className="ship">
-          <div><span>{subtotal >= 150 ? "YOU'VE UNLOCKED FREE SHIPPING!" : `ADD ${money(150 - subtotal)} FOR FREE SHIPPING`}</span><b>{Math.min(100, Math.round((subtotal / 150) * 100))}%</b></div>
-          <div className="bar"><i style={{ width: `${Math.min(100, (subtotal / 150) * 100)}%` }} /></div>
+          <div><span>CART SUBTOTAL</span><b>{money(subtotal)}</b></div>
         </div>
         <div className="d-items">
           {cart.length === 0 && <p className="empty">Your cart is empty.</p>}
@@ -682,14 +674,9 @@ export default function App() {
           ))}
         </div>
         <div className="d-foot">
-          <label>DISCOUNT CODE</label>
-          <div className="code"><input placeholder="Enter code" /><button>APPLY</button></div>
-          <label>GIFT MESSAGE</label>
-          <textarea placeholder="Add a note for this order" />
           <div className="sub"><span>SUBTOTAL</span><b>{money(subtotal)}</b></div>
-          <small>TAXES AND SHIPPING CALCULATED AT CHECKOUT.</small>
-          <label className="terms"><input type="checkbox" /> I have read and agree to the Terms &amp; Conditions and Privacy Policy.</label>
-          <button className="solid" disabled={cart.length === 0}>CHECKOUT</button>
+          <small>CHECKOUT IS NOT ACTIVE YET. PAYMENT AND SHIPPING MUST BE CONFIGURED BEFORE TAKING ORDERS.</small>
+          <button className="solid" disabled>CHECKOUT COMING SOON</button>
           <button className="outline" onClick={() => setCartOpen(false)}>CONTINUE SHOPPING</button>
           <Pay />
         </div>
