@@ -621,7 +621,9 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 
 /* Full-bleed editorial product page inspired by the supplied reference */
 .page-product .ann{display:none!important}
-.page-product main.pdp{width:100%;max-width:none;margin:0;padding:0}
+.page-product .hdr{margin-bottom:0}
+.page-product main.pdp{width:100%;max-width:none;margin:0!important;padding:0!important}
+.page-product .pdp-wrap{margin-top:0!important;padding-top:0!important}
 .page-product .pdp-wrap{position:relative;display:block;height:100svh;min-height:650px;padding:0;margin:0;overflow:hidden;background:#d7d7d4}
 .page-product .thumbs{display:none}
 .page-product .gallery{position:absolute;inset:0;min-height:0;width:100%;height:100%;overflow:hidden;background:#777}
