@@ -381,6 +381,10 @@ export default function App() {
   const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
   const [adminStockDrafts, setAdminStockDrafts] = useState<Record<string,string>>({})
   const [adminImageFiles, setAdminImageFiles] = useState<Record<string,File|null>>({})
+  const [newProductName, setNewProductName] = useState('')
+  const [newProductCategory, setNewProductCategory] = useState<Category>('PANTS')
+  const [newProductPrice, setNewProductPrice] = useState('')
+
 
   useEffect(() => {
     if (page !== 'account') return
@@ -513,6 +517,30 @@ export default function App() {
     setCatalogProducts((items) => items.map((item) => item.id === id ? { ...item, price: price ?? 0 } : item))
     setActive((item) => item.id === id ? { ...item, price: price ?? 0 } : item)
     setAdminNotice('PRODUCT PRICE UPDATED.')
+  }
+
+  const createAdminProduct = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const name = newProductName.trim().toUpperCase()
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    const id = `${newProductCategory.toLowerCase()}-${slug}-${Date.now().toString(36)}`
+    const rawPrice = newProductPrice.trim()
+    const price = rawPrice === '' ? null : Number(rawPrice)
+    if (price !== null && (!Number.isFinite(price) || price < 0)) { setAdminNotice('ENTER A VALID PRICE OR LEAVE IT EMPTY.'); return }
+    const sizes = newProductCategory === 'PANTS' ? ['30','32','34','36','38','40','42'] : ['S','M','L','XL']
+    const { data, error } = await supabase.from('products').insert({
+      id, name, category: newProductCategory, description: 'STREET product.',
+      price, sizes, images: [], color: '#292929', is_active: true,
+    }).select('id,name,category,price,is_active,sizes,images').single()
+    if (error || !data) { setAdminNotice(error?.message ?? 'PRODUCT COULD NOT BE CREATED.'); return }
+    const product: Product = { id: data.id, name: data.name, category: data.category as Category, price: data.price == null ? 0 : Number(data.price), sizes: data.sizes, images: data.images ?? [], color: '#292929', details: ['Product information will be updated.'] }
+    setAdminProducts((items) => [...items, data])
+    setAdminPriceDrafts((items) => ({ ...items, [id]: rawPrice }))
+    setAdminStockDrafts((items) => items)
+    setCatalogProducts((items) => [...items, product])
+    setNewProductName('')
+    setNewProductPrice('')
+    setAdminNotice('NEW PRODUCT CREATED. ADD ITS PHOTOS AND STOCK BELOW.')
   }
 
   const uploadAdminImage = async (id: string) => {
@@ -1049,8 +1077,15 @@ export default function App() {
             </form>
           ) : adminRole === 'admin' ? (
             <>
+              <form className="admin-create-product" onSubmit={createAdminProduct}>
+                <div className="admin-section-title"><h2>ADD A NEW PIECE</h2><span>CATALOGUE ENTRY</span></div>
+                <input required value={newProductName} onChange={(e)=>setNewProductName(e.target.value)} placeholder="PRODUCT NAME"/>
+                <select value={newProductCategory} onChange={(e)=>setNewProductCategory(e.target.value as Category)}>{CATEGORIES.map((category)=><option key={category} value={category}>{category}</option>)}</select>
+                <input inputMode="decimal" value={newProductPrice} onChange={(e)=>setNewProductPrice(e.target.value)} placeholder="PRICE / OPTIONAL"/>
+                <button type="submit">CREATE PRODUCT ↗</button>
+              </form>
               <section className="admin-products">
-                <div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES & VISIBILITY</span></div>
+                <div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES, STOCK, PHOTOS & VISIBILITY</span></div>
                 {adminProducts.map((p)=><article key={p.id}>
                   <div><b>{p.name}</b><small>{p.category}</small></div>
                   <label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label>
