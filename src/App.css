@@ -1280,3 +1280,8 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 .help-faq-list article p{max-width:560px;margin:0;font-size:10px;line-height:1.85;color:var(--mut)}
 .help-faq-list article .text-button{margin-top:14px}
 @media(max-width:680px){.help-intro{padding:16px}.help-faq-list{grid-template-columns:1fr;margin-bottom:45px}.help-faq-list article{padding:20px 2px}}
+
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
