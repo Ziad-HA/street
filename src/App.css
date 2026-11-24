@@ -601,6 +601,12 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 .complete-outfit-track{display:flex;flex-direction:row;justify-content:flex-start;align-items:flex-start;gap:8px;width:max-content;min-width:0;margin:0;padding:0;animation:none;will-change:auto}
 .complete-outfit-track .card{flex:0 0 210px;width:210px;min-width:0;margin:0}
 .complete-outfit-track .card-img{aspect-ratio:.9}
+.complete-outfit-track .outfit-rotating-image{position:relative;width:100%;height:100%;overflow:hidden;background:var(--chip)}
+.complete-outfit-track .outfit-rotating-image .img{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat}
+.complete-outfit-track .outfit-image-previous{z-index:1}
+.complete-outfit-track .outfit-image-current{z-index:2;animation:outfit-image-crossfade 1.8s cubic-bezier(.22,.61,.36,1) both}
+@keyframes outfit-image-crossfade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.complete-outfit-track .outfit-image-current{animation-duration:.01ms}}
 .complete-outfit-track .card h3{font-size:9px}
 .complete-outfit-track .card .price{font-size:9px}
 .complete-outfit-track .card .mini-bag{width:100%;height:30px;border-radius:0;margin-top:8px;background:var(--fg);color:var(--bg)}
