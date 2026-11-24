@@ -416,6 +416,7 @@ export default function App() {
   const [adminUser, setAdminUser] = useState<string | null>(null)
   const [adminRole, setAdminRole] = useState<string | null>(null)
   const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+  const [adminExportNotice, setAdminExportNotice] = useState('')
   const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean;sizes:string[];images:string[]}>>([])
   const [adminCustomers, setAdminCustomers] = useState<Array<{email:string|null;full_name:string|null;created_at:string}>>([])
   const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
@@ -492,7 +493,7 @@ export default function App() {
       if (!alive) return
       setAdminRole(data?.role ?? 'customer')
       if (data?.role === 'admin') {
-        const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
+        const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(100)
         if (alive) setAdminOrders(orders ?? [])
         const { data: products } = await supabase.from('products').select('id,name,category,price,is_active,sizes,images').order('category').order('name')
         if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
@@ -522,7 +523,7 @@ export default function App() {
     setAdminUser(data.user.email ?? null)
     setAdminRole('admin')
     setAdminNotice('ACCESS GRANTED.')
-    const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
+    const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(100)
     setAdminOrders(orders ?? [])
     const [{ data: products }, { data: stock }, { data: customers }] = await Promise.all([
       supabase.from('products').select('id,name,category,price,is_active,sizes,images').order('category').order('name'),
@@ -664,6 +665,32 @@ export default function App() {
       const current = adminProducts.find((item) => item.id === id)
       if (base) setCatalogProducts((items) => [...items.filter((item) => item.id !== id), { ...base, price: current?.price ?? 0 }])
     }
+  }
+
+  const exportAdminOrders = () => {
+    if (!adminOrders.length) { setAdminExportNotice('NO ORDER DATA TO EXPORT.'); return }
+    const columns = ['order_number', 'customer_name', 'total_egp', 'status', 'created_at']
+    const rows = adminOrders.map((order) => [
+      order.order_number,
+      order.customer_name,
+      Number(order.total).toFixed(2),
+      order.status,
+      order.created_at,
+    ])
+    const csv = [columns, ...rows].map((row) => row.map((value) => {
+      const safe = String(value ?? '').replace(/"/g, '""')
+      return /[",\\n]/.test(safe) ? `"${safe}"` : safe
+    }).join(',')).join('\\r\\n')
+    const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `street-orders-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    setAdminExportNotice('ORDERS CSV EXPORTED.')
   }
 
   const updateAdminOrder = async (order_number: string, status: string) => {
@@ -1200,6 +1227,19 @@ export default function App() {
                   <div className="admin-sidebar-bottom"><span className="admin-live-dot"/> STORE SYSTEM<br/><b>OPERATIONAL</b></div>
                 </aside>
                 <div className="admin-content">
+              <section className="admin-analytics" aria-label="Order analytics">
+                <div className="admin-analytics-head">
+                  <div><small>COMMERCE / PERFORMANCE</small><h2>ORDER OVERVIEW</h2><span>BASED ON THE 100 MOST RECENT ORDERS LOADED</span></div>
+                  <button type="button" onClick={exportAdminOrders}>EXPORT ORDERS CSV ↗</button>
+                </div>
+                <div className="admin-analytics-metrics">
+                  <article><small>RECENT ORDER VALUE</small><strong>{money(adminOrders.reduce((sum, order) => sum + Number(order.total || 0), 0))}</strong><span>NOT A PAYMENT SETTLEMENT TOTAL</span></article>
+                  <article><small>DELIVERED</small><strong>{adminOrders.filter((order) => order.status === 'delivered').length}</strong><span>COMPLETED ORDERS</span></article>
+                  <article><small>CANCELLED</small><strong>{adminOrders.filter((order) => order.status === 'cancelled').length}</strong><span>CANCELLED ORDERS</span></article>
+                  <article><small>AVERAGE ORDER</small><strong>{adminOrders.length ? money(adminOrders.reduce((sum, order) => sum + Number(order.total || 0), 0) / adminOrders.length) : money(0)}</strong><span>RECENT RECORDS ONLY</span></article>
+                </div>
+                {adminExportNotice && <p className="admin-export-notice" role="status">{adminExportNotice}</p>}
+              </section>
               <section id="admin-overview" className="admin-overview" aria-label="Store overview">
                 <div><small>CATALOGUE</small><strong>{adminProducts.length}</strong><span>ALL PIECES</span></div>
                 <div><small>LIVE</small><strong>{adminProducts.filter((p) => p.is_active).length}</strong><span>VISIBLE PRODUCTS</span></div>
@@ -1230,7 +1270,7 @@ export default function App() {
                 {adminCustomers.length===0?<p>NO CUSTOMER ACCOUNTS YET.</p>:adminCustomers.map((customer,i)=><article key={customer.email ?? i}><b>{customer.full_name || 'STREET CUSTOMER'}</b><span>{customer.email}</span><small>{new Date(customer.created_at).toLocaleDateString()}</small></article>)}
               </section>
               <section id="admin-orders" className="admin-orders">
-                <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>
+                <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} / 100 RECORDS</span></div>
                 {adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}>
                   <b>{o.order_number}</b><span>{o.customer_name}</span>
                   <select value={o.status} onChange={(e)=>void updateAdminOrder(o.order_number,e.target.value)}>
