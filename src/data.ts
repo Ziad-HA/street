@@ -95,16 +95,16 @@ const tshirtProducts = filesByProduct('t-shirts', [
 ])
 
 const capProducts = filesByProduct('caps', [
+  '03157702800-p.webp',
   '03157702800-a1t.webp',
   '03157702800-a4o.webp',
-  '03157702800-p.webp',
+  '03669668700-p.webp',
   '03669668700-a1t.webp',
   '03669668700-a2d.webp',
   '03669668700-a4o.webp',
-  '03669668700-p.webp',
+  '03720668800-p.webp',
   '03720668800-a1t.webp',
   '03720668800-a4o.webp',
-  '03720668800-p.webp',
 ])
 
 export const PRODUCTS: Product[] = [
