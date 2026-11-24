@@ -58,9 +58,9 @@ function Logo({ className }: { className?: string }) {
 }
 
 const money = (n: number) => `${n.toFixed(2)}`
-const categoryLabel = (c: Category) => ({ BOTTOMS: 'PANTS', LAYERING: 'HOODIES', JACKETS: 'JACKETS', 'T-SHIRTS': 'T-SHIRTS' })[c]
+const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS' })[c]
 
-const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'LAYERING', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
+const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'HOODIES', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
 const Icon = {
   search: (
@@ -107,7 +107,7 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart-v2', []))
   const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist-v2', []))
-  const [category, setCategory] = useState<Category>('LAYERING')
+  const [category, setCategory] = useState<Category>('HOODIES')
   const [showAllShopProducts, setShowAllShopProducts] = useState(false)
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
@@ -331,7 +331,7 @@ export default function App() {
   const rowOf = (id: string, title: string, items: Product[]) => (
     <section className="row">
       <h2 className="row-title">{title}</h2>
-      <button className="view-all" onClick={() => openCollection(items[0]?.category ?? 'LAYERING')}>VIEW ALL</button>
+      <button className="view-all" onClick={() => openCollection(items[0]?.category ?? 'HOODIES')}>VIEW ALL</button>
       <div className="row-scroll" ref={(el) => { scrollRow.current[id] = el }} onScroll={() => onRow(id)}>
         {items.map((p) => <Fragment key={p.id}>{card(p)}</Fragment>)}
       </div>
@@ -396,7 +396,7 @@ export default function App() {
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
-    const order = ['TOPS','LAYERING','BOTTOMS','ACCESSORIES']
+    const order = ['PANTS','HOODIES','JACKETS','T-SHIRTS']
     return order.indexOf(a.category) - order.indexOf(b.category)
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
@@ -494,8 +494,8 @@ export default function App() {
           </section>
           <section className="edit-grid">
             {[
-              {no:'01',name:'THE PANTS EDIT',desc:'Relaxed fits, denim and everyday utility trousers.',cat:'BOTTOMS',meta:'PANTS'},
-              {no:'02',name:'THE HOODIE EDIT',desc:'Heavyweight hoodies and zip-ups for everyday rotation.',cat:'LAYERING',meta:'HOODIES'},
+              {no:'01',name:'THE PANTS EDIT',desc:'Relaxed fits, denim and everyday utility trousers.',cat:'PANTS',meta:'PANTS'},
+              {no:'02',name:'THE HOODIE EDIT',desc:'Heavyweight hoodies and zip-ups for everyday rotation.',cat:'HOODIES',meta:'HOODIES'},
             ].map((edit) => (
               <button className="edit-card" key={edit.no} onClick={() => openCollection(edit.cat as Category)}>
                 <div className="edit-card-art"><span>STREET / EDIT {edit.no}</span><b>{edit.name}</b><i>↗</i></div>
