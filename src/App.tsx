@@ -938,7 +938,7 @@ export default function App() {
               <label>IN STOCK <i className={`tog ${inStock ? 'on' : ''}`} onClick={() => setInStock(!inStock)}><b /></i></label>
               <label className="price-filter">MIN EGP <input aria-label="Minimum price" type="number" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" /></label>
               <label className="price-filter">MAX EGP <input aria-label="Maximum price" type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="—" /></label>
-              {(minPrice || maxPrice || sizeFilter || inStock) && <button className="clear-filters" type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); setSizeFilter(null); setInStock(false) }}>CLEAR FILTERS ×</button>
+              {(minPrice || maxPrice || sizeFilter || inStock) && <button className="clear-filters" type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); setSizeFilter(null); setInStock(false) }}>CLEAR FILTERS ×</button>}
             </div>
           </div>
           <div className="grid">
