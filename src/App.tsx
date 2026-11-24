@@ -1189,21 +1189,32 @@ export default function App() {
             </form>
           ) : adminRole === 'admin' ? (
             <>
-              <section className="admin-overview" aria-label="Store overview">
+              <div className="admin-layout">
+                <aside className="admin-sidebar">
+                  <small>WORKSPACE</small>
+                  <a className="admin-side-link active" href="#admin-overview"><span>01</span> Overview</a>
+                  <a className="admin-side-link" href="#admin-create"><span>02</span> Add product</a>
+                  <a className="admin-side-link" href="#admin-products"><span>03</span> Products</a>
+                  <a className="admin-side-link" href="#admin-customers"><span>04</span> Customers</a>
+                  <a className="admin-side-link" href="#admin-orders"><span>05</span> Orders</a>
+                  <div className="admin-sidebar-bottom"><span className="admin-live-dot"/> STORE SYSTEM<br/><b>OPERATIONAL</b></div>
+                </aside>
+                <div className="admin-content">
+              <section id="admin-overview" className="admin-overview" aria-label="Store overview">
                 <div><small>CATALOGUE</small><strong>{adminProducts.length}</strong><span>ALL PIECES</span></div>
                 <div><small>LIVE</small><strong>{adminProducts.filter((p) => p.is_active).length}</strong><span>VISIBLE PRODUCTS</span></div>
                 <div><small>ORDERS</small><strong>{adminOrders.length}</strong><span>RECENT RECORDS</span></div>
                 <div><small>TO PROCESS</small><strong>{adminOrders.filter((o) => ['pending','confirmed','processing','shipped'].includes(o.status)).length}</strong><span>OPEN ORDERS</span></div>
                 <div><small>CUSTOMERS</small><strong>{adminCustomers.length}</strong><span>REGISTERED ACCOUNTS</span></div>
               </section>
-              <form className="admin-create-product" onSubmit={createAdminProduct}>
+              <form id="admin-create" className="admin-create-product" onSubmit={createAdminProduct}>
                 <div className="admin-section-title"><h2>ADD A NEW PIECE</h2><span>CATALOGUE ENTRY</span></div>
                 <input required value={newProductName} onChange={(e)=>setNewProductName(e.target.value)} placeholder="PRODUCT NAME"/>
                 <select value={newProductCategory} onChange={(e)=>setNewProductCategory(e.target.value as Category)}>{CATEGORIES.map((category)=><option key={category} value={category}>{category}</option>)}</select>
                 <input inputMode="decimal" value={newProductPrice} onChange={(e)=>setNewProductPrice(e.target.value)} placeholder={`PRICE / EGP ${PRICE_RANGES[newProductCategory].min}–${PRICE_RANGES[newProductCategory].max}`}/>
                 <button type="submit">CREATE PRODUCT ↗</button>
               </form>
-              <section className="admin-products">
+              <section id="admin-products" className="admin-products">
                 <div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES, STOCK, PHOTOS & VISIBILITY</span></div>
                 {adminProducts.map((p)=><article key={p.id}>
                   <div><b>{p.name}</b><small>{p.category}</small></div>
@@ -1214,11 +1225,11 @@ export default function App() {
                   <div className="admin-image-upload"><label>ADD PRODUCT IMAGE<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(e)=>setAdminImageFiles((items)=>({...items,[p.id]:e.target.files?.[0] ?? null}))}/></label><button onClick={()=>void uploadAdminImage(p.id)}>UPLOAD IMAGE ↗</button></div>
                 </article>)}
               </section>
-              <section className="admin-customers">
+              <section id="admin-customers" className="admin-customers">
                 <div className="admin-section-title"><h2>CUSTOMER DIRECTORY / {adminCustomers.length}</h2><span>REGISTERED ACCOUNTS</span></div>
                 {adminCustomers.length===0?<p>NO CUSTOMER ACCOUNTS YET.</p>:adminCustomers.map((customer,i)=><article key={customer.email ?? i}><b>{customer.full_name || 'STREET CUSTOMER'}</b><span>{customer.email}</span><small>{new Date(customer.created_at).toLocaleDateString()}</small></article>)}
               </section>
-              <section className="admin-orders">
+              <section id="admin-orders" className="admin-orders">
                 <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>
                 {adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}>
                   <b>{o.order_number}</b><span>{o.customer_name}</span>
@@ -1228,6 +1239,8 @@ export default function App() {
                   <strong>{money(Number(o.total))}</strong>
                 </article>)}
               </section>
+                </div>
+              </div>
             </>
           ) : (
             <div className="admin-message">{adminNotice||'THIS ACCOUNT DOES NOT HAVE ADMIN PERMISSIONS.'}<button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminNotice('SIGNED OUT.')}}>SIGN OUT</button></div>
