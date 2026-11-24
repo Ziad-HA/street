@@ -436,9 +436,7 @@ export default function App() {
         const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
         if (alive) setAdminOrders(orders ?? [])
         const { data: products } = await supabase.from('products').select('id,name,category,price,is_active,sizes').order('category').order('name')
-        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)])))
-    const { data: stock } = await supabase.from('inventory').select('product_id,size,quantity')
-    setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)]))) }
+        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
         const { data: stock } = await supabase.from('inventory').select('product_id,size,quantity')
         if (alive) setAdminStockDrafts(Object.fromEntries((stock ?? []).map((row) => [`${row.product_id}::${row.size}`, String(row.quantity)])))
         const { data: customers } = await supabase.from('profiles').select('email,full_name,created_at').order('created_at', { ascending: false }).limit(50)
