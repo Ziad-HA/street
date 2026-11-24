@@ -563,3 +563,60 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 
 .shop-expand{display:block;width:100%;margin:22px 0 0;padding:15px;border:1px solid var(--line);font-size:8px;letter-spacing:.16em;text-align:center;transition:background .2s,color .2s}
 .shop-expand:hover{background:var(--accent);color:#080a0d;border-color:var(--accent)}
+
+
+/* Hero video with a continuous 3D STREET orbit */
+.hero-center-stage{
+  position:absolute;
+  left:50%;top:50%;
+  width:min(58vw,620px);
+  aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  display:grid;place-items:center;
+  perspective:1100px;
+  z-index:2;
+}
+.hero-center-video{
+  position:relative;
+  z-index:2;
+  width:48%;
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:50%;
+  border:1px solid #ffffff65;
+  box-shadow:0 18px 70px #0008,0 0 36px #ffffff12;
+  background:#090b0e;
+}
+.hero-orbit-3d{
+  position:absolute;
+  inset:0;
+  transform-style:preserve-3d;
+  animation:streetOrbit3D 13s linear infinite;
+  pointer-events:none;
+}
+.hero-orbit-3d svg{width:100%;height:100%;overflow:visible}
+.hero-orbit-line{fill:none;stroke:#ffffff85;stroke-width:1.15;stroke-dasharray:3 8}
+.hero-orbit-word{
+  fill:#fff;
+  font-family:Inter,Arial,sans-serif;
+  font-size:31px;
+  font-weight:800;
+  letter-spacing:5px;
+  paint-order:stroke;
+  stroke:#090b0e;
+  stroke-width:1.5px;
+}
+@keyframes streetOrbit3D{
+  0%{transform:rotateX(68deg) rotateY(0deg) rotateZ(-12deg)}
+  50%{transform:rotateX(68deg) rotateY(180deg) rotateZ(12deg)}
+  100%{transform:rotateX(68deg) rotateY(360deg) rotateZ(-12deg)}
+}
+@media(max-width:760px){
+  .hero-center-stage{width:min(88vw,470px);top:49%}
+  .hero-center-video{width:46%}
+  .hero-orbit-word{font-size:34px;letter-spacing:4px}
+  .hero-top{top:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-orbit-3d{animation-duration:40s}
+}
