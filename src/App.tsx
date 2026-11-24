@@ -130,15 +130,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
 
-  // Automatically cycle through every view of the current product.
-  useEffect(() => {
-    if (page !== 'product' || active.images.length < 2) return
-    const timer = window.setInterval(() => {
-      setImgIdx((index) => (index + 1) % active.images.length)
-    }, 2200)
-    return () => window.clearInterval(timer)
-  }, [page, active.id, active.images.length])
-
   // Show the brand intro only once on this browser.
   useEffect(() => {
     try { localStorage.setItem('street-intro-seen-v1', '1') } catch { /* storage may be unavailable */ }
@@ -257,7 +248,6 @@ export default function App() {
     setCategory(p.category)
     setSizeSel(p.sizes[0])
     setQty(1)
-    setImgIdx(0)
     setSearch(false)
     setPage('product')
     window.scrollTo(0, 0)
@@ -272,7 +262,7 @@ export default function App() {
 
   const [sizeSel, setSizeSel] = useState('XS')
   const [qty, setQty] = useState(1)
-  const [imgIdx, setImgIdx] = useState(0)
+  const [galleryPaused, setGalleryPaused] = useState(false)
   const [openDetails, setOpenDetails] = useState(true)
   const [trackCode, setTrackCode] = useState('')
   const [trackNotice, setTrackNotice] = useState('')
@@ -558,17 +548,19 @@ export default function App() {
       {page === 'product' && (
         <main className="pdp">
           <div className="pdp-wrap">
-            <div className="thumbs">
-              {active.images.map((im, i) => <button key={i} type="button" className={i === imgIdx ? 'thumb-button on' : 'thumb-button'} onClick={() => setImgIdx(i)} aria-label={`Show product image ${i + 1}`}><Img src={im} /></button>)}
-            </div>
-            <div className="gallery" aria-label="Automatically rotating product gallery">
-              <Img src={active.images[imgIdx]} className="g-img" />
+            <div className={`gallery ${galleryPaused ? 'is-paused' : ''}`} aria-label="Continuously moving horizontal product gallery">
+              <div className="product-gallery-track">
+                {[...active.images, ...active.images].map((im, i) => (
+                  <div className="product-gallery-item" key={`${active.id}-gallery-${i}`}>
+                    <Img src={im} className="g-img" />
+                  </div>
+                ))}
+              </div>
               <div className="gallery-controls">
-                <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)} aria-label="Previous image">‹</button>
-                <div className="gallery-progress" aria-label={`Image ${imgIdx + 1} of ${active.images.length}`}>
-                  {active.images.map((_, i) => <button key={i} className={i === imgIdx ? 'on' : ''} onClick={() => setImgIdx(i)} aria-label={`Show image ${i + 1}`} />)}
-                </div>
-                <button className="arr r" onClick={() => setImgIdx((i) => (i + 1) % active.images.length)} aria-label="Next image">›</button>
+                <button className="gallery-toggle" type="button" onClick={() => setGalleryPaused((paused) => !paused)} aria-label={galleryPaused ? 'Play product gallery' : 'Pause product gallery'}>
+                  {galleryPaused ? 'PLAY' : 'PAUSE'}
+                  <span>{galleryPaused ? '▶' : 'Ⅱ'}</span>
+                </button>
               </div>
             </div>
             <aside className="info">
