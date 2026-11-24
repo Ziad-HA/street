@@ -682,19 +682,19 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 .page-product .gallery{overflow:hidden;isolation:isolate;background:#d7d7d4}
 .page-product .product-gallery-track{display:flex;align-items:stretch;gap:14px;width:max-content;height:100%;animation:street-gallery-marquee 42s linear infinite;will-change:transform}
 .page-product .gallery.is-paused .product-gallery-track{animation-play-state:paused}
-.page-product .product-gallery-item{flex:0 0 48vw;width:48vw;height:100%;overflow:hidden;background:#d7d7d4}
+.page-product .product-gallery-item{flex:0 0 32vw;width:32vw;height:100%;overflow:hidden;background:#d7d7d4}
 .page-product .product-gallery-item .g-img{width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;animation:none}
 .page-product .gallery-controls{left:auto;right:28px;bottom:26px;transform:none}
 .page-product .gallery-toggle{display:flex;align-items:center;gap:14px;min-height:42px;padding:0 16px;background:#f2f2ef;color:#111;font-size:9px;font-weight:700;letter-spacing:.14em}
 .page-product .gallery-toggle span{font-size:13px;line-height:1}
 @keyframes street-gallery-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(max-width:900px){
- .page-product .product-gallery-item{flex-basis:72vw;width:72vw}
+ .page-product .product-gallery-item{flex-basis:48vw;width:48vw}
  .page-product .product-gallery-track{gap:10px;animation-duration:34s}
  .page-product .gallery-controls{right:16px;bottom:16px}
 }
 @media(max-width:600px){
- .page-product .product-gallery-item{flex-basis:82vw;width:82vw}
+ .page-product .product-gallery-item{flex-basis:62vw;width:62vw}
  .page-product .product-gallery-track{gap:8px;animation-duration:30s}
  .page-product .gallery-toggle{min-height:38px;padding:0 12px}
 }
