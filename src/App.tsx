@@ -297,7 +297,7 @@ export default function App() {
       <header className="hdr">
         <button className="mobile-menu-toggle" onClick={() => setMenu(true)} aria-label="Open navigation">☰</button>
       <div className="hdr-logo" onClick={() => go('hero')}>
-          <Logo3D pose={{ rx: 0, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} scrollSpin fov={30} />
+          <Logo3D pose={{ rx: 0, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} spin={0.85} fov={30} />
         </div>
         <nav>
           {NAV.map((n) => (
@@ -385,17 +385,6 @@ export default function App() {
           </div>
           <div className="hero-center-stage">
             <video className="hero-center-video" src={ASSETS.introVideo} autoPlay muted loop playsInline preload="auto" />
-            <div className="hero-orbit-3d" aria-hidden="true">
-              <svg viewBox="0 0 600 600" role="presentation">
-                <defs>
-                  <path id="street-orbit-path" d="M 300,300 m -226,0 a 226,226 0 1,1 452,0 a 226,226 0 1,1 -452,0" />
-                </defs>
-                <circle className="hero-orbit-line" cx="300" cy="300" r="226" />
-                <text className="hero-orbit-word">
-                  <textPath href="#street-orbit-path" startOffset="0%">STREET — STREET — STREET — STREET — </textPath>
-                </text>
-              </svg>
-            </div>
           </div>
           <button className="enter" onClick={() => go('store')}>ENTER STORE</button>
         </section>
