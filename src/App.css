@@ -1999,3 +1999,96 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     bottom:42px;
   }
 }
+
+
+/* Mobile hero — cinematic editorial layout, tuned independently from desktop. */
+@media(max-width:600px){
+  .hero{
+    isolation:isolate;
+    background:#080808;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.48) 0%,transparent 25%,transparent 52%,rgba(0,0,0,.18) 70%,rgba(0,0,0,.78) 100%),
+      linear-gradient(90deg,rgba(0,0,0,.12),transparent 48%,rgba(0,0,0,.12));
+  }
+  .hero-bg{
+    object-position:center center;
+    transform:scale(1.035);
+  }
+  .hero-top{
+    top:26px;
+    gap:7px;
+  }
+  .hero-logo{
+    width:96px;
+    max-height:42px;
+  }
+  .hero-top small{
+    font-size:6px;
+    letter-spacing:.17em;
+    color:#ffffffc9;
+  }
+  .burger{
+    top:27px;
+    left:20px;
+    width:20px;
+    gap:4px;
+    z-index:8;
+  }
+  .burger i{height:2px}
+  .scene-dots{
+    top:auto;
+    right:20px;
+    bottom:116px;
+    gap:9px;
+    z-index:8;
+  }
+  .scene-dots button{
+    width:5px;
+    height:5px;
+    background:#ffffff70;
+  }
+  .scene-dots button.on{
+    background:#fff;
+    transform:scale(1.45);
+  }
+  .hero-center-logo{
+    width:74vw;
+    height:74vw;
+    min-width:0;
+    min-height:0;
+    max-width:330px;
+    max-height:330px;
+    top:47%;
+    z-index:4;
+  }
+  .enter{
+    width:calc(100% - 40px);
+    max-width:360px;
+    min-width:0;
+    min-height:58px;
+    bottom:34px;
+    padding:17px 24px;
+    border:1px solid rgba(255,255,255,.82);
+    background:rgba(8,8,8,.48);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.28em;
+    box-shadow:0 10px 35px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.12);
+    z-index:9;
+  }
+  .enter:active{
+    background:rgba(255,255,255,.94);
+    color:#080808;
+    transform:translateX(-50%) scale(.985);
+  }
+}
