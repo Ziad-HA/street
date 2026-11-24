@@ -4,7 +4,9 @@ const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || 'https://hmyasmkguxkawhnyojtb.supabase.co'
 
 // This is the active publishable key registered for the STREET Supabase project.
-const supabasePublishableKey = 'sb_publishable_6vbLWo2BguDY-6oghYkMCg_9zHTXXfW'
+const supabasePublishableKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  'sb_publishable_6vbLWo2BguDY-6oghYkMCg_9zHTXXfW'
 
 // Authenticated client for account, checkout and admin operations.
 export const supabase = createClient(supabaseUrl, supabasePublishableKey)

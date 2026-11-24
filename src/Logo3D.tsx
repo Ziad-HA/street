@@ -1,8 +1,8 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Lightformer, useGLTF } from '@react-three/drei'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { Group } from 'three'
-import { Box3, CatmullRomCurve3, TubeGeometry, Vector3 } from 'three'
+import { Box3, CatmullRomCurve3, MeshStandardMaterial, TubeGeometry, Vector3 } from 'three'
 import { ASSETS } from './config'
 import { DOTS, MARK_H, MARK_W, MARK_STROKE, STROKES } from './mark'
 
@@ -31,24 +31,40 @@ function ChromeMark() {
     const dots = DOTS.map((d) => ({ p: P(d.x, d.y), r: d.r * k }))
     return { tubes, dots, r }
   }, [])
-  const mat = <meshStandardMaterial metalness={1} roughness={0.1} color="#c9ced6" envMapIntensity={1.5} />
+
+  const material = useMemo(
+    () =>
+      new MeshStandardMaterial({
+        metalness: 1,
+        roughness: 0.1,
+        color: '#c9ced6',
+        envMapIntensity: 1.5,
+      }),
+    [],
+  )
+
+  useEffect(() => {
+    return () => {
+      parts.tubes.forEach((t) => t.geo.dispose())
+      material.dispose()
+    }
+  }, [parts, material])
+
   return (
     <group>
       {parts.tubes.map((t, i) => (
         <group key={i}>
-          <mesh geometry={t.geo}>{mat}</mesh>
+          <mesh geometry={t.geo} material={material} />
           {t.ends.map((e, j) => (
-            <mesh key={j} position={e}>
+            <mesh key={j} position={e} material={material}>
               <sphereGeometry args={[parts.r, 16, 16]} />
-              {mat}
             </mesh>
           ))}
         </group>
       ))}
       {parts.dots.map((d, i) => (
-        <mesh key={i} position={d.p}>
+        <mesh key={i} position={d.p} material={material}>
           <sphereGeometry args={[d.r, 16, 16]} />
-          {mat}
         </mesh>
       ))}
     </group>
@@ -130,3 +146,5 @@ export function Logo3D({ className, fov = 35, ...rig }: Props) {
     </Canvas>
   )
 }
+
+export default Logo3D
