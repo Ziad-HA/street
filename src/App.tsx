@@ -58,7 +58,7 @@ function Logo({ className }: { className?: string }) {
 }
 
 const money = (n: number) => n > 0 ? n.toFixed(2) : 'PRICE TBC'
-const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS' })[c]
+const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS', CAPS: 'CAPS' })[c]
 
 const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'HOODIES', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
@@ -395,7 +395,7 @@ export default function App() {
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...PRODUCTS].sort((a,b) => {
-    const order = ['PANTS','JACKETS','HOODIES','T-SHIRTS']
+    const order = ['PANTS','JACKETS','HOODIES','T-SHIRTS','CAPS']
     return order.indexOf(a.category) - order.indexOf(b.category)
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
