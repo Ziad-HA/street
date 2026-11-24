@@ -680,7 +680,7 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 
 /* Continuous horizontal product gallery */
 .page-product .gallery{overflow:hidden;isolation:isolate;background:#d7d7d4}
-.page-product .product-gallery-track{display:flex;align-items:stretch;gap:14px;width:max-content;height:100%;animation:street-gallery-marquee 42s linear infinite;will-change:transform}
+.page-product .product-gallery-track{display:flex;align-items:stretch;gap:0;width:max-content;height:100%;animation:street-gallery-marquee 42s linear infinite;will-change:transform}
 .page-product .gallery.is-paused .product-gallery-track{animation-play-state:paused}
 .page-product .product-gallery-item{position:relative;flex:0 0 32vw;width:32vw;height:100%;overflow:hidden;background:#d7d7d4}
 .page-product .product-gallery-item .g-img{position:absolute;inset:0;width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;animation:none}
