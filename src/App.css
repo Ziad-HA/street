@@ -177,10 +177,17 @@ body.dark .giant{background-image:linear-gradient(#bbb,#777 40%,var(--bg) 92%)}
 .info h1{font-size:36px;line-height:.98;font-weight:700;letter-spacing:-.04em;margin:8px 0}
 .p-price{font-size:8px;margin-bottom:16px}
 .info label{display:block;font-size:6.5px;color:#555;margin:12px 0 6px;letter-spacing:.1em}
-.sizes{display:flex;gap:6px;flex-wrap:wrap}
-.sizes button{border:1px solid var(--line);min-width:30px;padding:8px 8px;font-size:6.5px}
-.sizes button.on{background:#000;color:#fff;border-color:#000}
-body.dark .sizes button.on{background:#fff;color:#000}
+.sizes{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 16px}
+.sizes button{position:relative;isolation:isolate;display:grid;place-items:center;min-width:48px;min-height:44px;padding:9px 13px;border:1px solid color-mix(in srgb,var(--fg) 28%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--fg) 5%,transparent),transparent 58%);font-size:9px;font-weight:700;letter-spacing:.08em;transition:color .3s,border-color .3s,background .3s,transform .3s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.sizes button::before{content:"";position:absolute;inset:3px;border:1px solid color-mix(in srgb,var(--fg) 13%,transparent);pointer-events:none;transition:border-color .3s}
+.sizes button::after{content:"";position:absolute;top:0;right:0;width:7px;height:7px;background:var(--accent);opacity:0;transition:opacity .3s}
+.sizes button:hover{transform:translateY(-2px);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.sizes button.on{color:#080a0d;background:var(--accent);border-color:var(--accent);box-shadow:0 5px 18px color-mix(in srgb,var(--accent) 22%,transparent)}
+.sizes button.on::before{border-color:#080a0d55}
+.sizes button.on::after{opacity:1}
+body.dark .sizes button:not(.on){background:linear-gradient(145deg,#ffffff0d,#ffffff02);border-color:#ffffff38}
+body.dark .sizes button:not(.on)::before{border-color:#ffffff20}
+body.dark .sizes button.on{background:var(--accent);color:#080a0d;border-color:var(--accent)}
 .swatch{width:22px;height:22px;margin-top:12px;border:1px solid var(--line)}
 .qty-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
 .qty{display:flex;align-items:center;gap:14px;border:1px solid var(--line);padding:5px 10px}
