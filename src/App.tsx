@@ -345,7 +345,7 @@ export default function App() {
   const [adminNotice, setAdminNotice] = useState('')
   const [adminUser, setAdminUser] = useState<string | null>(null)
   const [adminRole, setAdminRole] = useState<string | null>(null)
-  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])\n  const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])\n  const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
 
   useEffect(() => {
     if (page !== 'admin') return
@@ -360,7 +360,7 @@ export default function App() {
       setAdminRole(data?.role ?? 'customer')
       if (data?.role === 'admin') {
         const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
-        if (alive) setAdminOrders(orders ?? [])
+        if (alive) setAdminOrders(orders ?? [])\n        const { data: products } = await supabase.from('products').select('id,name,category,price,is_active').order('category').order('name')\n        if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
       }
     }
     void loadAdmin()
@@ -398,6 +398,29 @@ export default function App() {
   }
   const toggleWish = (id: string) =>
     setWish((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]))
+
+
+  const saveAdminPrice = async (id: string) => {
+    const raw = adminPriceDrafts[id]?.trim() ?? ''
+    const price = raw === '' ? null : Number(raw)
+    if (price !== null && (!Number.isFinite(price) || price < 0)) { setAdminNotice('ENTER A VALID NON-NEGATIVE PRICE.'); return }
+    const { error } = await supabase.from('products').update({ price, updated_at: new Date().toISOString() }).eq('id', id)
+    if (error) { setAdminNotice(error.message); return }
+    setAdminProducts((items) => items.map((item) => item.id === id ? { ...item, price } : item))
+    setAdminNotice('PRODUCT PRICE UPDATED.')
+  }
+
+  const toggleAdminProduct = async (id: string, is_active: boolean) => {
+    const { error } = await supabase.from('products').update({ is_active: !is_active, updated_at: new Date().toISOString() }).eq('id', id)
+    if (error) { setAdminNotice(error.message); return }
+    setAdminProducts((items) => items.map((item) => item.id === id ? { ...item, is_active: !is_active } : item))
+  }
+
+  const updateAdminOrder = async (order_number: string, status: string) => {
+    const { error } = await supabase.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('order_number', order_number)
+    if (error) { setAdminNotice(error.message); return }
+    setAdminOrders((items) => items.map((item) => item.order_number === order_number ? { ...item, status } : item))
+  }
 
   const cartCount = cart.reduce((n, i) => n + i.qty, 0)
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
@@ -861,7 +884,7 @@ export default function App() {
         <main className="utility-page admin-page">
           <div className="page-kicker">STREET / CONTROL ROOM / 010</div>
           <div className="utility-heading"><small>PRIVATE ACCESS</small><h1>STREET<br/><span>CONTROL.</span></h1><p>Manage the catalogue and review incoming orders. Access is restricted to accounts assigned the admin role.</p></div>
-          {!adminUser ? <form className="admin-login" onSubmit={adminSignIn}><label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Your password"/><button className="solid" type="submit">SIGN IN ↗</button>{adminNotice&&<p>{adminNotice}</p>}</form> : adminRole==='admin' ? <section className="admin-orders"><div><h2>RECENT ORDERS</h2><button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminOrders([])}}>SIGN OUT</button></div>{adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.customer_name}</span><span>{o.status.toUpperCase()}</span><strong>{money(Number(o.total))}</strong></article>)}</section>:<p className="admin-message">{adminNotice||'CHECKING ADMIN PERMISSIONS…'}</p>}
+          {!adminUser ? <form className="admin-login" onSubmit={adminSignIn}><label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Your password"/><button className="solid" type="submit">SIGN IN ↗</button>{adminNotice&&<p>{adminNotice}</p>}</form> : adminRole==='admin' ? <section className="admin-orders"><div><h2>RECENT ORDERS</h2><button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminOrders([])}}>SIGN OUT</button></div><section className="admin-products"><div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES & VISIBILITY</span></div>{adminProducts.map((p)=><article key={p.id}><div><b>{p.name}</b><small>{p.category}</small></div><label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label><button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button><button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button></article>)}</section><section className="admin-orders"><div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>{adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.customer_name}</span><select value={o.status} onChange={(e)=>void updateAdminOrder(o.order_number,e.target.value)}><option value="pending">PENDING</option><option value="confirmed">CONFIRMED</option><option value="processing">PROCESSING</option><option value="shipped">SHIPPED</option><option value="delivered">DELIVERED</option><option value="cancelled">CANCELLED</option></select><strong>{money(Number(o.total))}</strong></article>)}</section>:<p className="admin-message">{adminNotice||'CHECKING ADMIN PERMISSIONS…'}</p>}
           {footer()}
         </main>
       )}
