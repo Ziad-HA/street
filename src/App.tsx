@@ -377,6 +377,7 @@ export default function App() {
   const [adminRole, setAdminRole] = useState<string | null>(null)
   const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
   const [adminProducts, setAdminProducts] = useState<Array<{id:string;name:string;category:string;price:number|null;is_active:boolean}>>([])
+  const [adminCustomers, setAdminCustomers] = useState<Array<{email:string|null;full_name:string|null;created_at:string}>>([])
   const [adminPriceDrafts, setAdminPriceDrafts] = useState<Record<string,string>>({})
 
   useEffect(() => {
@@ -435,6 +436,8 @@ export default function App() {
         if (alive) setAdminOrders(orders ?? [])
         const { data: products } = await supabase.from('products').select('id,name,category,price,is_active').order('category').order('name')
         if (alive) { setAdminProducts(products ?? []); setAdminPriceDrafts(Object.fromEntries((products ?? []).map((p) => [p.id, p.price == null ? '' : String(p.price)]))) }
+        const { data: customers } = await supabase.from('profiles').select('email,full_name,created_at').order('created_at', { ascending: false }).limit(50)
+        if (alive) setAdminCustomers(customers ?? [])
       }
     }
     void loadAdmin()
@@ -1011,6 +1014,10 @@ export default function App() {
                   <button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button>
                   <button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button>
                 </article>)}
+              </section>
+              <section className="admin-customers">
+                <div className="admin-section-title"><h2>CUSTOMER DIRECTORY / {adminCustomers.length}</h2><span>REGISTERED ACCOUNTS</span></div>
+                {adminCustomers.length===0?<p>NO CUSTOMER ACCOUNTS YET.</p>:adminCustomers.map((customer,i)=><article key={customer.email ?? i}><b>{customer.full_name || 'STREET CUSTOMER'}</b><span>{customer.email}</span><small>{new Date(customer.created_at).toLocaleDateString()}</small></article>)}
               </section>
               <section className="admin-orders">
                 <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>
