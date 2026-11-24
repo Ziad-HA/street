@@ -596,21 +596,26 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 .complete-outfit-head h2{font-size:clamp(26px,4.5vw,58px);line-height:.9;letter-spacing:-.075em;margin-top:12px}
 .complete-outfit-head h2 span{color:var(--accent)}
 .complete-outfit-head p{max-width:210px;font-size:7px;line-height:1.8;letter-spacing:.12em;color:var(--mut);text-align:right}
-.complete-outfit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-.complete-outfit-grid .card{min-width:0}
-.complete-outfit-grid .card-img{aspect-ratio:.82}
-.complete-outfit-grid .card h3{font-size:9px}
-.complete-outfit-grid .card .price{font-size:9px}
-.complete-outfit-grid .card .mini-bag{width:100%;height:30px;border-radius:0;margin-top:8px;background:var(--fg);color:var(--bg)}
-body.dark .complete-outfit-grid .card .mini-bag{background:var(--accent);color:#080a0d}
+.complete-outfit-marquee{width:100%;overflow:hidden}
+.complete-outfit-track{display:flex;align-items:flex-start;gap:18px;width:max-content;animation:outfit-move-right 34s linear infinite;will-change:transform}
+.complete-outfit-marquee:hover .complete-outfit-track{animation-play-state:paused}
+.complete-outfit-track .card{flex:0 0 210px;width:210px;min-width:0}
+.complete-outfit-track .card-img{aspect-ratio:.9}
+.complete-outfit-track .card h3{font-size:9px}
+.complete-outfit-track .card .price{font-size:9px}
+.complete-outfit-track .card .mini-bag{width:100%;height:30px;border-radius:0;margin-top:8px;background:var(--fg);color:var(--bg)}
+body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:#080a0d}
+@keyframes outfit-move-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 @media(max-width:900px){
   .complete-outfit{padding:30px 0 42px}
-  .complete-outfit-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px}
+  .complete-outfit-track .card{flex-basis:180px;width:180px}
 }
 @media(max-width:600px){
   .complete-outfit-head{align-items:flex-start;flex-direction:column;gap:9px}
   .complete-outfit-head p{text-align:left}
-  .complete-outfit-grid .card h3{font-size:8px}
+  .complete-outfit-track{gap:12px;animation-duration:28s}
+  .complete-outfit-track .card{flex-basis:155px;width:155px}
+  .complete-outfit-track .card h3{font-size:8px}
 }
 
 
