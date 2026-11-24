@@ -337,7 +337,55 @@ export default function App() {
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [openDetails, setOpenDetails] = useState(true)
   const [trackCode, setTrackCode] = useState('')
-  const [trackNotice, setTrackNotice] = useState('')\n  const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')\n  const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')\n  const [adminEmail, setAdminEmail] = useState('')\n  const [adminPassword, setAdminPassword] = useState('')\n  const [adminNotice, setAdminNotice] = useState('')\n  const [adminUser, setAdminUser] = useState<string | null>(null)\n  const [adminRole, setAdminRole] = useState<string | null>(null)\n  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+  const [trackNotice, setTrackNotice] = useState('')
+  const [outfitBottom, setOutfitBottom] = useState(PRODUCTS.find((p) => p.category === 'PANTS')?.id ?? '')
+  const [outfitTop, setOutfitTop] = useState(PRODUCTS.find((p) => p.category === 'HOODIES')?.id ?? '')
+  const [adminEmail, setAdminEmail] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [adminNotice, setAdminNotice] = useState('')
+  const [adminUser, setAdminUser] = useState<string | null>(null)
+  const [adminRole, setAdminRole] = useState<string | null>(null)
+  const [adminOrders, setAdminOrders] = useState<Array<{order_number:string; customer_name:string; total:number; status:string; created_at:string}>>([])
+
+  useEffect(() => {
+    if (page !== 'admin') return
+    let alive = true
+    const loadAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!alive) return
+      setAdminUser(session?.user.email ?? null)
+      if (!session?.user) { setAdminRole(null); return }
+      const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
+      if (!alive) return
+      setAdminRole(data?.role ?? 'customer')
+      if (data?.role === 'admin') {
+        const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
+        if (alive) setAdminOrders(orders ?? [])
+      }
+    }
+    void loadAdmin()
+    return () => { alive = false }
+  }, [page])
+
+  const adminSignIn = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setAdminNotice('CHECKING ACCESS…')
+    const { data, error } = await supabase.auth.signInWithPassword({ email: adminEmail.trim(), password: adminPassword })
+    if (error || !data.user) { setAdminNotice(error?.message ?? 'Unable to sign in.'); return }
+    const { data: profile, error: profileError } = await supabase.from('profiles').select('role').eq('id', data.user.id).maybeSingle()
+    if (profileError || profile?.role !== 'admin') {
+      await supabase.auth.signOut()
+      setAdminUser(null)
+      setAdminRole(null)
+      setAdminNotice('THIS ACCOUNT DOES NOT HAVE STREET ADMIN ACCESS.')
+      return
+    }
+    setAdminUser(data.user.email ?? null)
+    setAdminRole('admin')
+    setAdminNotice('ACCESS GRANTED.')
+    const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
+    setAdminOrders(orders ?? [])
+  }
 
   const add = (p: Product, size: string, q = 1) => {
     if (p.soldOut) return
