@@ -706,7 +706,7 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{catalogProducts.length} / catalogProducts</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>{CATEGORIES.length} / CATEGORIES</span><span>{catalogProducts.length} / PRODUCTS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
               <section className="shop-categories">
             <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
@@ -721,11 +721,11 @@ export default function App() {
             </div>
           </section>
           <section className="shop-all">
-            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{catalogProducts.length} catalogProducts / SORTED BY DEPARTMENT</span></div>
+            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{catalogProducts.length} PRODUCTS / SORTED BY DEPARTMENT</span></div>
             <div className="shop-grid">
               {visibleShopProducts.map((p,i) => <Fragment key={p.id}>{card(p,i+1,catalogProducts.length)}</Fragment>)}
             </div>
-            <button className="shop-expand" onClick={() => setShowAllShopProducts((v) => !v)}>{showAllShopProducts ? 'SHOW LESS ↑' : `VIEW ALL ${catalogProducts.length} catalogProducts ↓`}</button>
+            <button className="shop-expand" onClick={() => setShowAllShopProducts((v) => !v)}>{showAllShopProducts ? 'SHOW LESS ↑' : `VIEW ALL ${catalogProducts.length} PRODUCTS ↓`}</button>
           </section>
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
           {footer()}
@@ -758,7 +758,7 @@ export default function App() {
       {page === 'collection' && (
         <main className="collection">
           <h1>{categoryLabel(category)}</h1>
-          <small>{filtered.length} catalogProducts</small>
+          <small>{filtered.length} PRODUCTS</small>
           <div className="tabs">
             {CATEGORIES.map((c) => (
               <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null); window.history.pushState({}, '', `/collections/${encodeURIComponent(String(c).toLowerCase())}`) }}>{categoryLabel(c as Category)}</button>
@@ -778,7 +778,7 @@ export default function App() {
           <div className="grid">
             {filtered.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, filtered.length)}</Fragment>)}
           </div>
-          {filtered.length === 0 && <div className="catalog-empty"><h2>NO catalogProducts IN THIS COLLECTION YET.</h2><p>Product listings will appear here once the real product photos, prices and sizes are added.</p></div>}
+          {filtered.length === 0 && <div className="catalog-empty"><h2>NO PRODUCTS IN THIS COLLECTION YET.</h2><p>Product listings will appear here once the real product photos, prices and sizes are added.</p></div>}
           {footer()}
         </main>
       )}
@@ -863,7 +863,7 @@ export default function App() {
             <div><small>WE'RE HERE TO HELP</small><h1>LET'S<br />TALK.</h1><p>Questions about an order, sizing or just want to say hello? Reach out and our team will get back to you.</p><span className="contact-email">CONTACT CHANNELS COMING SOON</span></div>
             <div className="contact-details">
               <div><small>ORDERS</small><b>Questions about an order</b><span>Use the contact channel provided with your order confirmation.</span></div>
-              <div><small>catalogProducts</small><b>Sizing, fit and product information</b><span>Product-specific details will be listed on each product page.</span></div>
+              <div><small>PRODUCTS</small><b>Sizing, fit and product information</b><span>Product-specific details will be listed on each product page.</span></div>
               <div><small>COLLABORATIONS</small><b>Press and creative enquiries</b><span>Official contact details will be added here.</span></div>
             </div>
           </section>
@@ -983,7 +983,37 @@ export default function App() {
         <main className="utility-page admin-page">
           <div className="page-kicker">STREET / CONTROL ROOM / 010</div>
           <div className="utility-heading"><small>PRIVATE ACCESS</small><h1>STREET<br/><span>CONTROL.</span></h1><p>Manage the catalogue and review incoming orders. Access is restricted to accounts assigned the admin role.</p></div>
-          {!adminUser ? <form className="admin-login" onSubmit={adminSignIn}><label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/><label>PASSWORD</label><input type="password" required value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Your password"/><button className="solid" type="submit">SIGN IN ↗</button>{adminNotice&&<p>{adminNotice}</p>}</form> : adminRole==='admin' ? <section className="admin-orders"><div><h2>RECENT ORDERS</h2><button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminOrders([])}}>SIGN OUT</button></div><section className="admin-products"><div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES & VISIBILITY</span></div>{adminProducts.map((p)=><article key={p.id}><div><b>{p.name}</b><small>{p.category}</small></div><label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label><button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button><button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button></article>)}</section><section className="admin-orders"><div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>{adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}><b>{o.order_number}</b><span>{o.customer_name}</span><select value={o.status} onChange={(e)=>void updateAdminOrder(o.order_number,e.target.value)}><option value="pending">PENDING</option><option value="confirmed">CONFIRMED</option><option value="processing">PROCESSING</option><option value="shipped">SHIPPED</option><option value="delivered">DELIVERED</option><option value="cancelled">CANCELLED</option></select><strong>{money(Number(o.total))}</strong></article>)}</section>:<p className="admin-message">{adminNotice||'CHECKING ADMIN PERMISSIONS…'}</p>}
+          {!adminUser ? (
+            <form className="admin-login" onSubmit={adminSignIn}>
+              <label>ADMIN EMAIL</label><input type="email" required value={adminEmail} onChange={(e)=>setAdminEmail(e.target.value)} placeholder="name@domain.com"/>
+              <label>PASSWORD</label><input type="password" required value={adminPassword} onChange={(e)=>setAdminPassword(e.target.value)} placeholder="Your password"/>
+              <button className="solid" type="submit">SIGN IN ↗</button>{adminNotice&&<p>{adminNotice}</p>}
+            </form>
+          ) : adminRole === 'admin' ? (
+            <>
+              <section className="admin-products">
+                <div className="admin-section-title"><h2>PRODUCT CONTROL / {adminProducts.length}</h2><span>PRICES & VISIBILITY</span></div>
+                {adminProducts.map((p)=><article key={p.id}>
+                  <div><b>{p.name}</b><small>{p.category}</small></div>
+                  <label><span>PRICE</span><input aria-label={p.name+' price'} inputMode="decimal" value={adminPriceDrafts[p.id] ?? ''} placeholder="Not set" onChange={(e)=>setAdminPriceDrafts((drafts)=>({...drafts,[p.id]:e.target.value}))}/></label>
+                  <button onClick={()=>void saveAdminPrice(p.id)}>SAVE</button>
+                  <button className={p.is_active?'active':''} onClick={()=>void toggleAdminProduct(p.id,p.is_active)}>{p.is_active?'LIVE':'HIDDEN'}</button>
+                </article>)}
+              </section>
+              <section className="admin-orders">
+                <div><h2>RECENT ORDERS</h2><span>{adminOrders.length} RECORDS</span></div>
+                {adminOrders.length===0?<p>NO ORDERS HAVE BEEN PLACED YET.</p>:adminOrders.map((o)=><article key={o.order_number}>
+                  <b>{o.order_number}</b><span>{o.customer_name}</span>
+                  <select value={o.status} onChange={(e)=>void updateAdminOrder(o.order_number,e.target.value)}>
+                    <option value="pending">PENDING</option><option value="confirmed">CONFIRMED</option><option value="processing">PROCESSING</option><option value="shipped">SHIPPED</option><option value="delivered">DELIVERED</option><option value="cancelled">CANCELLED</option>
+                  </select>
+                  <strong>{money(Number(o.total))}</strong>
+                </article>)}
+              </section>
+            </>
+          ) : (
+            <div className="admin-message">{adminNotice||'THIS ACCOUNT DOES NOT HAVE ADMIN PERMISSIONS.'}<button onClick={async()=>{await supabase.auth.signOut();setAdminUser(null);setAdminRole(null);setAdminNotice('SIGNED OUT.')}}>SIGN OUT</button></div>
+          )}
           {footer()}
         </main>
       )}
@@ -1008,7 +1038,7 @@ export default function App() {
             <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="WHAT ARE YOU LOOKING FOR?" />
             <button onClick={() => setSearch(false)}>{Icon.close}</button>
           </div>
-          <small>FEATURED catalogProducts</small>
+          <small>FEATURED PRODUCTS</small>
           <div className="s-grid">{results.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, results.length)}</Fragment>)}</div>
           <small>COLLECTIONS</small>
           <ul className="s-cols">
