@@ -205,6 +205,7 @@ export default function App() {
   const openProduct = (p: Product) => {
     setRecentIds((ids) => [p.id, ...ids.filter((id) => id !== p.id)].slice(0, 8))
     setActive(p)
+    setCategory(p.category)
     setSizeSel(p.sizes[0])
     setQty(1)
     setImgIdx(0)
@@ -228,7 +229,7 @@ export default function App() {
   const [trackNotice, setTrackNotice] = useState('')
 
   const add = (p: Product, size: string, q = 1) => {
-    if (p.soldOut) return
+    if (p.soldOut || p.isDemo) return
     setCart((c) => {
       const i = c.findIndex((x) => x.product.id === p.id && x.size === size)
       if (i > -1) return c.map((x, k) => (k === i ? { ...x, qty: x.qty + q } : x))
@@ -282,7 +283,7 @@ export default function App() {
           ))}
         </div>
       )}
-      <button className="mini-bag" disabled={p.soldOut} onClick={() => add(p, p.sizes[0])} aria-label="Add to bag">
+      <button className="mini-bag" disabled={p.soldOut || p.isDemo} onClick={() => add(p, p.sizes[0])} aria-label="Add to bag">
         {Icon.bag}
       </button>
     </article>
@@ -520,12 +521,12 @@ export default function App() {
               <div className="links"><button type="button" onClick={() => setSizeGuideOpen((open) => !open)}>SIZE GUIDE {sizeGuideOpen ? '−' : '+'}</button></div>
               {sizeGuideOpen && <div className="size-guide"><b>SIZE GUIDE</b><p>Compare these with a similar item you own. Add verified garment measurements for this product before publishing.</p><div className="size-guide-table"><span>SIZE</span><span>CHEST</span><span>LENGTH</span>{active.sizes.map((size) => <Fragment key={size}><span>{size}</span><span>—</span><span>—</span></Fragment>)}</div></div>}
               <div className="buy">
-                <button className="solid" disabled={active.soldOut} onClick={() => add(active, sizeSel, qty)}>
-                  {Icon.bag} {active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
+                <button className="solid" disabled={active.soldOut || active.isDemo} onClick={() => add(active, sizeSel, qty)}>
+                  {Icon.bag} {active.isDemo ? 'PREVIEW ONLY · NOT FOR SALE' : active.soldOut ? 'SOLD OUT' : `ADD TO CART ${money(active.price)}`}
                 </button>
                 <button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)}>♥</button>
               </div>
-              <button className="outline" disabled={active.soldOut} onClick={() => { add(active, sizeSel, qty) }}>BUY IT NOW</button>
+              <button className="outline" disabled={active.soldOut || active.isDemo} onClick={() => { add(active, sizeSel, qty) }}>BUY IT NOW</button>
               <Pay />
               <div className="prevnext">
                 <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
