@@ -86,7 +86,14 @@ function Rig({ pose, pointer, spin = 0, scrollSpin }: RigProps) {
     const k = 1 - Math.pow(0.0015, dt)
     const px = pointer ? state.pointer.x : 0
     const py = pointer ? state.pointer.y : 0
-    const extra = scrollSpin ? window.scrollY * 0.006 : state.clock.elapsedTime * spin
+    // One full, readable turn followed by a one-second front-facing pause.
+    const spinDuration = 2.35
+    const pauseDuration = 1
+    const cycle = spinDuration + pauseDuration
+    const phase = (state.clock.elapsedTime * Math.max(spin, 0.01)) % cycle
+    const progress = Math.min(phase / spinDuration, 1)
+    const eased = progress * progress * (3 - 2 * progress)
+    const extra = scrollSpin ? window.scrollY * 0.006 : spin > 0 ? eased * Math.PI * 2 : 0
     o.rotation.x += (pose.rx - py * 0.35 - o.rotation.x) * k
     o.rotation.y += (pose.ry + px * 0.5 + extra - o.rotation.y) * k
     o.rotation.z += (pose.rz - o.rotation.z) * k
