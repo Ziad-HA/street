@@ -73,7 +73,9 @@ function Logo({ className }: { className?: string }) {
   )
 }
 
-const money = (n: number) => `$${n.toFixed(2)}`
+const money = (n: number) => `${n.toFixed(2)}`
+
+const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'ZIP-UPS', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
 const Icon = {
   search: (
@@ -130,7 +132,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
   const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed', []))
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
-  const [active, setActive] = useState<Product>(PRODUCTS[0])
+  const [active, setActive] = useState<Product>(PRODUCTS[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
   const [hoverCat, setHoverCat] = useState<Category>('ACCESSORIES')
   const [now, setNow] = useState(() => new Date())
@@ -412,8 +414,7 @@ export default function App() {
             </div>
             <span className="sh-scroll">SCROLL</span>
           </section>
-          {rowOf('zip', 'ZIP HOODIES', byCat('ZIP-UPS'))}
-          {rowOf('acc', 'ACCESSORIES', byCat('ACCESSORIES').slice(0, 4))}
+          {PRODUCTS.length === 0 ? <div className="catalog-empty"><h2>THE FIRST DROP IS ON ITS WAY.</h2><p>STREET's product catalogue is being prepared. Check back soon.</p></div> : <>{rowOf('zip', 'ZIP HOODIES', byCat('ZIP-UPS'))}{rowOf('acc', 'ACCESSORIES', byCat('ACCESSORIES').slice(0, 4))}</>}
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
 
           <section className="outfit">
@@ -488,6 +489,7 @@ export default function App() {
           <div className="grid">
             {filtered.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, filtered.length)}</Fragment>)}
           </div>
+          {filtered.length === 0 && <div className="catalog-empty"><h2>NO PRODUCTS IN THIS COLLECTION YET.</h2><p>Product listings will appear here once the real product photos, prices and sizes are added.</p></div>}
           {footer()}
         </main>
       )}
