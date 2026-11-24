@@ -198,7 +198,14 @@ export default function App() {
         details: row.description ? [row.description] : [],
       }))
       setCatalogProducts(next)
+      const matchedInitialProduct = initialRoute.product ? next.find((product) => product.id === initialRoute.product?.id) : undefined
       setActive((current) => next.find((product) => product.id === current.id) ?? next[0] ?? current)
+      if (matchedInitialProduct) {
+        setActive(matchedInitialProduct)
+        setCategory(matchedInitialProduct.category)
+        setSizeSel(matchedInitialProduct.sizes[0] ?? '')
+        setQty(1)
+      }
       if (initialRoute.page === 'product' && initialRoute.product && !next.some((product) => product.id === initialRoute.product?.id)) {
         setPage('store')
         window.history.replaceState({}, '', '/shop')
