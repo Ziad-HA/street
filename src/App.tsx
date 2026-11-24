@@ -1693,12 +1693,12 @@ export default function App() {
             <article><h2>03 / IMPORTANT LIMITS</h2><p>Any future AI-generated suggestions should be treated as general assistance, not a guarantee of product fit, availability, delivery timing or professional advice. Product specifications and order confirmations shown by the store remain the reference for purchases.</p></article>
           </section>}
           {page === 'sitemap' && <section className="legal-sitemap">
-            {[
+            {([
               ['SHOP', [['Shop all','/shop'],['Collections','/collections'],['New arrivals','/new-arrivals'],['Best sellers','/best-sellers'],['Lookbook','/lookbook'],['Build your outfit','/build-outfit'],['Size guide','/size-guide']]],
               ['YOUR ACCOUNT', [['Account','/account'],['Wishlist','/wishlist'],['Order tracking','/track'],['Checkout','/checkout']]],
               ['SUPPORT', [['Help & FAQs','/help'],['Contact','/contact'],['Studio','/studio']]],
               ['LEGAL & SETTINGS', [['Terms of purchase','/purchase-terms'],['#STREETSTYLE terms','/style-terms'],['Privacy policy','/privacy'],['Cookies policy','/cookies'],['Cookie settings','/cookie-settings'],['Use of AI','/ai-terms'],['Market & language','/market-language']]],
-            ].map(([heading,items]) => <section key={String(heading)}><h2>{heading}</h2>{(items as string[][]).map(([label,path]) => <a key={path} href={path}>{label}<span>↗</span></a>)}</section>)}
+            ] as [string, string[][]][]).map(([heading,items]) => <section key={heading}><h2>{heading}</h2>{items.map(([label,path]) => <a key={path} href={path}>{label}<span>↗</span></a>)}</section>)}
           </section>}
           {page === 'cookie-settings' && <section className="legal-copy cookie-settings-panel">
             <p>Essential storage is always active because it supports sign-in, your shopping bag and basic store functions. Optional categories are currently off by default.</p>
