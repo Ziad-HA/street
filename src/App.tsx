@@ -907,11 +907,11 @@ export default function App() {
           </section>
           <section className="edit-grid">
             {([
-              { cat: 'PANTS', name: 'THE PANTS EDIT', desc: 'Relaxed fits, denim and everyday utility trousers.' },
-              { cat: 'JACKETS', name: 'THE JACKET EDIT', desc: 'Outerwear built for layering and everyday rotation.' },
-              { cat: 'HOODIES', name: 'THE HOODIE EDIT', desc: 'Heavyweight hoodies and zip-ups for everyday wear.' },
-              { cat: 'T-SHIRTS', name: 'THE T-SHIRT EDIT', desc: 'Essential tees, clean graphics and daily staples.' },
-              { cat: 'CAPS', name: 'THE CAPS EDIT', desc: 'Finishing pieces made to complete the STREET look.' },
+              { cat: 'HOODIES', name: 'THE HOODIE COLLECTION', desc: 'Heavyweight hoodies and zip-ups for everyday wear.' },
+              { cat: 'PANTS', name: 'THE PANTS COLLECTION', desc: 'Relaxed fits, denim and everyday utility trousers.' },
+              { cat: 'JACKETS', name: 'THE JACKET COLLECTION', desc: 'Outerwear built for layering and everyday rotation.' },
+              { cat: 'T-SHIRTS', name: 'THE T-SHIRT COLLECTION', desc: 'Essential tees, clean graphics and daily staples.' },
+              { cat: 'CAPS', name: 'THE CAPS COLLECTION', desc: 'Finishing pieces made to complete the STREET look.' },
             ] as const).map((edit, index) => (
               <button className="edit-card" key={edit.cat} onClick={() => openCollection(edit.cat)}>
                 <div className="edit-card-art">
