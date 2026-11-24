@@ -993,8 +993,8 @@ export default function App() {
       </div>
       <header className="hdr">
         <button className="mobile-menu-toggle" onClick={() => setMenu(true)} aria-label="Open navigation">☰</button>
-      <div className="hdr-logo" onClick={() => go('hero')}>
-          <Logo3D pose={{ rx: 0, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} spin={0} fov={30} />
+      <div className="hdr-logo" onClick={() => go('hero')} aria-label="STREET home">
+          <Logo3D pose={{ rx: 0.08, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} spin={0.95} fov={30} />
         </div>
         <nav>
           {NAV.map((n) => (
