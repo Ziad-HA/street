@@ -454,6 +454,15 @@ export default function App() {
           <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
         ))}
       </div>
+      <nav className="street-utility-nav" aria-label="STREET pages">
+        <span>EXPLORE STREET</span>
+        <button onClick={() => go('new-arrivals')}>NEW ARRIVALS ↗</button>
+        <button onClick={() => go('best-sellers')}>BEST SELLERS ↗</button>
+        <button onClick={() => go('lookbook')}>LOOKBOOK ↗</button>
+        <button onClick={() => go('build-outfit')}>BUILD YOUR OUTFIT ↗</button>
+        <button onClick={() => go('size-guide')}>SIZE GUIDE ↗</button>
+        <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
+      </nav>
       <div className="foot-mid">
         <span>Inspired By {BRAND}</span>
         <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
