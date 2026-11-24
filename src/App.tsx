@@ -35,12 +35,24 @@ function Img({ src, className, style }: { src?: string; className?: string; styl
 
 function RotatingProductImage({ images }: { images: string[] }) {
   const [index, setIndex] = useState(0)
+  const [previous, setPrevious] = useState<number | null>(null)
   useEffect(() => {
     if (images.length < 2) return
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % images.length), 2200)
+    const timer = window.setInterval(() => {
+      setIndex((current) => {
+        const next = (current + 1) % images.length
+        setPrevious(current)
+        return next
+      })
+    }, 3600)
     return () => window.clearInterval(timer)
   }, [images])
-  return <Img src={images[index] ?? images[0]} />
+  return (
+    <div className="outfit-rotating-image">
+      {previous !== null && <Img src={images[previous]} key={`outfit-prev-${previous}`} className="outfit-image-previous" />}
+      <Img src={images[index] ?? images[0]} key={`outfit-current-${index}`} className="outfit-image-current" />
+    </div>
+  )
 }
 
 function smooth(st: [number, number][]): string {
