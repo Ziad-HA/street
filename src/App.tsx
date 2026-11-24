@@ -271,6 +271,7 @@ export default function App() {
       </div>
       <div className="dots"><i className="on" /><i /></div>
       {index !== undefined && <div className="idx">{String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>}
+      {p.isDemo && <div className="demo-flag">DEMO · NOT FOR SALE</div>}
       {p.soldOut && <div className="soldtxt">SOLD OUT</div>}
       <h3 onClick={() => openProduct(p)}>{p.name}</h3>
       <div className="price">{money(p.price)}</div>
@@ -407,7 +408,8 @@ export default function App() {
             </div>
             <span className="sh-scroll">SCROLL</span>
           </section>
-          {PRODUCTS.length === 0 ? <div className="catalog-empty"><h2>THE FIRST DROP IS ON ITS WAY.</h2><p>STREET's product catalogue is being prepared. Check back soon.</p></div> : <>{rowOf('zip', 'ZIP HOODIES', byCat('ZIP-UPS'))}{rowOf('acc', 'ACCESSORIES', byCat('ACCESSORIES').slice(0, 4))}</>}
+          <div className="demo-notice"><b>PREVIEW CATALOGUE</b><span>All 30 listings are visual demo examples — not real products, stock or prices. Nothing here is available to purchase.</span></div>
+          {CATEGORIES.map((c) => rowOf('category-' + c, c, byCat(c)))}
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
 
           <section className="outfit">
@@ -463,6 +465,7 @@ export default function App() {
         <main className="collection">
           <h1>{category}</h1>
           <small>{filtered.length} PRODUCTS</small>
+          <div className="demo-notice"><b>PREVIEW ONLY</b><span>Demo products and illustrative prices — not available for purchase.</span></div>
           <div className="tabs">
             {CATEGORIES.map((c) => (
               <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null) }}>{c}</button>
@@ -500,6 +503,7 @@ export default function App() {
             </div>
             <div className="info">
               <small>SHOP / {category} / {active.name}</small>
+              {active.isDemo && <div className="demo-pdp-label">CATALOGUE PREVIEW · NOT FOR SALE</div>}
               <h1>{active.name}</h1>
               <div className="p-price">{money(active.price)}</div>
               <label>SIZE</label>
