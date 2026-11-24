@@ -615,17 +615,21 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
 .complete-outfit-head h2{font-size:clamp(26px,4.5vw,58px);line-height:.9;letter-spacing:-.075em;margin-top:12px}
 .complete-outfit-head h2 span{color:var(--accent)}
 .complete-outfit-head p{max-width:210px;font-size:7px;line-height:1.8;letter-spacing:.12em;color:var(--mut);text-align:right}
-.complete-outfit-marquee{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.complete-outfit-marquee{width:100%;overflow:hidden;scrollbar-width:none}
 .complete-outfit-marquee::-webkit-scrollbar{display:none}
-.complete-outfit-track{display:flex;flex-direction:row;justify-content:flex-start;align-items:flex-start;gap:8px;width:max-content;min-width:0;margin:0;padding:0;animation:none;will-change:auto}
-.complete-outfit-track .card{flex:0 0 210px;width:210px;min-width:0;margin:0}
-.complete-outfit-track .card-img{aspect-ratio:.9}
+.complete-outfit-track{display:flex;flex-direction:row;align-items:flex-start;gap:18px;width:max-content;min-width:0;margin:0;padding:0;animation:outfit-column-right 24s linear infinite;will-change:transform}
+.complete-outfit-marquee:hover .complete-outfit-track{animation-play-state:paused}
+.complete-outfit-column{display:flex;flex:0 0 210px;flex-direction:column;gap:10px}
+.complete-outfit-column[aria-hidden="true"]{pointer-events:none}
+.complete-outfit-track .card{flex:0 0 auto;width:210px;min-width:0;margin:0}
+.complete-outfit-track .card-img{aspect-ratio:1/1}
 .complete-outfit-track .outfit-rotating-image{position:relative;width:100%;height:100%;overflow:hidden;background:var(--chip)}
 .complete-outfit-track .outfit-rotating-image .img{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat}
 .complete-outfit-track .outfit-image-previous{z-index:1}
 .complete-outfit-track .outfit-image-current{z-index:2;animation:outfit-image-crossfade 1.8s cubic-bezier(.22,.61,.36,1) both}
 @keyframes outfit-image-crossfade{from{opacity:0}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){.complete-outfit-track .outfit-image-current{animation-duration:.01ms}}
+@keyframes outfit-column-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.complete-outfit-track,.complete-outfit-track .outfit-image-current{animation-duration:.01ms;animation-iteration-count:1}}
 .complete-outfit-track .card h3{font-size:9px}
 .complete-outfit-track .card .price{font-size:9px}
 .complete-outfit-track .card .mini-bag{width:100%;height:30px;border-radius:0;margin-top:8px;background:var(--fg);color:var(--bg)}
@@ -633,13 +637,15 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
 
 @media(max-width:900px){
   .complete-outfit{padding:30px 0 42px}
-  .complete-outfit-track .card{flex-basis:180px;width:180px}
+  .complete-outfit-column{flex-basis:180px}
+  .complete-outfit-track .card{width:180px}
 }
 @media(max-width:600px){
   .complete-outfit-head{align-items:flex-start;flex-direction:column;gap:9px}
   .complete-outfit-head p{text-align:left}
-  .complete-outfit-track{gap:6px;justify-content:flex-start;animation:none}
-  .complete-outfit-track .card{flex-basis:155px;width:155px}
+  .complete-outfit-track{gap:12px}
+  .complete-outfit-column{flex-basis:145px;gap:8px}
+  .complete-outfit-track .card{width:145px}
   .complete-outfit-track .card h3{font-size:8px}
 }
 
