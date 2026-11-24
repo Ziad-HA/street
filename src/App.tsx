@@ -23,13 +23,6 @@ const NAV: { label: string; page: Page }[] = [
   { label: 'CONTACT', page: 'contact' },
 ]
 
-const SCENE_BG = [
-  'linear-gradient(#a9c8e8 0%, #d7e6f0 45%, #5e8f3d 46%, #3f7a26 100%)',
-  'linear-gradient(#7fb0e0 0%, #cfe0ee 48%, #5a8c3a 49%, #3a7022 100%)',
-  'linear-gradient(#9dbfe0 0%, #dbe8ef 40%, #5f9441 41%, #447c2a 100%)',
-  'linear-gradient(#6f7f97 0%, #8d9bb0 48%, #3d4658 49%, #2a3040 100%)',
-]
-
 function Img({ src, className, style }: { src?: string; className?: string; style?: CSSProperties }) {
   return (
     <div
@@ -371,13 +364,15 @@ export default function App() {
       )}
 
       {page === 'hero' && (
-        <section className="hero" style={{ background: ASSETS.scenes[scene] ? undefined : SCENE_BG[scene] }}>
-          {ASSETS.scenes[scene] &&
-            (/\.(mp4|webm)$/i.test(ASSETS.scenes[scene]) ? (
-              <video className="hero-bg" src={ASSETS.scenes[scene]} autoPlay loop muted playsInline />
+        <section className="hero">
+          {(() => {
+            const sceneAsset = ASSETS.scenes[scene] || ASSETS.introVideo
+            return /\.(mp4|webm)$/i.test(sceneAsset) ? (
+              <video className="hero-bg" src={sceneAsset} autoPlay loop muted playsInline preload="auto" />
             ) : (
-              <Img className="hero-bg" src={ASSETS.scenes[scene]} />
-            ))}
+              <Img className="hero-bg" src={sceneAsset} />
+            )
+          })()}
           <button className={`burger ${menu ? 'hide' : ''}`} onClick={() => setMenu(true)} aria-label="Menu"><i /><i /><i /></button>
           <div className="scene-dots">
             {[0, 1, 2, 3].map((i) => (
