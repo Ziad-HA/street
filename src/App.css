@@ -1694,3 +1694,56 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
     line-height:1.6;
   }
 }
+
+
+/* Support footer card: neutral black panel, no bright accent treatment. */
+.street-footer-main .street-footer-column:first-child{
+  background:#090909;
+  border:1px solid #303030;
+  border-top:1px solid #303030;
+  padding:20px 20px 18px;
+  gap:10px;
+  min-height:150px;
+  color:#f5f5f5;
+}
+.street-footer-main .street-footer-column:first-child h3{
+  color:#fff;
+  font-size:13px;
+  letter-spacing:.07em;
+  line-height:1.35;
+  margin:0;
+}
+.street-footer-help-copy{
+  display:block;
+  max-width:270px;
+  color:#aaa;
+  font-size:10px;
+  line-height:1.65;
+  letter-spacing:.015em;
+  margin:0 0 2px;
+}
+.street-footer-main .street-footer-column:first-child button{
+  color:#f4f4f4;
+  border-bottom:1px solid #333;
+  font-size:10px;
+  min-height:28px;
+  padding:5px 0;
+}
+.street-footer-main .street-footer-column:first-child button::after{
+  color:#aaa;
+  font-size:12px;
+}
+.street-footer-main .street-footer-column:first-child button:hover{
+  color:#fff!important;
+  border-color:#777;
+}
+@media(max-width:680px){
+  .street-footer-main .street-footer-column:first-child{
+    min-height:0;
+    padding:16px 14px 13px;
+    gap:9px;
+  }
+  .street-footer-main .street-footer-column:first-child h3{font-size:11px}
+  .street-footer-help-copy{font-size:9px;line-height:1.6}
+  .street-footer-main .street-footer-column:first-child button{font-size:9px}
+}
