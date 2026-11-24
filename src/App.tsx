@@ -130,6 +130,15 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
 
+  // Automatically cycle through every view of the current product.
+  useEffect(() => {
+    if (page !== 'product' || active.images.length < 2) return
+    const timer = window.setInterval(() => {
+      setImgIdx((index) => (index + 1) % active.images.length)
+    }, 2200)
+    return () => window.clearInterval(timer)
+  }, [page, active.id, active.images.length])
+
   // Show the brand intro only once on this browser.
   useEffect(() => {
     try { localStorage.setItem('street-intro-seen-v1', '1') } catch { /* storage may be unavailable */ }
@@ -400,6 +409,19 @@ export default function App() {
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
 
+  const outfitOrder: Category[] = active.category === 'PANTS'
+    ? ['HOODIES', 'JACKETS', 'T-SHIRTS', 'CAPS']
+    : active.category === 'HOODIES'
+      ? ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
+      : active.category === 'JACKETS'
+        ? ['PANTS', 'HOODIES', 'T-SHIRTS', 'CAPS']
+        : active.category === 'T-SHIRTS'
+          ? ['PANTS', 'JACKETS', 'HOODIES', 'CAPS']
+          : ['HOODIES', 'PANTS', 'JACKETS', 'T-SHIRTS']
+  const outfitProducts = outfitOrder
+    .flatMap((c) => PRODUCTS.filter((p) => p.category === c && p.id !== active.id))
+    .slice(0, 4)
+
 
   return (
     <div className={`app page-${page}`}>
@@ -539,10 +561,13 @@ export default function App() {
             <div className="thumbs">
               {active.images.map((im, i) => <button key={i} type="button" className={i === imgIdx ? 'thumb-button on' : 'thumb-button'} onClick={() => setImgIdx(i)} aria-label={`Show product image ${i + 1}`}><Img src={im} /></button>)}
             </div>
-            <div className="gallery">
-              <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)}>‹</button>
+            <div className="gallery" aria-label="Automatically rotating product gallery">
+              <button className="arr l" onClick={() => setImgIdx((i) => (i - 1 + active.images.length) % active.images.length)} aria-label="Previous image">‹</button>
               <Img src={active.images[imgIdx]} className="g-img" />
-              <button className="arr r" onClick={() => setImgIdx((i) => (i + 1) % active.images.length)}>›</button>
+              <button className="arr r" onClick={() => setImgIdx((i) => (i + 1) % active.images.length)} aria-label="Next image">›</button>
+              <div className="gallery-progress" aria-label={`Image ${imgIdx + 1} of ${active.images.length}`}>
+                {active.images.map((_, i) => <button key={i} className={i === imgIdx ? 'on' : ''} onClick={() => setImgIdx(i)} aria-label={`Show image ${i + 1}`} />)}
+              </div>
             </div>
             <div className="info">
               <small>SHOP / {category} / {active.name}</small>
@@ -581,6 +606,17 @@ export default function App() {
               {openDetails && <ul className="details">{active.details.map((d) => <li key={d}>{d}</li>)}</ul>}
             </div>
           </div>
+          {outfitProducts.length > 0 && (
+            <section className="complete-outfit">
+              <div className="complete-outfit-head">
+                <div><small>STREET / STYLE THE PIECE</small><h2>COMPLETE YOUR OUTFIT<span>.</span></h2></div>
+                <p>MAKE THE LOOK YOURS — EXPLORE PIECES THAT WORK TOGETHER.</p>
+              </div>
+              <div className="complete-outfit-grid">
+                {outfitProducts.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, outfitProducts.length, false)}</Fragment>)}
+              </div>
+            </section>
+          )}
           {footer()}
         </main>
       )}
