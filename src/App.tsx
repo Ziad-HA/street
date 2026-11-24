@@ -1033,47 +1033,46 @@ export default function App() {
   )
 
   const footer = () => (
-    <footer id="footer">
-      <div className="benefits">
-        {[
-          ['PRODUCT DETAILS', 'Verified information on each item'],
-          ['SIZING', 'Check measurements before ordering'],
-          ['ORDER STATUS', 'Track your order from your account'],
-          ['SUPPORT', 'Official contact details coming soon'],
-        ].map(([a, b]) => (
-          <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
-        ))}
+    <footer id="footer" className="street-footer">
+      <div className="street-footer-main">
+        <section className="street-footer-column">
+          <h3>CAN WE HELP YOU?</h3>
+          <button onClick={() => go('contact')}>CONTACT</button>
+          <button onClick={() => go('help')}>HELP</button>
+        </section>
+        <section className="street-footer-column">
+          <h3>WE ARE STREET</h3>
+          <button onClick={() => go('studio')}>ABOUT STREET</button>
+          <button onClick={() => go('lookbook')}>OUR COLLECTIONS</button>
+        </section>
+        <section className="street-footer-column street-footer-interested">
+          <h3>YOU MIGHT BE INTERESTED IN</h3>
+          <button onClick={() => go('new-arrivals')}>NEW ARRIVALS</button>
+          <button onClick={() => go('best-sellers')}>BEST SELLERS</button>
+          <button onClick={() => go('size-guide')}>SIZE GUIDE</button>
+          <button onClick={() => go('track')}>ORDER TRACKING</button>
+          <button onClick={() => go('account')}>MY ACCOUNT</button>
+          <button onClick={() => go('checkout')}>MY BAG</button>
+        </section>
       </div>
-      <div className="footer-link-groups footer-explore-only">
-        <nav className="street-utility-nav" aria-label="STREET pages">
-          <span>EXPLORE STREET</span>
-          <button onClick={() => go('new-arrivals')}>NEW ARRIVALS ↗</button>
-          <button onClick={() => go('best-sellers')}>BEST SELLERS ↗</button>
-          <button onClick={() => go('lookbook')}>LOOKBOOK ↗</button>
-          <button onClick={() => go('build-outfit')}>BUILD YOUR OUTFIT ↗</button>
-          <button onClick={() => go('size-guide')}>SIZE GUIDE ↗</button>
-          <button onClick={() => go('track')}>ORDER TRACKING ↗</button>
-          <button onClick={() => go('checkout')}>YOUR BAG ↗</button>
-          <button onClick={() => go('account')}>ACCOUNT ↗</button>
-          <button onClick={() => go('help')}>HELP & FAQ ↗</button>
-        </nav>
+      <div className="street-footer-social">
+        <span>FOLLOW STREET</span>
+        <small>SOCIAL LINKS WILL BE ADDED SOON</small>
       </div>
       <div className="foot-mid">
-        <span>Inspired By {BRAND}</span>
+        <span>STREET / EGYPT</span>
         <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
       </div>
       <div className="footer-mark"><Logo className="footer-logo" /></div>
       <div className="footer-legal-bottom">
         <nav className="street-legal-nav" aria-label="Legal information and settings">
           <span>LEGAL & INFORMATION</span>
-          <button onClick={() => go('purchase-terms')}>TERMS AND CONDITIONS OF PURCHASE ↗</button>
-          <button onClick={() => go('style-terms')}>TERMS FOR #STREETSTYLE ↗</button>
-          <button onClick={() => go('privacy')}>PRIVACY POLICY ↗</button>
-          <button onClick={() => go('cookies')}>COOKIES POLICY ↗</button>
-          <button onClick={() => go('cookie-settings')}>COOKIE SETTINGS ↗</button>
-          <button onClick={() => go('sitemap')}>SITEMAP ↗</button>
-          <button onClick={() => go('ai-terms')}>USE OF AI ↗</button>
-          <button onClick={() => go('market-language')}>EGYPT | ENGLISH ↗</button>
+          <button onClick={() => go('purchase-terms')}>TERMS AND CONDITIONS OF PURCHASE</button>
+          <button onClick={() => go('privacy')}>PRIVACY POLICY</button>
+          <button onClick={() => go('cookies')}>COOKIES POLICY</button>
+          <button onClick={() => go('cookie-settings')}>COOKIE SETTINGS</button>
+          <button onClick={() => go('sitemap')}>SITEMAP</button>
+          <button onClick={() => go('ai-terms')}>USE OF AI</button>
         </nav>
         <small>© {new Date().getFullYear()} STREET. ALL RIGHTS RESERVED.</small>
       </div>
