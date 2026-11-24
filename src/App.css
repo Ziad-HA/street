@@ -1263,3 +1263,5 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .admin-store-settings form{align-items:stretch;flex-direction:column}
 }
 @media(max-width:420px){.admin-coupon-form{grid-template-columns:1fr}.checkout-line{grid-template-columns:48px minmax(0,1fr) auto}.checkout-line>.img{width:48px;height:58px}}
+
+.admin-order-meta{display:block;margin-top:5px;font-size:7px;letter-spacing:.1em;color:var(--mut)}
