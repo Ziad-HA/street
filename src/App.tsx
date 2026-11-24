@@ -392,72 +392,63 @@ export default function App() {
       {page !== 'intro' && page !== 'hero' && header()}
 
       {page === 'store' && (
-        <main className="store">
-          <section className="store-hero">
-            {/\.(mp4|webm)$/i.test(ASSETS.storeHero) ? (
-              <video className="sh-bg" src={ASSETS.storeHero} autoPlay loop muted playsInline />
-            ) : (
-              <Img className="sh-bg" src={ASSETS.storeHero} />
-            )}
-            <div className="sh-txt">
-              <small>NEW SEASON</small>
-              <h1>THE LATEST DROP</h1>
-              <div className="sh-btns">
-                <button className="solid" onClick={() => openCollection('ZIP-UPS')}>SHOP NOW</button>
-                <button className="outline" onClick={() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' })}>COLLECTIONS</button>
-              </div>
+        <main className="store shop-page">
+          <section className="shop-masthead">
+            <div className="shop-masthead-copy">
+              <div className="page-kicker">STREET / PRODUCT DATABASE / 001</div>
+              <small>THE CURRENT ROTATION</small>
+              <h1>SHOP<br /><span>ALL PIECES.</span></h1>
+              <p>Explore the complete STREET catalogue. Filter by category, find your fit, and build your rotation.</p>
             </div>
-            <span className="sh-scroll">SCROLL</span>
+            <div className="shop-masthead-visual">
+              <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
+              <span>LIVE CATALOGUE / 030 ITEMS</span>
+            </div>
+            <div className="shop-stats"><span>01 — 10 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
-          <div className="demo-notice"><b>PREVIEW CATALOGUE</b><span>All 30 listings are visual demo examples — not real products, stock or prices. Nothing here is available to purchase.</span></div>
-          {CATEGORIES.map((c) => rowOf('category-' + c, c, byCat(c)))}
+          <div className="demo-notice"><b>CATALOGUE PREVIEW</b><span>All listings, photos and prices are temporary visual examples — not real stock and not available to purchase.</span></div>
+          <section className="shop-categories">
+            <div className="section-head"><small>01 / FIND YOUR CATEGORY</small><span>SELECT A DEPARTMENT ↗</span></div>
+            <div className="shop-category-list">
+              {['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].map((c,i) => (
+                <button key={c} onClick={() => openCollection(c as Category)}><sup>{String(i+1).padStart(2,'0')}</sup>{c}<span>↗</span></button>
+              ))}
+            </div>
+          </section>
+          <section className="shop-all">
+            <div className="section-head"><small>02 / THE FULL ROTATION</small><span>{PRODUCTS.length} ITEMS / SORTED BY DEPARTMENT</span></div>
+            <div className="shop-grid">
+              {[...PRODUCTS].sort((a,b) => ['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].indexOf(a.category)-['TEES','HOODIES','ZIP-UPS','BOTTOMS','DENIM','OUTERWEAR','CREWS','KNITS','HEADWEAR','ACCESSORIES'].indexOf(b.category)).map((p,i) => <Fragment key={p.id}>{card(p,i+1,PRODUCTS.length)}</Fragment>)}
+            </div>
+          </section>
           {recentlyViewed.length > 0 && rowOf('recent', 'RECENTLY VIEWED', recentlyViewed)}
+          {footer()}
+        </main>
+      )}
 
-          <section className="outfit">
-            <div className="outfit-head">
-              <h2>BUILD YOUR OUTFIT</h2>
-              <p>Create your look. Choose your pieces and build the complete fit.</p>
-            </div>
-            <div className="outfit-body">
-              <div className="outfit-imgs">
-                {outfit.map((p) => (
-                  <div key={p.id}><Img src={p.images[0]} /><h4>{p.name}</h4><span>{money(p.price)}</span></div>
-                ))}
-              </div>
-              <aside>
-                {outfit.map((p) => (
-                  <div className="o-line" key={p.id}>
-                    <Img src={p.images[0]} className="o-th" />
-                    <b>{p.name}</b><em>{p.sizes[0]}</em><span>{money(p.price)}</span>
-                  </div>
-                ))}
-                <div className="o-total"><span>TOTAL</span><b>{money(outfit.reduce((n, p) => n + p.price, 0))}</b></div>
-                <button className="solid" onClick={() => outfit.forEach((p) => add(p, p.sizes[0]))}>ADD OUTFIT TO BAG</button>
-              </aside>
-            </div>
+      {page === 'collections' && (
+        <main className="collections-page">
+          <div className="page-kicker">STREET / CURATED EDITS / 002</div>
+          <section className="collections-intro">
+            <small>NOT A PRODUCT LIST. A POINT OF VIEW.</small>
+            <h1>THE<br /><span>COLLECTIONS.</span></h1>
+            <p>Shop is the complete catalogue. Collections are curated edits — grouped by mood, purpose and the way pieces work together.</p>
           </section>
-
-          <section id="collections" className="collections">
-            <small>COLLECTIONS</small>
-            <div className="col-body">
-              <ul>
-                {CATEGORIES.map((c, i) => (
-                  <li key={c} className={hoverCat === c ? 'on' : ''} onMouseEnter={() => setHoverCat(c)} onClick={() => openCollection(c)}>
-                    <sup>{String(i + 1).padStart(2, '0')}</sup>{c}
-                  </li>
-                ))}
-              </ul>
-              <Img className="col-img" src={byCat(hoverCat)[0]?.images[0]} />
-            </div>
+          <section className="edit-grid">
+            {[
+              {no:'01',name:'THE CORE',desc:'Everyday foundations. Clean shapes, easy rotation.',cat:'TEES',meta:'TEES / CREWS'},
+              {no:'02',name:'AFTER HOURS',desc:'Layer up. Heavier silhouettes for a different pace.',cat:'HOODIES',meta:'HOODIES / ZIP-UPS'},
+              {no:'03',name:'UTILITY MODE',desc:'Functional shapes with a utilitarian edge.',cat:'BOTTOMS',meta:'BOTTOMS / OUTERWEAR'},
+              {no:'04',name:'DENIM STUDY',desc:'The everyday essential, reworked through proportion.',cat:'DENIM',meta:'DENIM'},
+              {no:'05',name:'OBJECTS',desc:'The finishing details that complete the rotation.',cat:'HEADWEAR',meta:'HEADWEAR / ACCESSORIES'},
+              {no:'06',name:'TEXTURE LAB',desc:'A closer look at texture, structure and material.',cat:'KNITS',meta:'KNITS'},
+            ].map((edit) => (
+              <button className="edit-card" key={edit.no} onClick={() => openCollection(edit.cat as Category)}>
+                <div className="edit-card-art"><span>STREET / EDIT {edit.no}</span><b>{edit.name}</b><i>↗</i></div>
+                <div className="edit-card-copy"><div><small>{edit.meta}</small><h2>{edit.name}</h2><p>{edit.desc}</p></div><span>EXPLORE EDIT ↗</span></div>
+              </button>
+            ))}
           </section>
-
-          <section id="lookbook" className="lookbook">
-            <div className="look-scroll" ref={(el) => { scrollRow.current.look = el }} onScroll={() => onRow('look')}>
-              {[0, 1, 2, 3, 4, 5].map((i) => <Img key={i} className="look-img" />)}
-            </div>
-            <div className="progress"><b style={{ width: `${30 + (progress.look ?? 0) * 70}%` }} /></div>
-          </section>
-
           {footer()}
         </main>
       )}
