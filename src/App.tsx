@@ -207,7 +207,7 @@ export default function App() {
     let alive = true
     const loadCatalogPrices = async () => {
       const [{ data, error }, { data: stockRows }] = await Promise.all([
-        supabase.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false }),
+        supabasePublic.from('products').select('id,name,category,price,is_active,images,sizes,color,description,created_at').eq('is_active', true).order('created_at', { ascending: false }),
         supabasePublic.from('inventory').select('product_id,size,quantity'),
       ])
       if (!alive || error || !data) return
