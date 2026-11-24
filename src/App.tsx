@@ -110,11 +110,40 @@ const Pay = () => <div className="pay"><span>PAYMENT OPTIONS WILL BE CONFIRMED A
 
 function readStored<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback } catch { return fallback } }
 
+function routeFromLocation(): { page: Page; category?: Category; product?: Product } {
+  const parts = window.location.pathname.split('/').filter(Boolean)
+  if (parts[0] === 'shop') return { page: 'store' }
+  if (parts[0] === 'collections' && parts[1]) {
+    const category = CATEGORIES.find((item) => item.toLowerCase() === decodeURIComponent(parts[1]).toLowerCase())
+    return category ? { page: 'collection', category } : { page: 'collections' }
+  }
+  if (parts[0] === 'collections') return { page: 'collections' }
+  if (parts[0] === 'product' && parts[1]) {
+    const product = PRODUCTS.find((item) => item.id === decodeURIComponent(parts[1]))
+    return product ? { page: 'product', product, category: product.category } : { page: 'store' }
+  }
+  if (parts[0] === 'studio') return { page: 'studio' }
+  if (parts[0] === 'contact') return { page: 'contact' }
+  if (parts[0] === 'wishlist') return { page: 'wishlist' }
+  if (parts[0] === 'track') return { page: 'track' }
+  if (parts.length === 0) {
+    try { return { page: localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' } }
+    catch { return { page: 'intro' } }
+  }
+  return { page: 'hero' }
+}
+
+function pathForPage(page: Page, category?: Category): string {
+  if (page === 'hero' || page === 'intro') return '/'
+  if (page === 'store') return '/shop'
+  if (page === 'collections') return '/collections'
+  if (page === 'collection') return category ? `/collections/${encodeURIComponent(category.toLowerCase())}` : '/collections'
+  return `/${page}`
+}
+
 export default function App() {
-  const [page, setPage] = useState<Page>(() => {
-    try { return localStorage.getItem('street-intro-seen-v1') === '1' ? 'hero' : 'intro' }
-    catch { return 'intro' }
-  })
+  const initialRoute = routeFromLocation()
+  const [page, setPage] = useState<Page>(initialRoute.page)
   const [scene, setScene] = useState(0)
   const [menu, setMenu] = useState(false)
   const [search, setSearch] = useState(false)
@@ -122,14 +151,14 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [cart, setCart] = useState<CartItem[]>(() => readStored<CartItem[]>('street-cart-v2', []))
   const [wish, setWish] = useState<string[]>(() => readStored<string[]>('street-wishlist-v2', []))
-  const [category, setCategory] = useState<Category>('HOODIES')
+  const [category, setCategory] = useState<Category>(initialRoute.category ?? initialRoute.product?.category ?? 'HOODIES')
   const [showAllShopProducts, setShowAllShopProducts] = useState(false)
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
   const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed-v2', []))
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
-  const [active, setActive] = useState<Product>(PRODUCTS[0] ?? EMPTY_PRODUCT)
+  const [active, setActive] = useState<Product>(initialRoute.product ?? PRODUCTS[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
   const [now, setNow] = useState(() => new Date())
   const [playing, setPlaying] = useState(false)
@@ -144,6 +173,27 @@ export default function App() {
   useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
+
+  // Keep the visible page in sync with real browser URLs (back/forward and direct links).
+  useEffect(() => {
+    const syncRoute = () => {
+      const route = routeFromLocation()
+      setPage(route.page)
+      if (route.category) setCategory(route.category)
+      if (route.product) {
+        setActive(route.product)
+        setCategory(route.product.category)
+        setSizeSel(route.product.sizes[0] ?? '')
+        setQty(1)
+      }
+      setMenu(false)
+      setSearch(false)
+      setCartOpen(false)
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener('popstate', syncRoute)
+    return () => window.removeEventListener('popstate', syncRoute)
+  }, [])
 
   // Show the brand intro only once on this browser.
   useEffect(() => {
@@ -250,6 +300,8 @@ export default function App() {
     setCartOpen(false)
     pending.current = anchor
     if (p === 'hero') setScene(0)
+    const nextPath = pathForPage(p, category)
+    if (window.location.pathname !== nextPath) window.history.pushState({}, '', nextPath)
     setPage(p)
     window.scrollTo(0, 0)
     requestAnimationFrame(() => {
@@ -264,6 +316,7 @@ export default function App() {
     setSizeSel(p.sizes[0])
     setQty(1)
     setSearch(false)
+    window.history.pushState({}, '', `/product/${encodeURIComponent(p.id)}`)
     setPage('product')
     window.scrollTo(0, 0)
   }
@@ -271,6 +324,7 @@ export default function App() {
     setCategory(c)
     setSizeFilter(null)
     setSearch(false)
+    window.history.pushState({}, '', `/collections/${encodeURIComponent(c.toLowerCase())}`)
     setPage('collection')
     window.scrollTo(0, 0)
   }
@@ -536,7 +590,7 @@ export default function App() {
           <small>{filtered.length} PRODUCTS</small>
           <div className="tabs">
             {CATEGORIES.map((c) => (
-              <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null) }}>{categoryLabel(c as Category)}</button>
+              <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null); window.history.pushState({}, '', `/collections/${encodeURIComponent(String(c).toLowerCase())}`) }}>{categoryLabel(c as Category)}</button>
             ))}
           </div>
           <div className="toolbar">
