@@ -1029,7 +1029,7 @@ export default function App() {
           <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
         ))}
       </div>
-      <div className="footer-link-groups">
+      <div className="footer-link-groups footer-explore-only">
         <nav className="street-utility-nav" aria-label="STREET pages">
           <span>EXPLORE STREET</span>
           <button onClick={() => go('new-arrivals')}>NEW ARRIVALS ↗</button>
@@ -1042,6 +1042,13 @@ export default function App() {
           <button onClick={() => go('account')}>ACCOUNT ↗</button>
           <button onClick={() => go('help')}>HELP & FAQ ↗</button>
         </nav>
+      </div>
+      <div className="foot-mid">
+        <span>Inspired By {BRAND}</span>
+        <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
+      </div>
+      <div className="footer-mark"><Logo className="footer-logo" /></div>
+      <div className="footer-legal-bottom">
         <nav className="street-legal-nav" aria-label="Legal information and settings">
           <span>LEGAL & INFORMATION</span>
           <button onClick={() => go('purchase-terms')}>TERMS AND CONDITIONS OF PURCHASE ↗</button>
@@ -1053,12 +1060,8 @@ export default function App() {
           <button onClick={() => go('ai-terms')}>USE OF AI ↗</button>
           <button onClick={() => go('market-language')}>EGYPT | ENGLISH ↗</button>
         </nav>
+        <small>© {new Date().getFullYear()} STREET. ALL RIGHTS RESERVED.</small>
       </div>
-      <div className="foot-mid">
-        <span>Inspired By {BRAND}</span>
-        <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
-      </div>
-      <div className="footer-mark"><Logo className="footer-logo" /></div>
     </footer>
   )
 
