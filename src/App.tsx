@@ -1089,20 +1089,25 @@ export default function App() {
   })
   const visibleShopProducts = showAllShopProducts ? orderedShopProducts : orderedShopProducts.slice(0, 12)
 
-  const outfitOrder: Category[] = active.category === 'PANTS'
-    ? ['JACKETS', 'T-SHIRTS']
+  const outfitPriority: Category[] = active.category === 'PANTS'
+    ? ['JACKETS', 'T-SHIRTS', 'HOODIES', 'CAPS']
     : active.category === 'JACKETS'
-      ? ['T-SHIRTS', 'PANTS']
+      ? ['T-SHIRTS', 'PANTS', 'HOODIES', 'CAPS']
       : active.category === 'T-SHIRTS'
-        ? ['JACKETS', 'PANTS']
-        : active.category === 'CAPS'
-          ? ['PANTS', 'JACKETS', 'HOODIES', 'T-SHIRTS', 'CAPS']
-          : ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
-  const outfitProducts = outfitOrder
-    .flatMap((c) => catalogProducts.filter((p) => p.category === c && p.id !== active.id))
-  const outfitMarqueeProducts = outfitProducts.length
-    ? Array.from({ length: 4 }, (_, index) => outfitProducts[index % outfitProducts.length])
-    : []
+        ? ['JACKETS', 'PANTS', 'HOODIES', 'CAPS']
+        : active.category === 'HOODIES'
+          ? ['PANTS', 'JACKETS', 'T-SHIRTS', 'CAPS']
+          : ['PANTS', 'JACKETS', 'HOODIES', 'T-SHIRTS']
+  const outfitOrder = [
+    ...outfitPriority,
+    ...(['PANTS', 'JACKETS', 'HOODIES', 'T-SHIRTS', 'CAPS'] as Category[])
+      .filter((category) => category !== active.category && !outfitPriority.includes(category))
+  ]
+  // Pick one product per category so the outfit suggestions always feel varied.
+  const outfitMarqueeProducts = outfitOrder.flatMap((category) => {
+    const product = catalogProducts.find((p) => p.category === category && p.id !== active.id)
+    return product ? [product] : []
+  }).slice(0, 4)
 
 
   return (
@@ -1336,8 +1341,8 @@ export default function App() {
                     <div className="complete-outfit-track">
                       {[0, 1].map((copy) => (
                         <div className="complete-outfit-set" key={`outfit-set-${row}-${copy}`} aria-hidden={copy === 1}>
-                          {outfitMarqueeProducts.map((p, i) => (
-                            <Fragment key={`outfit-${row}-${copy}-${p.id}-${i}`}>{card(p, i + 1, 4, false, true)}</Fragment>
+                          {outfitMarqueeProducts.slice(row * 2, row * 2 + 2).map((p, i) => (
+                            <Fragment key={`outfit-${row}-${copy}-${p.id}-${i}`}>{card(p, row * 2 + i + 1, 4, false, true)}</Fragment>
                           ))}
                         </div>
                       ))}
