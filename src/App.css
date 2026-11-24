@@ -249,7 +249,7 @@ body.dark .scrim{background:#000c}
 .d-foot .pay{justify-content:center;margin-top:10px}
 
 /* player */
-.player{position:fixed;right:14px;bottom:14px;z-index:90;display:flex;align-items:center;gap:8px;background:#f4f4f4f0;backdrop-filter:blur(8px);color:#000;padding:6px 10px 6px 6px;border-radius:4px;box-shadow:0 2px 12px #0002;transition:transform .4s}
+.player{position:fixed;left:14px;right:auto;bottom:82px;z-index:90;display:flex;align-items:center;gap:8px;background:#f4f4f4f0;backdrop-filter:blur(8px);color:#000;padding:6px 10px 6px 6px;border-radius:4px;box-shadow:0 2px 12px #0002;transition:transform .4s}
 .player.min{transform:translateX(calc(100% - 26px))}
 .player .cover{width:22px;height:22px;border-radius:50%;flex:none}
 .player .meta{display:flex;flex-direction:column;width:70px}
