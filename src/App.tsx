@@ -125,7 +125,6 @@ export default function App() {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [active, setActive] = useState<Product>(PRODUCTS[0] ?? EMPTY_PRODUCT)
   const [ann, setAnn] = useState(0)
-  const [hoverCat, setHoverCat] = useState<Category>('ACCESSORIES')
   const [now, setNow] = useState(() => new Date())
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
@@ -535,37 +534,20 @@ export default function App() {
         </main>
       )}
 
-      {page === 'about' && (
-        <main className="about">
-          <Img className="about-img" src={ASSETS.about} />
-          <div className="about-txt">
-            <small>OUR STORY</small>
-            <h1>BUILT FOR THOSE WHO MOVE DIFFERENTLY.</h1>
-            <p>STREET is an independent space for considered everyday pieces. Our story, materials and production details will be published here as the brand information is confirmed.</p>
-            <div className="about-meta"><div><small>OUR FOCUS</small><b>EVERYDAY WEAR</b></div><div><small>OUR APPROACH</small><b>CONSIDERED DESIGN</b></div></div>
-            <em>More about STREET coming soon.</em>
-          </div>
-        </main>
-      )}
-
-      {page === 'journal' && (
-        <main className="journal-page">
-          <div className="page-kicker">STREET / JOURNAL / 001</div>
-          <section className="journal-intro">
-            <small>FIELD NOTES · CULTURE · PEOPLE</small>
-            <h1>MORE THAN<br />WHAT YOU WEAR.</h1>
-            <p>A closer look at the ideas, places and people shaping the STREET point of view.</p>
+      {page === 'studio' && (
+        <main className="studio-page">
+          <div className="page-kicker">STREET / THE STUDIO / 003</div>
+          <section className="studio-hero">
+            <div className="studio-title"><small>AN INDEPENDENT STREETWEAR PROJECT</small><h1>BUILT<br />TO MOVE<br /><span>DIFFERENT.</span></h1></div>
+            <div className="studio-visual"><div className="studio-orbit orbit-one" /><div className="studio-orbit orbit-two" /><Logo3D className="studio-logo-3d" pose={{rx:.2,ry:.3,rz:0,s:1.15,x:0,y:0}} spin={.15} /><span>STREET / CREATIVE SYSTEM 001</span></div>
           </section>
-          <section className="journal-feature">
-            <div className="journal-feature-image"><span>ISSUE 001</span></div>
-            <div className="journal-feature-copy"><small>THE STREET UNIFORM · 06 MIN READ</small><h2>EVERYDAY<br />IS THE STATEMENT.</h2><p>Personal style is built in the details. The pieces you reach for, the places you move through, and the people you meet along the way.</p><button className="text-link" onClick={() => go('store')}>EXPLORE THE COLLECTION <b>↗</b></button></div>
+          <section className="studio-statement"><small>OUR POINT OF VIEW / 001</small><p>STREET is an independent space for considered everyday pieces. A visual language built around movement, utility and personal expression. No fixed uniform. Make the pieces your own.</p></section>
+          <section className="studio-grid">
+            <div><small>01 / DESIGN</small><h2>FORM<br />FOLLOWS<br />FUNCTION.</h2><p>Clear silhouettes, considered proportions and details that earn their place.</p></div>
+            <div><small>02 / MOVEMENT</small><h2>MADE FOR<br />YOUR OWN<br />DIRECTION.</h2><p>Pieces designed to move between places, routines and different versions of you.</p></div>
+            <div><small>03 / IDENTITY</small><h2>NO ONE<br />WAY TO<br />WEAR IT.</h2><p>STREET is a starting point. The final expression is always yours.</p></div>
           </section>
-          <section className="journal-grid">
-            <article><div className="journal-tile tile-one"><span>01 / FORM</span></div><small>DESIGN NOTES</small><h3>FUNCTION MEETS FORM.</h3><p>Utility, proportion and the pieces that earn a place in your rotation.</p></article>
-            <article><div className="journal-tile tile-two"><span>02 / MOVEMENT</span></div><small>THE CITY GUIDE</small><h3>MADE TO MOVE.</h3><p>Inspired by the rhythm of the city and the energy found between destinations.</p></article>
-            <article><div className="journal-tile tile-three"><span>03 / COMMUNITY</span></div><small>PEOPLE & CULTURE</small><h3>WORN YOUR WAY.</h3><p>There is no uniform way to be yourself. Make the pieces your own.</p></article>
-          </section>
-          
+          <div className="studio-end"><Logo className="studio-end-logo" /><span>END OF TRANSMISSION / STREET 001</span></div>
           {footer()}
         </main>
       )}
