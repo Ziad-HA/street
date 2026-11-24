@@ -8,7 +8,7 @@ import { CATEGORIES, OUTFIT_IDS, PRODUCTS, SIZES } from './data'
 import type { Category, Product } from './data'
 import './App.css'
 
-type Page = 'intro' | 'hero' | 'store' | 'collection' | 'product' | 'about' | 'journal' | 'contact' | 'wishlist' | 'track'
+type Page = 'intro' | 'hero' | 'store' | 'collections' | 'collection' | 'product' | 'studio' | 'contact' | 'wishlist' | 'track'
 
 interface CartItem {
   product: Product
@@ -19,11 +19,9 @@ interface CartItem {
 const NAV: { label: string; page: Page }[] = [
   { label: 'HOME', page: 'hero' },
   { label: 'SHOP', page: 'store' },
-  { label: 'COLLECTIONS', page: 'collection' },
-  { label: 'JOURNAL', page: 'journal' },
-  { label: 'ABOUT', page: 'about' },
+  { label: 'COLLECTIONS', page: 'collections' },
+  { label: 'STUDIO', page: 'studio' },
   { label: 'CONTACT', page: 'contact' },
-  { label: 'TRACK ORDER', page: 'track' },
 ]
 
 const POSES: Pose[] = [
@@ -112,7 +110,6 @@ function readStored<T>(key: string, fallback: T): T { try { const raw = localSto
 
 export default function App() {
   const [page, setPage] = useState<Page>('intro')
-  const [veil, setVeil] = useState(false)
   const [scene, setScene] = useState(0)
   const [menu, setMenu] = useState(false)
   const [search, setSearch] = useState(false)
@@ -191,15 +188,11 @@ export default function App() {
     setSearch(false)
     setCartOpen(false)
     pending.current = anchor
-    setVeil(true)
-    setTimeout(() => {
-      setPage(p)
-      window.scrollTo(0, 0)
-      setTimeout(() => {
-        if (pending.current) document.getElementById(pending.current)?.scrollIntoView({ behavior: 'smooth' })
-        setVeil(false)
-      }, 120)
-    }, 650)
+    setPage(p)
+    window.scrollTo(0, 0)
+    requestAnimationFrame(() => {
+      if (pending.current) document.getElementById(pending.current)?.scrollIntoView({ behavior: 'smooth' })
+    })
   }
 
   const openProduct = (p: Product) => {
@@ -308,14 +301,15 @@ export default function App() {
         <button onClick={() => setAnn((a) => (a + 1) % ANNOUNCEMENTS.length)}>›</button>
       </div>
       <header className="hdr">
-        <div className="hdr-logo" onClick={() => go('hero')}>
+        <button className="mobile-menu-toggle" onClick={() => setMenu(true)} aria-label="Open navigation">☰</button>
+      <div className="hdr-logo" onClick={() => go('hero')}>
           <Logo3D pose={{ rx: 0, ry: 0, rz: 0, s: 1, x: 0, y: 0 }} scrollSpin fov={30} />
         </div>
         <nav>
           {NAV.map((n) => (
             <a
               key={n.label}
-              className={(n.label === 'HOME' && page === 'store') || (n.label === 'ABOUT US' && page === 'about') ? 'cur' : ''}
+              className={n.page === page ? 'cur' : ''}
               onClick={() => go(n.page)}
             >
               {n.label}{n.label === 'SHOP' && <em> ⌄</em>}
@@ -349,7 +343,7 @@ export default function App() {
         <span>Inspired By {BRAND}</span>
         <div><span className="secure">Order and payment details will be confirmed at checkout.</span><Pay /></div>
       </div>
-      <div className="giant">{BRAND}</div>
+      <div className="footer-mark"><Logo className="footer-logo" /></div>
     </footer>
   )
 
@@ -363,7 +357,13 @@ export default function App() {
       <div className="cursor" ref={cursor} />
 
       {page === 'intro' && (
-        <div className="intro"><Logo className="intro-logo" /></div>
+        <div className="intro">
+          <video className="intro-video" src={ASSETS.introVideo} autoPlay muted loop playsInline preload="auto" />
+          <div className="intro-shade" />
+          <div className="intro-hud"><span>STREET / SYSTEM 001</span><span>INITIALIZING EXPERIENCE</span></div>
+          <Logo className="intro-logo" />
+          <span className="intro-loading">LOADING EXPERIENCE <i /></span>
+        </div>
       )}
 
       {page === 'hero' && (
@@ -699,7 +699,6 @@ export default function App() {
         </div>
       )}
 
-      <div className={`veil ${veil ? 'on' : ''}`}><Logo className="intro-logo" /></div>
     </div>
   )
 }
