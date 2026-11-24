@@ -1441,3 +1441,18 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .legal-sitemap{grid-template-columns:1fr;gap:22px;padding-bottom:50px}
  .cookie-option{align-items:flex-start}
 }
+
+
+/* Legal links sit at the very bottom of the STREET footer */
+.footer-explore-only{grid-template-columns:1fr!important}
+.footer-legal-bottom{margin-top:28px;padding:22px 0 18px;border-top:1px solid var(--line);display:grid;gap:18px}
+.footer-legal-bottom .street-legal-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:22px;row-gap:2px}
+.footer-legal-bottom .street-legal-nav>span{grid-column:1/-1;margin-bottom:10px;color:var(--accent);font-size:8px;letter-spacing:.18em}
+.footer-legal-bottom .street-legal-nav button{justify-self:start;min-height:30px;color:var(--mut);font-size:8px;letter-spacing:.055em;text-align:left;transition:color .2s}
+.footer-legal-bottom .street-legal-nav button:hover{color:var(--fg)}
+.footer-legal-bottom>small{padding-top:13px;border-top:1px solid var(--line);color:var(--mut);font-size:7px;letter-spacing:.13em}
+@media(max-width:680px){
+ .footer-legal-bottom{margin-top:20px;padding:18px 0 14px}
+ .footer-legal-bottom .street-legal-nav{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+ .footer-legal-bottom .street-legal-nav button{min-height:36px;font-size:7px;line-height:1.5}
+}
