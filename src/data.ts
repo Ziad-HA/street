@@ -1,8 +1,8 @@
 export const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL']
 
 export const CATEGORIES = [
-  'BOTTOMS',
-  'LAYERING',
+  'PANTS',
+  'HOODIES',
   'JACKETS',
   'T-SHIRTS',
 ] as const
@@ -51,10 +51,10 @@ const hoodieImages = [1, 2, 3].map((view) => `/products/hoodies/1-${view}.webp`)
 
 // Uploaded product photos are grouped by their leading product number.
 export const PRODUCTS: Product[] = [
-  localProduct('pant-01', 'PANT 01', 'BOTTOMS', 58, '#77766c', pantImages(1)),
-  localProduct('pant-02', 'PANT 02', 'BOTTOMS', 64, '#52677a', pantImages(2)),
-  localProduct('pant-03', 'PANT 03', 'BOTTOMS', 68, '#292929', pantImages(3)),
-  localProduct('hoodie-01', 'HOODIE 01', 'LAYERING', 72, '#202020', hoodieImages),
+  localProduct('pant-01', 'PANT 01', 'PANTS', 58, '#77766c', pantImages(1)),
+  localProduct('pant-02', 'PANT 02', 'PANTS', 64, '#52677a', pantImages(2)),
+  localProduct('pant-03', 'PANT 03', 'PANTS', 68, '#292929', pantImages(3)),
+  localProduct('hoodie-01', 'HOODIE 01', 'HOODIES', 72, '#202020', hoodieImages),
 ]
 
 export const OUTFIT_IDS: string[] = ['pant-02', 'hoodie-01']
