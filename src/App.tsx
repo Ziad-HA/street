@@ -171,6 +171,10 @@ export default function App() {
   const [showAllShopProducts, setShowAllShopProducts] = useState(false)
   const [sizeFilter, setSizeFilter] = useState<string | null>(null)
   const [inStock, setInStock] = useState(false)
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [quickView, setQuickView] = useState<Product | null>(null)
+  const [quickViewSize, setQuickViewSize] = useState('')
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'name'>('featured')
   const [recentIds, setRecentIds] = useState<string[]>(() => readStored<string[]>('street-recently-viewed-v2', []))
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
@@ -524,6 +528,11 @@ export default function App() {
     setAdminCustomers(customers ?? [])
   }
 
+  const showQuickView = (product: Product) => {
+    setQuickView(product)
+    setQuickViewSize(product.sizes[0] ?? '')
+  }
+
   const add = (p: Product, size: string, q = 1) => {
     if (p.soldOut) return
     setCart((c) => {
@@ -685,6 +694,7 @@ export default function App() {
       <div className="card-img" onClick={() => openProduct(p)}>
         {rotateImages ? <RotatingProductImage images={p.images} /> : <Img src={p.images[0]} />}
       </div>
+      <button className="card-quick-view" type="button" onClick={() => showQuickView(p)}>QUICK VIEW <span>↗</span></button>
       <div className="dots"><i className="on" /><i /></div>
       {index !== undefined && <div className="idx">{String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>}
       {p.soldOut && <div className="soldtxt">SOLD OUT</div>}
@@ -778,7 +788,7 @@ export default function App() {
     </footer>
   )
 
-  const filtered = catalogProducts.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
+  const filtered = catalogProducts.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter)) && (minPrice === '' || p.price >= Number(minPrice)) && (maxPrice === '' || p.price <= Number(maxPrice))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => catalogProducts.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
   const orderedShopProducts = [...catalogProducts].sort((a,b) => {
     const order = ['PANTS','JACKETS','HOODIES','T-SHIRTS','CAPS']
@@ -919,8 +929,9 @@ export default function App() {
             <div className="tools">
               <label className="sort-label">SORT BY <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name</option></select></label>
               <label>IN STOCK <i className={`tog ${inStock ? 'on' : ''}`} onClick={() => setInStock(!inStock)}><b /></i></label>
-              <span>▽ FILTER</span>
-              <span className="grid2" /><span className="grid3" />
+              <label className="price-filter">MIN EGP <input aria-label="Minimum price" type="number" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" /></label>
+              <label className="price-filter">MAX EGP <input aria-label="Maximum price" type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="—" /></label>
+              {(minPrice || maxPrice || sizeFilter || inStock) && <button className="clear-filters" type="button" onClick={() => { setMinPrice(''); setMaxPrice(''); setSizeFilter(null); setInStock(false) }}>CLEAR FILTERS ×</button>
             </div>
           </div>
           <div className="grid">
@@ -1139,6 +1150,13 @@ export default function App() {
             </form>
           ) : adminRole === 'admin' ? (
             <>
+              <section className="admin-overview" aria-label="Store overview">
+                <div><small>CATALOGUE</small><strong>{adminProducts.length}</strong><span>ALL PIECES</span></div>
+                <div><small>LIVE</small><strong>{adminProducts.filter((p) => p.is_active).length}</strong><span>VISIBLE PRODUCTS</span></div>
+                <div><small>ORDERS</small><strong>{adminOrders.length}</strong><span>RECENT RECORDS</span></div>
+                <div><small>TO PROCESS</small><strong>{adminOrders.filter((o) => ['pending','confirmed','processing','shipped'].includes(o.status)).length}</strong><span>OPEN ORDERS</span></div>
+                <div><small>CUSTOMERS</small><strong>{adminCustomers.length}</strong><span>REGISTERED ACCOUNTS</span></div>
+              </section>
               <form className="admin-create-product" onSubmit={createAdminProduct}>
                 <div className="admin-section-title"><h2>ADD A NEW PIECE</h2><span>CATALOGUE ENTRY</span></div>
                 <input required value={newProductName} onChange={(e)=>setNewProductName(e.target.value)} placeholder="PRODUCT NAME"/>
@@ -1205,6 +1223,26 @@ export default function App() {
           <ul className="s-cols">
             {CATEGORIES.map((c) => <li key={c} onClick={() => openCollection(c)}>{categoryLabel(c)}<span>COLLECTION</span></li>)}
           </ul>
+        </div>
+      )}
+
+      {/* quick view */}
+      {quickView && (
+        <div className="quick-view-scrim" role="presentation" onClick={() => setQuickView(null)}>
+          <section className="quick-view-panel" role="dialog" aria-modal="true" aria-label={`Quick view ${quickView.name}`} onClick={(event) => event.stopPropagation()}>
+            <button className="quick-view-close" type="button" onClick={() => setQuickView(null)} aria-label="Close quick view">{Icon.close}</button>
+            <div className="quick-view-image"><Img src={quickView.images[0]} /></div>
+            <div className="quick-view-copy">
+              <small>STREET / {quickView.category} / QUICK VIEW</small>
+              <h2>{quickView.name}</h2>
+              <strong>{money(quickView.price)}</strong>
+              <span className="quick-view-rule" />
+              <label>SELECT SIZE</label>
+              <div className="quick-view-sizes">{quickView.sizes.map((size) => <button type="button" key={size} className={quickViewSize === size ? 'on' : ''} onClick={() => setQuickViewSize(size)}>{size}</button>)}</div>
+              <button className="quick-view-add" type="button" disabled={quickView.soldOut || !quickViewSize} onClick={() => { add(quickView, quickViewSize); setQuickView(null) }}>{quickView.soldOut ? 'SOLD OUT' : 'ADD TO BAG'} <span>{money(quickView.price)}</span></button>
+              <button className="quick-view-details" type="button" onClick={() => { const product = quickView; setQuickView(null); openProduct(product) }}>VIEW FULL PRODUCT DETAILS ↗</button>
+            </div>
+          </section>
         </div>
       )}
 
