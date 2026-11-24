@@ -4,7 +4,7 @@ import { Logo3D } from './Logo3D'
 import type { Pose } from './Logo3D'
 import { ANNOUNCEMENTS, ASSETS, BRAND, TRACK } from './config'
 import { DOTS, MARK_H, MARK_STROKE, MARK_W, STROKES } from './mark'
-import { CATEGORIES, OUTFIT_IDS, PRODUCTS, SIZES } from './data'
+import { CATEGORIES, PRODUCTS, SIZES } from './data'
 import type { Category, Product } from './data'
 import './App.css'
 
@@ -234,7 +234,6 @@ export default function App() {
 
   const cartCount = cart.reduce((n, i) => n + i.qty, 0)
   const subtotal = cart.reduce((n, i) => n + i.product.price * i.qty, 0)
-  const byCat = (c: Category) => PRODUCTS.filter((p) => p.category === c)
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? PRODUCTS.filter((p) => (p.name + p.category).toLowerCase().includes(q)) : PRODUCTS.filter((p) => p.category === 'HEADWEAR' || p.id === 'crew-sock').slice(0, 4)
@@ -349,7 +348,6 @@ export default function App() {
   const filtered = PRODUCTS.filter((p) => p.category === category && (!inStock || !p.soldOut) && (!sizeFilter || p.sizes.includes(sizeFilter))).sort((a, b) => sortBy === 'price-low' ? a.price - b.price : sortBy === 'price-high' ? b.price - a.price : sortBy === 'name' ? a.name.localeCompare(b.name) : 0)
   const recentlyViewed = recentIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter((p): p is Product => Boolean(p))
 
-  const outfit = OUTFIT_IDS.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean)
 
   return (
     <div className={`app page-${page}`}>
