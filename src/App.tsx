@@ -1659,7 +1659,7 @@ export default function App() {
         </div>
         <div className="d-foot">
           <div className="sub"><span>SUBTOTAL</span><b>{money(subtotal)}</b></div>
-          <small>CASH ON DELIVERY IS AVAILABLE. DELIVERY FEE AND STOCK ARE CHECKED BEFORE ORDER CONFIRMATION.</small>
+          <small>CASH ON DELIVERY CHECKOUT OPENS AFTER THE DELIVERY FEE AND REAL STOCK ARE CONFIGURED IN ADMIN.</small>
           <button className="solid" onClick={() => go('checkout')}>REVIEW CHECKOUT ↗</button>
           <button className="outline" onClick={() => setCartOpen(false)}>CONTINUE SHOPPING</button>
           <Pay />
