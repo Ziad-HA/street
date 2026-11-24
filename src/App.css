@@ -560,3 +560,6 @@ body.dark .shop-grid .card .mini-bag{background:var(--accent);color:#080a0d}
  .track-panel{margin:45px auto 70px}
  .wishlist-empty{padding:70px 10px}
 }
+
+.shop-expand{display:block;width:100%;margin:22px 0 0;padding:15px;border:1px solid var(--line);font-size:8px;letter-spacing:.16em;text-align:center;transition:background .2s,color .2s}
+.shop-expand:hover{background:var(--accent);color:#080a0d;border-color:var(--accent)}
