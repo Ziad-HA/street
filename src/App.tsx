@@ -190,6 +190,13 @@ export default function App() {
   const cursor = useRef<HTMLDivElement>(null)
   const pending = useRef<string | undefined>(undefined)
 
+  useEffect(() => {
+    if (!quickView) return
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setQuickView(null) }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [quickView])
+
   useEffect(() => { localStorage.setItem('street-cart-v2', JSON.stringify(cart)) }, [cart])
   useEffect(() => { localStorage.setItem('street-wishlist-v2', JSON.stringify(wish)) }, [wish])
   useEffect(() => { localStorage.setItem('street-recently-viewed-v2', JSON.stringify(recentIds)) }, [recentIds])
