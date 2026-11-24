@@ -409,6 +409,9 @@ export default function App() {
     setMeta('og:description', description.content)
     setMeta('og:type', 'website')
     setMeta('og:url', canonical.href)
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]')
+    if (!robots) { robots = document.createElement('meta'); robots.name = 'robots'; document.head.appendChild(robots) }
+    robots.content = ['account', 'admin', 'checkout', 'track', 'wishlist'].includes(page) ? 'noindex, nofollow' : 'index, follow'
   }, [page, category, active.name])
 
   const go = (p: Page, anchor?: string) => {
@@ -1463,7 +1466,7 @@ export default function App() {
         <main id="main-content" className="utility-page">
           <div className="page-kicker">STREET / FIT REFERENCE / 008</div>
           <div className="utility-heading"><small>FIND YOUR FIT</small><h1>SIZE<br/><span>GUIDE.</span></h1><p>Use this page as a fit reference. Exact garment measurements will be published after the pieces are measured.</p></div>
-          <div className="size-guide-page-table"><div><b>CATEGORY</b><b>AVAILABLE SIZES</b><b>MEASUREMENTS</b></div>{CATEGORIES.map((c)=><div key={c}><b>{c}</b><span>{c==='PANTS'?'30 / 32 / 34 / 36 / 38 / 40 / 42':'S / M / L / XL'}</span><span>TO BE CONFIRMED</span></div>)}</div>
+          <div className="size-guide-page-table"><div><b>CATEGORY</b><b>AVAILABLE SIZES</b><b>MEASUREMENTS</b></div>{CATEGORIES.map((c)=><div key={c}><b>{c}</b><span>{Array.from(new Set(catalogProducts.filter((product)=>product.category===c).flatMap((product)=>product.sizes))).join(' / ') || 'NOT LISTED'}</span><span>GARMENT MEASUREMENTS TO BE CONFIRMED</span></div>)}</div>
           {footer()}
         </main>
       )}
