@@ -90,6 +90,7 @@ const PRICE_RANGES: Record<Category, { min: number; max: number; default: number
   CAPS: { min: 200, max: 600, default: 390 },
 }
 const money = (n: number) => n > 0 ? `EGP ${Math.round(n).toLocaleString('en-EG')}` : 'PRICE UNAVAILABLE'
+const moneyValue = (n: number) => `EGP ${Math.round(n).toLocaleString('en-EG')}`
 const defaultPriceFor = (category: Category) => PRICE_RANGES[category].default
 const categoryLabel = (c: Category) => ({ PANTS: 'PANTS', JACKETS: 'JACKETS', HOODIES: 'HOODIES', 'T-SHIRTS': 'T-SHIRTS', CAPS: 'CAPS' })[c]
 
@@ -1008,7 +1009,7 @@ export default function App() {
         {[
           ['PRODUCT DETAILS', 'Verified information on each item'],
           ['SIZING', 'Check measurements before ordering'],
-          ['ORDER STATUS', 'Tracking once order tools are connected'],
+          ['ORDER STATUS', 'Track your order from your account'],
           ['SUPPORT', 'Official contact details coming soon'],
         ].map(([a, b]) => (
           <div key={a}><i />{<div><b>{a}</b><small>{b}</small></div>}</div>
@@ -1440,7 +1441,7 @@ export default function App() {
                 <div className="checkout-form-head"><small>03 / YOUR BAG</small><span>{cartCount} PIECES</span></div>
                 {cart.map((item)=><div className="checkout-line" key={item.product.id+item.size}><Img src={item.product.images[0]}/><span>{item.product.name}<small>{item.size} × {item.qty}</small></span><b>{money(item.product.price*item.qty)}</b></div>)}
                 <div className="checkout-coupon"><label htmlFor="checkout-coupon">DISCOUNT CODE</label><div><input id="checkout-coupon" value={checkoutCoupon} onChange={(e)=>{setCheckoutCoupon(e.target.value.toUpperCase());setCheckoutCouponCode('');setCheckoutDiscount(0);setCheckoutNotice('')}} placeholder="ENTER CODE"/><button type="button" onClick={()=>void applyCheckoutCoupon()}>APPLY</button></div></div>
-                <div className="checkout-totals"><p><span>SUBTOTAL</span><b>{money(subtotal)}</b></p><p><span>DISCOUNT {checkoutCouponCode && <i>{checkoutCouponCode}</i>}</span><b>− {money(checkoutDiscount)}</b></p><p><span>DELIVERY</span><b>{checkoutShipping===null?'TO BE CONFIRMED':money(checkoutShipping)}</b></p><footer><span>TOTAL</span><strong>{money(checkoutTotal)}</strong></footer></div>
+                <div className="checkout-totals"><p><span>SUBTOTAL</span><b>{money(subtotal)}</b></p><p><span>DISCOUNT {checkoutCouponCode && <i>{checkoutCouponCode}</i>}</span><b>− {moneyValue(checkoutDiscount)}</b></p><p><span>DELIVERY</span><b>{checkoutShipping===null?'TO BE CONFIRMED':moneyValue(checkoutShipping)}</b></p><footer><span>TOTAL</span><strong>{money(checkoutTotal)}</strong></footer></div>
                 {checkoutNotice && <p className="checkout-notice" role="status">{checkoutNotice}</p>}
               </aside>
             </div>
@@ -1652,7 +1653,7 @@ export default function App() {
         </div>
         <div className="d-foot">
           <div className="sub"><span>SUBTOTAL</span><b>{money(subtotal)}</b></div>
-          <small>CHECKOUT IS NOT ACTIVE YET. PAYMENT AND SHIPPING MUST BE CONFIGURED BEFORE TAKING ORDERS.</small>
+          <small>CASH ON DELIVERY IS AVAILABLE. DELIVERY FEE AND STOCK ARE CHECKED BEFORE ORDER CONFIRMATION.</small>
           <button className="solid" onClick={() => go('checkout')}>REVIEW CHECKOUT ↗</button>
           <button className="outline" onClick={() => setCartOpen(false)}>CONTINUE SHOPPING</button>
           <Pay />
