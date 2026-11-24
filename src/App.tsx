@@ -344,7 +344,7 @@ export default function App() {
         filter.type = 'highpass'
         filter.frequency.setValueAtTime(900, now)
         const noiseGain = ctx.createGain()
-        noiseGain.gain.setValueAtTime(0.16, now)
+        noiseGain.gain.setValueAtTime(0.28, now)
         noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025)
         noise.connect(filter)
         filter.connect(noiseGain)
@@ -357,7 +357,7 @@ export default function App() {
         tone.type = 'square'
         tone.frequency.setValueAtTime(1180, now)
         tone.frequency.exponentialRampToValueAtTime(820, now + 0.035)
-        toneGain.gain.setValueAtTime(0.055, now)
+        toneGain.gain.setValueAtTime(0.11, now)
         toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04)
         tone.connect(toneGain)
         toneGain.connect(ctx.destination)
