@@ -183,12 +183,16 @@ export default function App() {
     const loadCatalogPrices = async () => {
       const { data, error } = await supabase.from('products').select('id,price,is_active')
       if (!alive || error || !data) return
-      const next = PRODUCTS.map((product) => {
+      const next = PRODUCTS.flatMap((product) => {
         const row = data.find((item) => item.id === product.id)
-        return row ? { ...product, price: row.price == null ? 0 : Number(row.price), soldOut: !row.is_active } : product
+        return row ? [{ ...product, price: row.price == null ? 0 : Number(row.price), soldOut: !row.is_active }] : []
       })
       setCatalogProducts(next)
-      setActive((current) => next.find((product) => product.id === current.id) ?? current)
+      setActive((current) => next.find((product) => product.id === current.id) ?? next[0] ?? current)
+      if (initialRoute.page === 'product' && initialRoute.product && !next.some((product) => product.id === initialRoute.product?.id)) {
+        setPage('store')
+        window.history.replaceState({}, '', '/shop')
+      }
     }
     void loadCatalogPrices()
     return () => { alive = false }
