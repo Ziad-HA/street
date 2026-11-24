@@ -963,3 +963,60 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* STREET / experience upgrade — keep the existing monochrome + volt identity */
+.card{position:relative}
+.card-quick-view{position:absolute;left:9px;bottom:66px;z-index:3;display:flex;align-items:center;gap:12px;padding:9px 11px;background:var(--bg);border:1px solid var(--line);color:var(--fg);font-size:7px;letter-spacing:.16em;opacity:0;transform:translateY(5px);transition:opacity .22s ease,transform .22s ease,border-color .22s ease}
+.card-quick-view span{color:var(--accent,#c8ff36);font-size:11px}
+.card:hover .card-quick-view,.card:focus-within .card-quick-view{opacity:1;transform:translateY(0)}
+@media(hover:none){.card-quick-view{opacity:1;transform:none;bottom:62px}}
+.quick-view-scrim{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:22px;background:#050607c9;backdrop-filter:blur(12px);animation:fade .2s ease both}
+.quick-view-panel{position:relative;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);width:min(880px,100%);max-height:min(720px,calc(100svh - 44px));overflow:auto;background:var(--bg);border:1px solid var(--line);box-shadow:0 28px 90px #0008;animation:street-modal-in .28s cubic-bezier(.2,.75,.25,1) both}
+@keyframes street-modal-in{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+.quick-view-close{position:absolute;z-index:2;top:13px;right:13px;width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg)}
+.quick-view-image{min-height:440px;background:var(--chip);overflow:hidden}
+.quick-view-image .img{min-height:440px;background-size:cover;background-position:center}
+.quick-view-copy{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:17px;padding:clamp(24px,4vw,52px)}
+.quick-view-copy>small{font-size:8px;letter-spacing:.18em}
+.quick-view-copy h2{max-width:420px;font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,5vw,66px);line-height:.92;letter-spacing:.015em}
+.quick-view-copy>strong{font-size:13px;letter-spacing:.1em}
+.quick-view-rule{width:100%;height:1px;background:var(--line);margin:3px 0}
+.quick-view-copy>label{font-size:8px;letter-spacing:.18em;color:var(--mut)}
+.quick-view-sizes{display:flex;flex-wrap:wrap;gap:7px}
+.quick-view-sizes button{min-width:43px;height:42px;padding:0 10px;border:1px solid var(--line);font-size:9px;letter-spacing:.08em;transition:border-color .2s,background .2s,color .2s}
+.quick-view-sizes button.on{border-color:var(--accent,#c8ff36);background:var(--accent,#c8ff36);color:#090a0b}
+.quick-view-add{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--fg);color:var(--bg);font-size:9px;letter-spacing:.15em}
+.quick-view-add span{font-size:8px;opacity:.72}
+.quick-view-add:disabled{opacity:.35;cursor:not-allowed}
+.quick-view-details{font-size:8px;letter-spacing:.14em;color:var(--mut);text-underline-offset:4px;text-decoration:underline}
+.price-filter{display:flex;align-items:center;gap:6px;font-size:7px;letter-spacing:.12em;color:var(--mut)}
+.price-filter input{width:76px;height:30px;padding:0 7px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:inherit;font-size:9px;letter-spacing:.05em;outline:none}
+.price-filter input:focus{border-color:var(--accent,#c8ff36)}
+.clear-filters{font-size:7px;letter-spacing:.12em;color:var(--accent,#c8ff36);white-space:nowrap}
+.admin-overview{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:30px 0 18px}
+.admin-overview>div{min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--line);background:var(--chip)}
+.admin-overview small{font-size:7px;letter-spacing:.16em;color:var(--mut)}
+.admin-overview strong{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,46px);line-height:.9;font-weight:400}
+.admin-overview span{font-size:6px;letter-spacing:.13em;color:var(--mut)}
+@media(max-width:760px){
+ .card-quick-view{left:6px;bottom:60px;padding:7px 8px;font-size:6px}
+ .quick-view-scrim{padding:10px;align-items:end}
+ .quick-view-panel{grid-template-columns:1fr;width:100%;max-height:calc(100svh - 20px);grid-template-rows:minmax(190px,34svh) auto}
+ .quick-view-image,.quick-view-image .img{min-height:190px;height:34svh}
+ .quick-view-copy{gap:11px;padding:18px}
+ .quick-view-copy h2{font-size:38px}
+ .quick-view-close{top:9px;right:9px}
+ .quick-view-add{min-height:48px}
+ .price-filter{font-size:6px}
+ .price-filter input{width:62px;height:28px;font-size:8px}
+ .clear-filters{font-size:6px}
+ .admin-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:18px 0}
+ .admin-overview>div{padding:12px;gap:8px}
+ .admin-overview>div:last-child{grid-column:1/-1}
+}
+@media(max-width:380px){
+ .quick-view-copy{padding:14px}
+ .quick-view-copy h2{font-size:32px}
+ .quick-view-sizes button{min-width:38px;height:38px}
+}
