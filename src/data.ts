@@ -5,6 +5,7 @@ export const CATEGORIES = [
   'JACKETS',
   'HOODIES',
   'T-SHIRTS',
+  'CAPS',
 ] as const
 
 export type Category = (typeof CATEGORIES)[number]
@@ -93,6 +94,19 @@ const tshirtProducts = filesByProduct('t-shirts', [
   '03247120252-p.webp',
 ])
 
+const capProducts = filesByProduct('caps', [
+  '03157702800-a1t.webp',
+  '03157702800-a4o.webp',
+  '03157702800-p.webp',
+  '03669668700-a1t.webp',
+  '03669668700-a2d.webp',
+  '03669668700-a4o.webp',
+  '03669668700-p.webp',
+  '03720668800-a1t.webp',
+  '03720668800-a4o.webp',
+  '03720668800-p.webp',
+])
+
 export const PRODUCTS: Product[] = [
   product('pant-01', 'PANT 01', 'PANTS', '#77766c', numberedImages('pants', 1, 4)),
   product('pant-02', 'PANT 02', 'PANTS', '#52677a', numberedImages('pants', 2, 4)),
@@ -103,6 +117,9 @@ export const PRODUCTS: Product[] = [
   ),
   ...tshirtProducts.map(({ code, images }, index) =>
     product(`tshirt-${code}`, `T-SHIRT ${String(index + 1).padStart(2, '0')}`, 'T-SHIRTS', '#eeeeee', images),
+  ),
+  ...capProducts.map(({ code, images }, index) =>
+    product(`cap-${code}`, `CAP ${String(index + 1).padStart(2, '0')}`, 'CAPS', '#292929', images),
   ),
 ]
 
