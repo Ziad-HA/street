@@ -383,6 +383,22 @@ export default function App() {
 
       {page === 'store' && (
         <main className="store">
+          <section className="store-hero">
+            {/\.(mp4|webm)$/i.test(ASSETS.storeHero) ? (
+              <video className="sh-bg" src={ASSETS.storeHero} autoPlay loop muted playsInline />
+            ) : (
+              <Img className="sh-bg" src={ASSETS.storeHero} />
+            )}
+            <div className="sh-txt">
+              <small>NEW SEASON</small>
+              <h1>THE LATEST DROP</h1>
+              <div className="sh-btns">
+                <button className="solid" onClick={() => openCollection('ZIP-UPS')}>SHOP NOW</button>
+                <button className="outline" onClick={() => document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' })}>COLLECTIONS</button>
+              </div>
+            </div>
+            <span className="sh-scroll">SCROLL</span>
+          </section>
           {rowOf('zip', 'ZIP HOODIES', byCat('ZIP-UPS'))}
           {rowOf('acc', 'ACCESSORIES', byCat('ACCESSORIES').slice(0, 4))}
 

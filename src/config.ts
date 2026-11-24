@@ -19,6 +19,8 @@ export const ASSETS = {
   music: '',
   /** غلاف الأغنية */
   musicCover: '',
+  /** صورة (أو فيديو) الهيرو في أول صفحة المتجر */
+  storeHero: '',
   /** صورة صفحة About Us */
   about: '',
 }
