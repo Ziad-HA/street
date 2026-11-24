@@ -509,7 +509,6 @@ export default function App() {
         <main className="collection">
           <h1>{categoryLabel(category)}</h1>
           <small>{filtered.length} PRODUCTS</small>
-          <div className="demo-notice"><b>PREVIEW ONLY</b><span>Demo products and illustrative prices — not available for purchase.</span></div>
           <div className="tabs">
             {CATEGORIES.map((c) => (
               <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null) }}>{categoryLabel(c as Category)}</button>
@@ -568,7 +567,7 @@ export default function App() {
                 </button>
                 <button className={`heart-sq ${wish.includes(active.id) ? 'on' : ''}`} onClick={() => toggleWish(active.id)}>♥</button>
               </div>
-              <button className="outline" disabled={active.soldOut || active.isDemo} onClick={() => { add(active, sizeSel, qty) }}>BUY IT NOW</button>
+              <button className="outline" disabled={active.soldOut} onClick={() => { add(active, sizeSel, qty) }}>BUY IT NOW</button>
               <Pay />
               <div className="prevnext">
                 <span onClick={() => { const l = PRODUCTS.filter((p) => p.category === active.category); openProduct(l[(l.indexOf(active) - 1 + l.length) % l.length]) }}>‹ PREV</span>
