@@ -806,3 +806,17 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
  .admin-products article>div b{font-size:7px}
  .admin-products article>button{font-size:6px}
 }
+
+.account-mode{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-bottom:12px}
+.account-mode button{padding:12px 4px;font-size:8px;letter-spacing:.13em;color:var(--mut)}
+.account-mode button.on{color:var(--accent);border-bottom:1px solid var(--accent)}
+.account-orders{max-width:850px;margin:34px 0 90px;border:1px solid var(--line);padding:20px}
+.account-orders>div{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.account-orders>div h2{font-size:13px;letter-spacing:.15em}
+.account-orders>div span{font-size:8px;color:var(--mut)}
+.account-orders>div button{font-size:8px;letter-spacing:.13em;color:var(--accent)}
+.account-orders h3{font-size:9px;letter-spacing:.16em;margin:22px 0 10px}
+.account-orders>p{padding:25px 0;font-size:8px;letter-spacing:.13em;color:var(--mut)}
+.account-orders article{display:grid;grid-template-columns:1.2fr 1fr .8fr .8fr;gap:10px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);font-size:8px;letter-spacing:.07em}
+.account-orders article small{color:var(--mut)}
+@media(max-width:760px){.account-orders{padding:12px}.account-orders article{grid-template-columns:1fr 1fr;gap:8px}}
