@@ -34,7 +34,7 @@ const product = (
   category,
   price: 0,
   color,
-  sizes: ['S', 'M', 'L', 'XL'],
+  sizes: category === 'PANTS' ? ['30', '32', '34', '36', '38', '40', '42'] : ['S', 'M', 'L', 'XL'],
   images,
   details: [
     'Product details and fabric information will be updated.',
