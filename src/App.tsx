@@ -58,6 +58,7 @@ function Logo({ className }: { className?: string }) {
 }
 
 const money = (n: number) => `${n.toFixed(2)}`
+const categoryLabel = (c: Category) => c === 'BOTTOMS' ? 'PANTS' : 'HOODIES'
 
 const EMPTY_PRODUCT: Product = { id: '', name: 'PRODUCT DETAILS', category: 'LAYERING', price: 0, sizes: [], color: '#eeeeee', images: [], details: [] }
 
@@ -456,7 +457,7 @@ export default function App() {
               <video src={ASSETS.storeHero} autoPlay muted loop playsInline />
               <span>LIVE CATALOGUE / 030 ITEMS</span>
             </div>
-            <div className="shop-stats"><span>01 — 04 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
+            <div className="shop-stats"><span>01 — 02 / CATEGORIES</span><span>030 / DEMO ITEMS</span><span>SCROLL TO EXPLORE ↓</span></div>
           </section>
           <div className="demo-notice"><b>CATALOGUE PREVIEW</b><span>All listings, photos and prices are temporary visual examples — not real stock and not available to purchase.</span></div>
           <section className="shop-categories">
@@ -465,7 +466,7 @@ export default function App() {
               {CATEGORIES.map((c,i) => (
                 <button className="shop-category-card" key={c} onClick={() => openCollection(c as Category)}>
                   <sup>DEPARTMENT / {String(i+1).padStart(2,'0')}</sup>
-                  <strong>{c}</strong>
+                  <strong>{categoryLabel(c as Category)}</strong>
                   <span>EXPLORE <b>↗</b></span>
                 </button>
               ))}
@@ -512,12 +513,12 @@ export default function App() {
 
       {page === 'collection' && (
         <main className="collection">
-          <h1>{category}</h1>
+          <h1>{categoryLabel(category)}</h1>
           <small>{filtered.length} PRODUCTS</small>
           <div className="demo-notice"><b>PREVIEW ONLY</b><span>Demo products and illustrative prices — not available for purchase.</span></div>
           <div className="tabs">
             {CATEGORIES.map((c) => (
-              <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null) }}>{c}</button>
+              <button key={c} className={c === category ? 'on' : ''} onClick={() => { setCategory(c); setSizeFilter(null) }}>{categoryLabel(c as Category)}</button>
             ))}
           </div>
           <div className="toolbar">
@@ -678,7 +679,7 @@ export default function App() {
           <div className="s-grid">{results.map((p, i) => <Fragment key={p.id}>{card(p, i + 1, results.length)}</Fragment>)}</div>
           <small>COLLECTIONS</small>
           <ul className="s-cols">
-            {CATEGORIES.map((c) => <li key={c} onClick={() => openCollection(c)}>{c}<span>COLLECTION</span></li>)}
+            {CATEGORIES.map((c) => <li key={c} onClick={() => openCollection(c)}>{categoryLabel(c)}<span>COLLECTION</span></li>)}
           </ul>
         </div>
       )}
