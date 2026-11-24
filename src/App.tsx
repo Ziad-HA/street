@@ -475,7 +475,7 @@ export default function App() {
     const { data: orders } = await supabase.from('orders').select('order_number,customer_name,total,status,created_at').order('created_at', { ascending: false }).limit(30)
     setAdminOrders(orders ?? [])
     const [{ data: products }, { data: stock }, { data: customers }] = await Promise.all([
-      supabase.from('products').select('id,name,category,price,is_active,sizes').order('category').order('name'),
+      supabase.from('products').select('id,name,category,price,is_active,sizes,images').order('category').order('name'),
       supabase.from('inventory').select('product_id,size,quantity'),
       supabase.from('profiles').select('email,full_name,created_at').order('created_at', { ascending: false }).limit(50),
     ])
