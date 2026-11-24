@@ -383,9 +383,6 @@ export default function App() {
             <Logo className="hero-logo" />
             <small>{dateStr} · {timeStr}</small>
           </div>
-          <div className="hero-center-stage">
-            <video className="hero-center-video" src={ASSETS.introVideo} autoPlay muted loop playsInline preload="auto" />
-          </div>
           <button className="enter" onClick={() => go('store')}>ENTER STORE</button>
         </section>
       )}
