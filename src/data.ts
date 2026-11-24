@@ -47,7 +47,7 @@ const numberedImages = (folder: string, number: number, count: number) =>
 const filesByProduct = (folder: string, filenames: string[]) => {
   const grouped = new Map<string, string[]>()
   filenames.forEach((filename) => {
-    const code = filename.replace(/-(?:a\\d+[a-z]|b|p)\\.webp$/i, '')
+    const code = filename.slice(0, filename.lastIndexOf('-'))
     const current = grouped.get(code) ?? []
     current.push(`/products/${folder}/${filename}`)
     grouped.set(code, current)
