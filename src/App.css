@@ -1534,3 +1534,26 @@ body.dark .complete-outfit-track .card .mini-bag{background:var(--accent);color:
   .mobile-menu-toggle{padding:8px;font-size:19px}
   .icons{gap:6px}
 }
+
+
+/* Complete your outfit: two stacked horizontal product rows. */
+.complete-outfit-marquee{display:flex;flex-direction:column;gap:10px;width:100%;overflow:hidden}
+.complete-outfit-row{width:100%;overflow:hidden}
+.complete-outfit-row .complete-outfit-track{display:flex;flex-direction:row;align-items:stretch;gap:0;width:max-content;min-width:0;animation:outfit-row-right 30s linear infinite;will-change:transform}
+.complete-outfit-row-2 .complete-outfit-track{animation-delay:-15s}
+.complete-outfit-set{display:flex;flex:0 0 auto;flex-direction:row;align-items:flex-start;gap:10px;padding-right:10px}
+.complete-outfit-track .card{flex:0 0 210px;width:210px;min-width:0;margin:0}
+.complete-outfit-track .card-img{aspect-ratio:1/1}
+.complete-outfit-row:hover .complete-outfit-track{animation-play-state:paused}
+@keyframes outfit-row-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media(max-width:760px){
+  .complete-outfit-marquee{gap:8px}
+  .complete-outfit-set{gap:8px;padding-right:8px}
+  .complete-outfit-track .card{flex-basis:44vw;width:44vw}
+}
+@media(max-width:380px){
+  .complete-outfit-track .card{flex-basis:48vw;width:48vw}
+}
+@media(prefers-reduced-motion:reduce){
+  .complete-outfit-row .complete-outfit-track{animation:none}
+}
